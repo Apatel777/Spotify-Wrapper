@@ -5,27 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify Wrapper - Home</title>
     <style>
+        /* Root variables for cool purple tones */
         :root {
-            --bg-color: #121212;
+            --bg-color: #240046; /* Darker purple */
             --text-color: white;
-            --btn-bg-color: #1DB954;
-            --footer-bg-color: #282828;
-            --overlay-color: rgba(0, 0, 0, 0.7);
+            --btn-bg-color: linear-gradient(145deg, #a64dff, #9a00ff); /* Gradient purple for buttons */
+            --btn-hover-color: #bf80ff; /* Lighter glow on hover */
+            --footer-bg-color: #30006b; /* Darker footer */
+            --overlay-color: rgba(29, 0, 51, 0.8); /* Dark overlay */
         }
 
         /* Light mode variables */
         .light-mode {
-            --bg-color: #ffffff; /* Pure white */
-            --text-color: #000000; /* Black text */
-            --btn-bg-color: #1DB954; /* Green button remains the same */
-            --footer-bg-color: #f0f0f0; /* Light grey footer */
-            --overlay-color: rgba(255, 255, 255, 0.7); /* Light overlay in light mode */
+            --bg-color: #f5e6ff; /* Lighter lavender */
+            --text-color: #29004b; /* Deep purple text */
+            --btn-bg-color: linear-gradient(145deg, #a64dff, #9a00ff); /* Bright buttons for light mode */
+            --btn-hover-color: #dfb3ff; /* Softer hover effect */
+            --footer-bg-color: #e6dbff; /* Light footer */
+            --overlay-color: rgba(255, 255, 255, 0.7); /* Light overlay */
         }
 
         body, html {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Montserrat', sans-serif; /* Different font for sleek look */
             background-color: var(--bg-color);
             color: var(--text-color);
             transition: background-color 0.3s, color 0.3s;
@@ -34,29 +37,36 @@
         /* Main hero section */
         .hero {
             height: 100vh;
-            background-size: cover;
-            background-position: center;
+            background: linear-gradient(135deg, #39005e, #240046); /* Gradient with a sharper contrast */
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             position: relative;
+            overflow: hidden; /* To hide any overflow from animation */
         }
 
-        /* Overlay to darken the background */
-        .hero::before {
-            content: "";
+        /* Adding a subtle wave animation */
+        .wave-background {
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--overlay-color); /* Variable for dark/light overlay */
-            transition: background-color 0.3s;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20%, #5e00ff, transparent, transparent 80%);
+            animation: wave 8s infinite ease-in-out;
+            opacity: 0.3;
+            z-index: 0;
         }
 
-        /* Content on top of the background */
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Content inside hero */
         .hero-content {
             position: relative;
             z-index: 1;
@@ -66,43 +76,49 @@
         .hero h1 {
             font-size: 4em;
             margin: 0;
-            font-weight: bold;
+            font-weight: 700;
+            letter-spacing: 3px;
         }
 
         .hero p {
-            font-size: 1.5em;
+            font-size: 1.2em;
             margin: 20px 0;
+            letter-spacing: 1px;
         }
 
+        /* Buttons inside hero */
         .buttons {
-            margin-top: 30px;
+            margin-top: 40px;
         }
 
-        /* Style for links that look like buttons */
         .btn {
-            padding: 15px 30px;
+            padding: 15px 35px;
             margin: 10px;
             font-size: 1.2em;
-            border-radius: 25px;
+            border-radius: 30px;
             cursor: pointer;
-            transition: background-color 0.3s;
             text-decoration: none;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
             display: inline-block;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
         }
 
         .btn-signup {
-            background-color: var(--btn-bg-color);
+            background: var(--btn-bg-color);
             color: var(--text-color);
+            border: none;
         }
 
         .btn-login {
             background-color: transparent;
-            border: 1px solid var(--text-color);
+            border: 2px solid var(--text-color);
             color: var(--text-color);
         }
 
         .btn:hover {
-            opacity: 0.8;
+            background-color: var(--btn-hover-color);
+            transform: scale(1.07);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
         }
 
         /* Footer styling */
@@ -117,7 +133,7 @@
         }
 
         footer a {
-            color: var(--btn-bg-color);
+            color: var(--btn-hover-color);
             text-decoration: none;
         }
 
@@ -127,7 +143,7 @@
 
         /* Dark/Light mode toggle button */
         .toggle-btn {
-            background-color: var(--btn-bg-color);
+            background: var(--btn-bg-color);
             color: var(--text-color);
             border: none;
             padding: 10px 20px;
@@ -138,7 +154,13 @@
             top: 20px;
             right: 20px;
             z-index: 2;
+            transition: background-color 0.3s;
         }
+
+        .toggle-btn:hover {
+            background-color: var(--btn-hover-color);
+        }
+
     </style>
 </head>
 <body>
@@ -148,11 +170,12 @@
 
 <!-- Hero Section -->
 <div class="hero">
+    <div class="wave-background"></div> <!-- Wave animation layer -->
     <div class="hero-content">
         <h1>Spotify Wrapper</h1>
-        <p>Listen to your favorite music and podcasts anytime, anywhere.</p>
+        <p>Your ultimate music experience, wrapped in purple vibes.</p>
         <div class="buttons">
-            <a href="./signup" class="btn btn-signup">Sign Up Free</a>
+            <a href="./signup" class="btn btn-signup">Sign Up Now</a>
             <a href="/login" class="btn btn-login">Log In</a>
         </div>
     </div>
