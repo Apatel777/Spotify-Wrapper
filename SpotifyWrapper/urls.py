@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include  # Add 'include' here
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('', include('users.urls')),
     path('users/', include('users.urls')),  # Use 'include' to link to the users app
 ]
 
