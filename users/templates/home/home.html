@@ -5,106 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify Wrapper - Home</title>
     <style>
-        /* Root variables for cool purple tones */
+        /* Root variables for dark mode with purple tones */
         :root {
-            --bg-color: #240046; /* Darker purple */
+            --bg-color: #1d0033; /* Dark purple */
             --text-color: white;
-            --btn-bg-color: linear-gradient(145deg, #a64dff, #9a00ff); /* Gradient purple for buttons */
-            --btn-hover-color: #bf80ff; /* Lighter glow on hover */
-            --footer-bg-color: #30006b; /* Darker footer */
-            --overlay-color: rgba(29, 0, 51, 0.8); /* Dark overlay */
+            --btn-bg-color: #9a4dff; /* Bright purple */
+            --btn-hover-color: #7e38cc; /* Darker purple for hover */
+            --footer-bg-color: #29004b; /* Dark footer */
+            --overlay-color: rgba(29, 0, 51, 0.8); /* Dark purple overlay */
+            --glow-color: #bb86fc; /* Glow effect color */
         }
 
         /* Light mode variables */
         .light-mode {
-            --bg-color: #f5e6ff; /* Lighter lavender */
-            --text-color: #29004b; /* Deep purple text */
-            --btn-bg-color: linear-gradient(145deg, #a64dff, #9a00ff); /* Bright buttons for light mode */
-            --btn-hover-color: #dfb3ff; /* Softer hover effect */
-            --footer-bg-color: #e6dbff; /* Light footer */
-            --overlay-color: rgba(255, 255, 255, 0.7); /* Light overlay */
+            --bg-color: #f0e6ff; /* Light lavender */
+            --text-color: #29004b; /* Dark purple text */
+            --btn-bg-color: #9a4dff;
+            --btn-hover-color: #7e38cc;
+            --footer-bg-color: #e6dbff;
+            --overlay-color: rgba(255, 255, 255, 0.7);
         }
 
         body, html {
             margin: 0;
             padding: 0;
-            font-family: 'Montserrat', sans-serif; /* Different font for sleek look */
+            font-family: 'Poppins', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
         }
 
-        /* Main hero section */
+        /* Animated background */
         .hero {
             height: 100vh;
-            background: linear-gradient(135deg, #39005e, #240046); /* Gradient with a sharper contrast */
+            background: linear-gradient(135deg, #39005e, #1d0033);
+            background-size: 200% 200%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             position: relative;
-            overflow: hidden; /* To hide any overflow from animation */
+            overflow: hidden;
+            animation: gradient-animation 12s ease infinite;
         }
 
-        /* Adding a subtle wave animation */
-        .wave-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 20%, #5e00ff, transparent, transparent 80%);
-            animation: wave 8s infinite ease-in-out;
-            opacity: 0.3;
-            z-index: 0;
+        /* Gradient animation */
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        @keyframes wave {
-            0% { transform: translateX(0); }
-            50% { transform: translateX(-50%); }
-            100% { transform: translateX(0); }
-        }
-
-        /* Content inside hero */
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            color: var(--text-color);
-        }
-
+        /* Glowing text */
         .hero h1 {
-            font-size: 4em;
+            font-size: 5em;
             margin: 0;
-            font-weight: 700;
-            letter-spacing: 3px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px var(--glow-color), 0 0 30px var(--glow-color);
+            animation: text-fade 2s ease-in-out forwards;
         }
 
         .hero p {
-            font-size: 1.2em;
-            margin: 20px 0;
-            letter-spacing: 1px;
+            font-size: 1.5em;
+            margin: 15px 0;
+            text-shadow: 0 0 8px var(--glow-color);
+            animation: text-fade 3s ease-in-out forwards;
         }
 
-        /* Buttons inside hero */
+        @keyframes text-fade {
+            0% { opacity: 0; transform: translateY(50px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Buttons with 3D effect and glowing hover */
         .buttons {
-            margin-top: 40px;
+            margin-top: 30px;
         }
 
         .btn {
             padding: 15px 35px;
             margin: 10px;
-            font-size: 1.2em;
+            font-size: 1.3em;
             border-radius: 30px;
             cursor: pointer;
             text-decoration: none;
-            transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
             display: inline-block;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
         }
 
         .btn-signup {
-            background: var(--btn-bg-color);
+            background-color: var(--btn-bg-color);
             color: var(--text-color);
             border: none;
         }
@@ -117,11 +111,52 @@
 
         .btn:hover {
             background-color: var(--btn-hover-color);
-            transform: scale(1.07);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            transform: scale(1.08);
+            box-shadow: 0 0 15px var(--glow-color), 0 0 30px var(--glow-color);
         }
 
-        /* Footer styling */
+        /* Floating particles effect */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--glow-color);
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: float 8s infinite ease-in-out;
+        }
+
+        .particle:nth-child(1) { top: 20%; left: 10%; width: 15px; height: 15px; animation-duration: 10s; }
+        .particle:nth-child(2) { top: 50%; left: 40%; animation-duration: 12s; }
+        .particle:nth-child(3) { top: 70%; left: 80%; width: 20px; height: 20px; animation-duration: 15s; }
+        .particle:nth-child(4) { top: 30%; left: 70%; animation-duration: 9s; }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateY(-50px);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 0.8;
+            }
+        }
+
+        /* Footer */
         footer {
             background-color: var(--footer-bg-color);
             text-align: center;
@@ -130,10 +165,11 @@
             bottom: 0;
             width: 100%;
             font-size: 0.9em;
+            z-index: 1;
         }
 
         footer a {
-            color: var(--btn-hover-color);
+            color: var(--btn-bg-color);
             text-decoration: none;
         }
 
@@ -141,9 +177,9 @@
             text-decoration: underline;
         }
 
-        /* Dark/Light mode toggle button */
+        /* Toggle Button */
         .toggle-btn {
-            background: var(--btn-bg-color);
+            background-color: var(--btn-bg-color);
             color: var(--text-color);
             border: none;
             padding: 10px 20px;
@@ -160,17 +196,21 @@
         .toggle-btn:hover {
             background-color: var(--btn-hover-color);
         }
-
     </style>
 </head>
 <body>
 
-<!-- Toggle Button for Dark/Light Mode -->
+<!-- Dark/Light Mode Toggle -->
 <button class="toggle-btn" onclick="toggleMode()">Light Mode</button>
 
-<!-- Hero Section -->
+<!-- Hero Section with Particles -->
 <div class="hero">
-    <div class="wave-background"></div> <!-- Wave animation layer -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
     <div class="hero-content">
         <h1>Spotify Wrapper</h1>
         <p>Your ultimate music experience, wrapped in purple vibes.</p>
