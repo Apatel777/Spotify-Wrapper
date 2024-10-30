@@ -151,6 +151,9 @@ CSRF_COOKIE_HTTPONLY = True
 
 AUTH_USER_MODEL = 'users.User'
 
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
-
+API_KEY = os.getenv("API_KEY")
