@@ -7,23 +7,23 @@
     <style>
         /* Root variables for dark mode with purple tones */
         :root {
-            --bg-color: #1d0033; /* Dark purple */
+            --bg-color: light #e677f1; /* Dark purple */
             --text-color: white;
-            --btn-bg-color: #9a4dff; /* Bright purple */
+            --btn-bg-color: #c89cff; /* Bright purple */
             --btn-hover-color: #7e38cc; /* Darker purple for hover */
-            --footer-bg-color: #29004b; /* Dark footer */
-            --overlay-color: rgba(29, 0, 51, 0.8); /* Dark purple overlay */
-            --glow-color: #bb86fc; /* Glow effect color */
+            --footer-bg-color: #6928b0; /* Dark footer */
+            --overlay-color: rgba(255, 255, 255, 0.8); /* Dark purple overlay */
+            --glow-color: #d09bfc; /* Glow effect color */
         }
 
         /* Light mode variables */
         .light-mode {
-            --bg-color: #f0e6ff; /* Light lavender */
+            --bg-color: #ffffff; /* White background */
             --text-color: #29004b; /* Dark purple text */
-            --btn-bg-color: #9a4dff;
-            --btn-hover-color: #7e38cc;
-            --footer-bg-color: #e6dbff;
-            --overlay-color: rgba(255, 255, 255, 0.7);
+            --btn-bg-color: #9a4dff; /* Bright purple for buttons */
+            --btn-hover-color: #7e38cc; /* Darker purple for button hover */
+            --footer-bg-color: #e6dbff; /* Light footer background */
+            --overlay-color: rgba(255, 255, 255, 0.7); /* Light overlay */
         }
 
         body, html {
@@ -36,7 +36,7 @@
             overflow: hidden;
         }
 
-        /* Animated background */
+        /* Animated background for dark mode */
         .hero {
             height: 100vh;
             background: linear-gradient(135deg, #39005e, #1d0033);
@@ -51,8 +51,15 @@
             animation: gradient-animation 12s ease infinite;
         }
 
-        /* Gradient animation */
-        @keyframes gradient-animation {
+        /* New animated background for light mode */
+        .light-mode .hero {
+            background: linear-gradient(135deg, #ffffff, #e6dbff);
+            background-size: 200% 200%;
+            animation: light-gradient-animation 12s ease infinite;
+        }
+
+        /* Light mode gradient animation */
+        @keyframes light-gradient-animation {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
@@ -211,33 +218,27 @@
         <div class="particle"></div>
         <div class="particle"></div>
     </div>
-    <div class="hero-content">
-        <h1>Spotify Wrapper</h1>
-        <p>Your ultimate music experience, wrapped in purple vibes.</p>
-        <div class="buttons">
-            <a href="./signup" class="btn btn-signup">Sign Up Now</a>
-            <a href="/login" class="btn btn-login">Log In</a>
-        </div>
+    <h1>Welcome to Spotify Wrapper</h1>
+    <p>Your favorite music, all in one place.</p>
+    <div class="buttons">
+        <a href="#" class="btn btn-signup">Sign Up</a>
+        <a href="#" class="btn btn-login">Log In</a>
     </div>
 </div>
 
 <!-- Footer -->
 <footer>
-    <p>© 2024 Spotify Wrapper. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+    <p>&copy; 2024 Spotify Wrapper. All rights reserved.</p>
+    <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
 </footer>
 
-<!-- JavaScript for Dark/Light Mode Toggle -->
 <script>
+    // Toggle between light and dark mode
     function toggleMode() {
         document.body.classList.toggle('light-mode');
-        const toggleBtn = document.querySelector('.toggle-btn');
-        if (document.body.classList.contains('light-mode')) {
-            toggleBtn.textContent = 'Dark Mode';
-        } else {
-            toggleBtn.textContent = 'Light Mode';
-        }
+        const btn = document.querySelector('.toggle-btn');
+        btn.textContent = document.body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
     }
 </script>
-
 </body>
 </html>
