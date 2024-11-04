@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
@@ -12,6 +13,9 @@ def signup(request):
         email = request.POST['email']
         password = request.POST['password']
 
+        if User.objects.filter(email=email).exists():
+            return JsonResponse({'error': 'Email already in use'}, status=400)
+
         # Hash the password before saving
         hashed_password = make_password(password)
 
@@ -22,7 +26,7 @@ def signup(request):
         # Automatically log in the user after signing up
         login(request, user)
 
-        return redirect('home')  # Redirect to home after signup
+        return redirect('dashboard')  # Redirect to home after signup
 
     return render(request, 'home/signup.html')  # Render the signup form
 
@@ -30,10 +34,10 @@ def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        
+
         # Try to authenticate the user
         user = authenticate(request, username=username, password=password)
-        
+
         if user is not None:
             # User exists and credentials are correct
             login(request, user)
@@ -41,7 +45,7 @@ def login_view(request):
         else:
             # Invalid credentials
             return render(request, 'home/login.html', {'error': 'Invalid username or password'})
-    
+
     return render(request, 'home/login.html')
 
 def home_view(request):
