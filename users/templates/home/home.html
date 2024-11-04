@@ -233,12 +233,41 @@
 </footer>
 
 <script>
-    // Toggle between light and dark mode
+    // Function to toggle between light and dark mode
     function toggleMode() {
-        document.body.classList.toggle('light-mode');
+        const body = document.body;
+        body.classList.toggle('light-mode');
         const btn = document.querySelector('.toggle-btn');
-        btn.textContent = document.body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
+        
+        // Update button text based on the current mode
+        if (body.classList.contains('light-mode')) {
+            btn.textContent = 'Dark Mode';
+            localStorage.setItem('theme', 'light-mode'); // Save light mode in localStorage
+        } else {
+            btn.textContent = 'Light Mode';
+            localStorage.setItem('theme', 'dark-mode'); // Save dark mode in localStorage
+        }
     }
+
+    // Function to apply the saved theme from localStorage
+    function applySavedMode() {
+        const savedTheme = localStorage.getItem('theme');
+        const body = document.body;
+        const btn = document.querySelector('.toggle-btn');
+
+        // Apply the saved theme if it exists
+        if (savedTheme === 'light-mode') {
+            body.classList.add('light-mode');
+            btn.textContent = 'Dark Mode';
+        } else {
+            body.classList.remove('light-mode');
+            btn.textContent = 'Light Mode';
+        }
+    }
+
+    // Call applySavedMode on page load to apply the correct theme
+    window.onload = applySavedMode;
 </script>
+
 </body>
 </html>

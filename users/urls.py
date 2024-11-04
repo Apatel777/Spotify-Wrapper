@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 #urls for the page pathways
 urlpatterns = [
+    path('set_theme/<str:theme>/', views.set_theme, name='set_theme'),
     path('', views.home_view, name='home'),
     path('home/', views.home_view, name='home'),
     path('login/', views.login_view, name='login'),
