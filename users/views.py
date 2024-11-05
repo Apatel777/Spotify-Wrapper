@@ -18,7 +18,7 @@ def signup(request):
 
         # Check if the email is already in use
         if User.objects.filter(email=email).exists():
-            return JsonResponse({'error': 'Email already in use'}, status=400)
+            return render(request, 'home/signup.html', {'theme': theme, 'error': 'Email Already in Use'})
 
         # Hash the password before saving
         hashed_password = make_password(password)
@@ -74,9 +74,8 @@ def profile_view(request):
     return render(request, 'users/profile.html', {'form': [], 'theme': theme})
 
 def logout_view(request):
-    theme = request.session.get('theme', 'light')  # Default to light mode
     logout(request)
-    return redirect('home', {'theme': theme})  # Redirect to home after logout
+    return redirect('home')  # Redirect to home after logout
 
 def wraps_view(request):
     theme = request.session.get('theme', 'light')  # Default to light mode

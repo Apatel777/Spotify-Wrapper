@@ -145,6 +145,9 @@
         <form class="signup-form" action="{% url 'signup' %}" method="POST">
             {% csrf_token %}
             <h2>Create an Account</h2>
+            {% if error %}
+                <p style="color: red;">{{ error }}</p>
+            {% endif %}
             <input type="text" name="username" placeholder="Username" required>
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Password" required>
