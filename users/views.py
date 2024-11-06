@@ -194,7 +194,7 @@ def delete_account_view(request):
 
 
 def set_theme(request, theme):
-    if theme in ['light', 'dark']:
+    if theme in ['light', 'dark', 'color']:
         request.session['theme'] = theme
     return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect back to the page
 
