@@ -193,35 +193,43 @@
         <div class="content">
             <h1>Your SpotifyWrapper</h1>
             <div class="cards">
+                <!-- Top Tracks Card -->
                 <div class="card">
                     <h3>Top Tracks</h3>
-                    <p>Your most played track: "Song Title" by "Artist".</p>
+                    {% if user_data.top_tracks %}
+                        <ul>
+                            {% for track in user_data.top_tracks %}
+                                <li>
+                                    <strong>{{ track.name }}</strong> by {{ track.artists|join:', ' }}
+                                    <a href="{{ track.external_urls.spotify }}" target="_blank">Listen on Spotify</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No top tracks available.</p>
+                    {% endif %}
                 </div>
+
+                <!-- Top Artists Card -->
                 <div class="card">
                     <h3>Top Artists</h3>
-                    <p>Your top artist this year is: "Artist Name".</p>
+                    {% if user_data.top_artists %}
+                        <p>Your top artist this year is: {{ user_data.top_artists.0.name }}</p>
+                    {% else %}
+                        <p>No top artists available.</p>
+                    {% endif %}
                 </div>
+
+                <!-- Listening Time Card -->
                 <div class="card">
                     <h3>Listening Time</h3>
-                    <p>Total hours streamed this year: 120 hours.</p>
+                    <p>Total hours streamed this year: {{ user_data.total_hours }}</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Simulate data from an API or user action
-        document.addEventListener('DOMContentLoaded', function() {
-            const topTrack = "Blinding Lights";
-            const topArtist = "The Weeknd";
-            const listeningTime = 250;
-
-            // Update card content dynamically
-            document.querySelectorAll('.card')[0].querySelector('p').textContent = `Your most played track: "${topTrack}" by "The Weeknd".`;
-            document.querySelectorAll('.card')[1].querySelector('p').textContent = `Your top artist this year is: "${topArtist}".`;
-            document.querySelectorAll('.card')[2].querySelector('p').textContent = `Total hours streamed this year: ${listeningTime} hours.`;
-        });
-
         // Function to toggle dark/light mode and save preference
         function toggleMode() {
             const body = document.body;
