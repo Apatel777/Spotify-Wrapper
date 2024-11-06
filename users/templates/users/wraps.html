@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Spotify Wraps</title>
+</head>
+<body>
+    <h1>Your Spotify Wraps</h1>
+    <ul>
+        {% for wrap in wraps %}
+            <li>{{ wrap.name }} - <a href="{% url 'delete_wrap' wrap.id %}">Delete</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

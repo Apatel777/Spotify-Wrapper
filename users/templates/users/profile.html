@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .profile-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .settings {
+            margin-bottom: 20px;
+        }
+        .settings label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .settings select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        .delete-account {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .delete-account button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <h1>Your Profile</h1>
+        <h1>Username: {{user.username }}</h1>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="settings">
+                <h2>App Settings</h2>
+                <label for="language">Language:</label>
+                <select name="language" id="language">
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <!-- Add more languages as needed -->
+                </select>
+                <button type="submit" name="update_settings">Update Settings</button>
+            </div>
+            <div class="delete-account">
+                <h2>Account Management</h2>
+                <button type="submit" name="delete_account">Delete Account</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
