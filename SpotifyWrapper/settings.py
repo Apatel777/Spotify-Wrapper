@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
 from pathlib import Path
 
 
@@ -51,6 +50,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
+    'django.middleware.locale.LocaleMiddleware',
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -126,11 +126,7 @@ LOGGING = {
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
-USE_I18N = True
 
 USE_TZ = True
 
@@ -162,3 +158,19 @@ SPOTIFY_REDIRECT_URI = 'http://localhost:8000/spotify/callback/'  # Adjust as ne
 
 
 LOGIN_URL = 'login'
+from django.utils.translation import gettext_lazy as _
+from django.conf import settings
+
+LANGUAGES = [
+    ('en', _('English')),
+    ('es', _('Spanish')),
+    ('fr', _('French')),
+]
+
+USE_I18N = True
+USE_L10N = True
+
+LANGUAGE_CODE = 'en'
+LOCALE_PATHS = [
+    os.path.join(settings.BASE_DIR, 'locale'),  # Path to the locale directory
+]

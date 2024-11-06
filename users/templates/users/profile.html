@@ -50,26 +50,32 @@
 </head>
 <body>
     <div class="profile-container">
-        <h1>Your Profile</h1>
+        {% load i18n %}
+        <h1>{% trans "Your Profile" %}</h1>
+        <h1>{{ LANGUAGE_CODE }}</h1>
         <h1>Username: {{user.username }}</h1>
-        <form method="POST">
+        <form method="POST" action="{% url 'set_language' %}">
             {% csrf_token %}
             <div class="settings">
                 <h2>App Settings</h2>
                 <label for="language">Language:</label>
                 <select name="language" id="language">
-                    <option value="en">English</option>
-                    <option value="es">Spanish</option>
-                    <option value="es">French</option>
-                    <!-- Add more languages as needed -->
+                    <option value="en" {% if request.LANGUAGE_CODE == 'en' %}selected{% endif %}>English</option>
+                    <option value="es" {% if request.LANGUAGE_CODE == 'es' %}selected{% endif %}>Spanish</option>
+                    <option value="fr" {% if request.LANGUAGE_CODE == 'fr' %}selected{% endif %}>French</option>
                 </select>
-                <button type="submit" name="update_settings">Update Settings</button>
+                <button type="submit">Update Settings</button>
             </div>
+        </form>
+        
+        <form method="POST" action="{% url 'delete_account' %}">
+            {% csrf_token %}
             <div class="delete-account">
                 <h2>Account Management</h2>
                 <button type="submit" name="delete_account">Delete Account</button>
             </div>
         </form>
+
     </div>
 </body>
 </html>

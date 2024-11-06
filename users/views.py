@@ -197,3 +197,19 @@ def set_theme(request, theme):
     if theme in ['light', 'dark']:
         request.session['theme'] = theme
     return redirect(request.META.get('HTTP_REFERER', '/'))  # Redirect back to the page
+
+from django.utils import translation
+def set_language(request):
+    if request.method == 'POST':
+        print(request.POST.get('language', settings.LANGUAGE_CODE))
+        user_language = request.POST.get('language', settings.LANGUAGE_CODE)
+        if user_language in dict(settings.LANGUAGES):
+            print("Good language")
+            translation.activate(user_language)
+            request.session['django_language'] = user_language
+            return HttpResponseRedirect(f'/{user_language}/profile/')
+        else:
+            print("Bad language")
+    else:
+        print("No POST")
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

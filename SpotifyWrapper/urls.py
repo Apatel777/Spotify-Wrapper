@@ -20,4 +20,7 @@ from django.urls import path, include  # Add 'include' here
 urlpatterns = [
     path('', include('users.urls')),
 ]
-
+from django.conf.urls.i18n import i18n_patterns
+urlpatterns += i18n_patterns(
+    path('', include('users.urls')),
+)

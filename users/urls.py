@@ -3,6 +3,8 @@ from . import views
 #urls for the page pathways
 urlpatterns = [
     path('set_theme/<str:theme>/', views.set_theme, name='set_theme'),
+    path('set_language/', views.set_language, name='set_language'),
+
     path('', views.home_view, name='home'),
     path('home/', views.home_view, name='home'),
     path('login/', views.login_view, name='login'),
