@@ -13,6 +13,7 @@
             --btn-bg-color: #9b88e8; /* Soft purple for buttons */
             --btn-hover-color: #7350c3; /* Rich purple for hover */
             --footer-bg-color: #533485; /* Dark purple for footer */
+            --footer-text-color: #ece4ff; /* Dark purple for footer */
         }
 
         /* Light mode variables */
@@ -23,7 +24,21 @@
             --btn-bg-color: #9a4dff; /* Bright purple for buttons */
             --btn-hover-color: #7e38cc; /* Darker purple for button hover */
             --footer-bg-color: #e6dbff; /* Soft light lavender for footer background */
+            --footer-text-color: #29004b; /* Dark purple for footer */
         }
+        
+        .color-mode {
+            --bg-color: #5e5ed2; /* Purple-blue background */
+            --text-color: blue; /* Blue text */
+            --card-bg-color: rgba(247, 247, 252, 0.6); /* Soft lavender for card background */
+            --btn-bg-color: #7777cc; /* Greenish button background */
+            --btn-hover-color: #3b5bba; /* Darker blue button hover color */
+            --footer-bg-color: #454597; /* Same background color for the footer */
+            --footer-text-color: white; /* Dark purple for footer */
+            
+        }
+        
+        
 
         /* Apply the variable-based colors */
         body {
@@ -57,7 +72,7 @@
         }
 
         .navbar-links a {
-            color: var(--text-color);
+            color: var(--footer-text-color);
             text-decoration: none;
             font-size: 18px;
         }
@@ -230,37 +245,55 @@
     </div>
 
     <script>
-        // Function to toggle dark/light mode and save preference
+        // Function to toggle between light and dark mode
         function toggleMode() {
             const body = document.body;
             const btn = document.querySelector('.toggle-btn');
-    
-            body.classList.toggle('light-mode');
-            if (body.classList.contains('light-mode')) {
-                btn.textContent = 'Dark Mode';
-                localStorage.setItem('theme', 'light-mode'); // Save light mode preference
-            } else {
+            const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
+                                 body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+        
+            // Switch between modes
+            if (currentTheme === 'light-mode') {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                btn.textContent = 'Color Mode';
+                localStorage.setItem('theme', 'dark-mode');
+            } else if (currentTheme === 'dark-mode') {
+                body.classList.remove('dark-mode');
+                body.classList.add('color-mode');
                 btn.textContent = 'Light Mode';
-                localStorage.setItem('theme', 'dark-mode'); // Save dark mode preference
+                localStorage.setItem('theme', 'color-mode');
+            } else {
+                body.classList.remove('color-mode');
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
+                localStorage.setItem('theme', 'light-mode');
             }
         }
-
+        
         // Function to apply the saved theme from localStorage
         function applySavedMode() {
             const savedTheme = localStorage.getItem('theme');
             const body = document.body;
             const btn = document.querySelector('.toggle-btn');
-
+        
             // Apply the saved theme if it exists
             if (savedTheme === 'light-mode') {
                 body.classList.add('light-mode');
                 btn.textContent = 'Dark Mode';
-            } else {
-                body.classList.remove('light-mode');
+            } else if (savedTheme === 'dark-mode') {
+                body.classList.add('dark-mode');
+                btn.textContent = 'Color Mode';
+            } else if (savedTheme === 'color-mode') {
+                body.classList.add('color-mode');
                 btn.textContent = 'Light Mode';
+            } else {
+                // Default to light mode if no theme is saved
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
             }
         }
-
+    
         // Call applySavedMode on page load to apply the correct theme
         window.onload = applySavedMode;
     </script>

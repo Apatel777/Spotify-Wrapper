@@ -14,6 +14,7 @@
             --btn-bg-color: #9b88e8; /* Soft purple for buttons */
             --btn-hover-color: #7350c3; /* Rich purple for hover */
             --footer-bg-color: #533485; /* Dark purple for footer */
+            --footer-text-color: #9b88e8;
             --overlay-color: rgba(0, 0, 0, 0.85); /* Darker overlay for contrast */
         }
         .light-mode {
@@ -24,6 +25,18 @@
             --btn-bg-color: #9a4dff; /* Bright purple for buttons */
             --btn-hover-color: #7e38cc; /* Darker purple for button hover */
             --footer-bg-color: #e6dbff; /* Soft light lavender for footer background */
+            --footer-text-color: #9a4dff;
+            --overlay-color: rgba(255, 255, 255, 0.7); /* Light transparent overlay */
+        }
+        .color-mode {
+            --bg-color: #5e5ed2; /* Purple-blue background */
+            --text-color: blue; /* Blue text */
+            --form-bg-color: #f7f7fc; /* Soft lavender for form background */
+            --input-bg-color: #f0f0f0; /* Light grey for input background */
+            --btn-bg-color: #7777cc; /* Greenish button background */
+            --btn-hover-color: #3b5bba; /* Darker blue button hover color */
+            --footer-bg-color: #5e5ed2; /* Same background color for the footer */
+            --footer-text-color: blue;
             --overlay-color: rgba(255, 255, 255, 0.7); /* Light transparent overlay */
         }
 
@@ -114,11 +127,11 @@
             bottom: 0;
             width: 100%;
             font-size: 0.9em;
-            transition: background-color 0.3s;
+            transition: background-color 1s;
         }
 
         footer a {
-            color: var(--btn-bg-color);
+            color: var(--footer-text-color);
             text-decoration: none;
         }
 
@@ -138,6 +151,10 @@
             top: 20px;
             right: 20px;
             z-index: 2;
+        }
+        
+        .toggle-btn:hover {
+            background-color: var(--btn-hover-color);
         }
 
     </style>
@@ -169,18 +186,29 @@
 
 <!-- JavaScript for Dark/Light Mode Toggle -->
 <script>
-    // Function to toggle dark/light mode and save preference
+    // Function to toggle between light and dark mode
     function toggleMode() {
         const body = document.body;
         const btn = document.querySelector('.toggle-btn');
-
-        body.classList.toggle('light-mode');
-        if (body.classList.contains('light-mode')) {
-            btn.textContent = 'Dark Mode';
-            localStorage.setItem('theme', 'light-mode'); // Save light mode preference
-        } else {
+        const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
+                             body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+    
+        // Switch between modes
+        if (currentTheme === 'light-mode') {
+            body.classList.remove('light-mode');
+            body.classList.add('dark-mode');
+            btn.textContent = 'Color Mode';
+            localStorage.setItem('theme', 'dark-mode');
+        } else if (currentTheme === 'dark-mode') {
+            body.classList.remove('dark-mode');
+            body.classList.add('color-mode');
             btn.textContent = 'Light Mode';
-            localStorage.setItem('theme', 'dark-mode'); // Save dark mode preference
+            localStorage.setItem('theme', 'color-mode');
+        } else {
+            body.classList.remove('color-mode');
+            body.classList.add('light-mode');
+            btn.textContent = 'Dark Mode';
+            localStorage.setItem('theme', 'light-mode');
         }
     }
     
@@ -189,14 +217,21 @@
         const savedTheme = localStorage.getItem('theme');
         const body = document.body;
         const btn = document.querySelector('.toggle-btn');
-
+    
         // Apply the saved theme if it exists
         if (savedTheme === 'light-mode') {
             body.classList.add('light-mode');
             btn.textContent = 'Dark Mode';
-        } else {
-            body.classList.remove('light-mode');
+        } else if (savedTheme === 'dark-mode') {
+            body.classList.add('dark-mode');
+            btn.textContent = 'Color Mode';
+        } else if (savedTheme === 'color-mode') {
+            body.classList.add('color-mode');
             btn.textContent = 'Light Mode';
+        } else {
+            // Default to light mode if no theme is saved
+            body.classList.add('light-mode');
+            btn.textContent = 'Dark Mode';
         }
     }
 

@@ -21,6 +21,8 @@ def create_spotify_auth_url():
         "client_id": settings.SPOTIFY_CLIENT_ID,
         "redirect_uri": settings.SPOTIFY_REDIRECT_URI,
         "scope": "user-read-private user-read-email user-top-read",
+        "show_dialog": 'true',
+
     }
     auth_url = "https://accounts.spotify.com/authorize?" + urlencode(params)
     return auth_url

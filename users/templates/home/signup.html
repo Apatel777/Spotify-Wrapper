@@ -7,12 +7,14 @@
     <style>
         /* Root variables for dark mode with purple tones */
         :root {
-            --bg-color: #ece4ff; /* Light lavender */
-            --text-color: #2c013b; /* Deep purple for strong contrast */
+            --bg-color: #2c013b; /* Deep purple for dark mode background */
+            --form-bg-color: #3e165b; /* Darker purple for the form background */
+            --input-bg-color: #4a2070; /* Darker purple for input background */
+            --text-color: #ece4ff; /* Light lavender text for strong contrast */
             --btn-bg-color: #9b88e8; /* Soft purple for buttons */
             --btn-hover-color: #7350c3; /* Rich purple for hover */
             --footer-bg-color: #533485; /* Subtle dark footer */
-            --overlay-color: rgba(255, 255, 255, 0.85); /* Light, soft overlay */
+            --footer-text-color: #9b88e8;
             --glow-color: #f0d1ff; /* Gentle pastel glow */
         }
 
@@ -21,10 +23,24 @@
         .light-mode {
             --bg-color: #ffffff; /* White background */
             --text-color: #29004b; /* Dark purple text */
+            --form-bg-color: #f7f7fc;
+            --input-bg-color: #f0f0f0; /* Light grey for input background */
             --btn-bg-color: #9a4dff; /* Bright purple for buttons */
             --btn-hover-color: #7e38cc; /* Darker purple for button hover */
             --footer-bg-color: #e6dbff; /* Light footer background */
-            --overlay-color: rgba(255, 255, 255, 0.7); /* Light overlay */
+            --footer-text-color: #9a4dff;
+        }
+        
+        .color-mode {
+            --bg-color: #5e5ed2; /* Purple-blue background */
+            --form-bg-color: #f7f7fc;
+            --input-bg-color: #f0f0f0; /* Light grey for input background */
+            --text-color: blue; /* Blue text */
+            --btn-bg-color: #7777cc; /* Greenish button background */
+            --btn-hover-color: #3b5bba; /* Darker blue button hover color */
+            --footer-bg-color: #5e5ed2; /* Same background color for the footer */
+            --footer-text-color: blue;
+            --overlay-color: rgba(255, 255, 255, 0.7); /* Light transparent overlay */
         }
 
         body, html {
@@ -51,7 +67,7 @@
 
         /* Form box styling */
         .signup-form {
-            background-color: var(--bg-color);
+            background-color: var(--form-bg-color);
             padding: 40px;
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
@@ -72,7 +88,7 @@
             margin: 10px 0;
             border-radius: 4px;
             border: 1px solid var(--btn-bg-color);
-            background-color: transparent;
+            background-color: var(--input-bg-color);
             color: var(--text-color);
         }
 
@@ -102,11 +118,10 @@
             bottom: 0;
             width: 100%;
             font-size: 0.9em;
-            color: var(--text-color);
         }
 
         footer a {
-            color: var(--btn-bg-color);
+            color: var(--footer-text-color);
             text-decoration: none;
         }
 
@@ -165,35 +180,52 @@
         // Function to toggle between light and dark mode
         function toggleMode() {
             const body = document.body;
-            body.classList.toggle('light-mode');
             const btn = document.querySelector('.toggle-btn');
-            
-            // Update button text based on the current mode
-            if (body.classList.contains('light-mode')) {
-                btn.textContent = 'Dark Mode';
-                localStorage.setItem('theme', 'light-mode'); // Save light mode in localStorage
-            } else {
+            const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
+                                 body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+        
+            // Switch between modes
+            if (currentTheme === 'light-mode') {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                btn.textContent = 'Color Mode';
+                localStorage.setItem('theme', 'dark-mode');
+            } else if (currentTheme === 'dark-mode') {
+                body.classList.remove('dark-mode');
+                body.classList.add('color-mode');
                 btn.textContent = 'Light Mode';
-                localStorage.setItem('theme', 'dark-mode'); // Save dark mode in localStorage
+                localStorage.setItem('theme', 'color-mode');
+            } else {
+                body.classList.remove('color-mode');
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
+                localStorage.setItem('theme', 'light-mode');
             }
         }
-
+        
         // Function to apply the saved theme from localStorage
         function applySavedMode() {
             const savedTheme = localStorage.getItem('theme');
             const body = document.body;
             const btn = document.querySelector('.toggle-btn');
-
+        
             // Apply the saved theme if it exists
             if (savedTheme === 'light-mode') {
                 body.classList.add('light-mode');
                 btn.textContent = 'Dark Mode';
-            } else {
-                body.classList.remove('light-mode');
+            } else if (savedTheme === 'dark-mode') {
+                body.classList.add('dark-mode');
+                btn.textContent = 'Color Mode';
+            } else if (savedTheme === 'color-mode') {
+                body.classList.add('color-mode');
                 btn.textContent = 'Light Mode';
+            } else {
+                // Default to light mode if no theme is saved
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
             }
         }
-
+    
         // Call applySavedMode on page load to apply the correct theme
         window.onload = applySavedMode;
     </script>
