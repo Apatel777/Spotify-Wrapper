@@ -8,7 +8,7 @@
         /* Root variables for dark mode */
         :root {
             --bg-color: #2c013b; /* Deep purple for dark mode background */
-            --profile-bg-color: #2c013b; /* Deep purple for dark mode background */
+            --profile-bg-color: #533485; /* Deep purple for dark mode background */
             --text-color: #ece4ff; /* Light lavender text for strong contrast */
             --btn-bg-color: #9b88e8; /* Soft purple for buttons */
             --btn-delete-color: #ff4d4d; /* Soft purple for buttons */
@@ -19,12 +19,13 @@
 
         /* Light mode variables */
         .light-mode {
-            --bg-color: #ffffff; /* Bright white background for light mode */
-            --text-color: #29004b; /* Dark purple text for contrast */
-            --card-bg-color: #f7f7fc; /* Soft lavender for card background */
-            --btn-bg-color: #9a4dff; /* Bright purple for buttons */
-            --btn-hover-color: #7e38cc; /* Darker purple for button hover */
-            --footer-bg-color: #e6dbff; /* Soft light lavender for footer background */
+            --bg-color: #ffffff; /* Deep purple for dark mode background */
+            --profile-bg-color: #e6dbff; /* Deep purple for dark mode background */
+            --text-color: #29004b; /* Light lavender text for strong contrast */
+            --btn-bg-color: #9a4dff; /* Soft purple for buttons */
+            --btn-delete-color: #ff4d4d; /* Soft purple for buttons */
+            --btn-hover-color: #7e38cc; /* Rich purple for hover */
+            --footer-bg-color: #e6dbff; /* Dark purple for footer */
             --footer-text-color: #29004b; /* Dark purple for footer */
         }
         
@@ -35,7 +36,7 @@
             --btn-bg-color: #7777cc; /* Soft purple for buttons */
             --btn-delete-color: #ff4d4d; /* Soft purple for buttons */
             --btn-hover-color: #3b5bba; /* Rich purple for hover */
-            --footer-bg-color: #e6dbff; /* Dark purple for footer */
+            --footer-bg-color: #454597; /* Dark purple for footer */
             --footer-text-color: white; /* Dark purple for footer */
         }
         
@@ -45,6 +46,22 @@
             background-color: var(--bg-color);
             color: var(--text-color);
         }
+        
+        /* Toggle Button */
+        .toggle-btn {
+            background-color: var(--btn-bg-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: var(--btn-hover-color);
+        }
+        
         /* Navbar styling */
         .navbar {
             background-color: var(--footer-bg-color);
@@ -53,27 +70,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-        
-        button {
-            padding: 12px;
-            margin-top: 20px;
-            border: none;
-            border-radius: 5px;
-            background-color: var(--btn-bg-color);
-            color: var(--text-color);
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        
-        button:hover {
-            background-color: var(--btn-hover-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .navbar-brand {
             font-size: 24px;
-            color: white;
+            font-weight: 600;
         }
 
         .navbar-links {
@@ -95,18 +98,30 @@
             background-color: var(--profile-bg-color);
             color: var(--text-color);
             max-width: 600px;
-            margin: 0 auto;
+            margin: 40px auto 0 auto;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        
+        .profile-container button {
+            padding: 10px 20px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--btn-bg-color);
+            color: white;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
         h1 {
             font-size: 24px;
             margin-bottom: 20px;
         }
         h2 {
             font-size: 20px;
-            margin-bottom: 20px;
         }
         .settings {
             margin-bottom: 20px;
@@ -120,21 +135,19 @@
             padding: 8px;
             margin-bottom: 10px;
         }
+        .settings button:hover {
+            background-color: var(--btn-hover-color);
+        }
+        
         .delete-account {
             text-align: center;
             margin-top: 20px;
         }
+        
         .delete-account button {
             background-color: var(--btn-delete-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
         }
-        .delete-account button:hover {
-            background-color: var(--btn-delete-color);
-        }
+        
     </style>
 </head>
 <body>
