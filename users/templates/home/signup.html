@@ -5,12 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - Spotify Wrapper</title>
     <style>
+        /* Root variables for dark mode with purple tones */
+        :root {
+            --bg-color: #2c013b; /* Deep purple for dark mode background */
+            --form-bg-color: #3e165b; /* Darker purple for the form background */
+            --input-bg-color: #4a2070; /* Darker purple for input background */
+            --text-color: #ece4ff; /* Light lavender text for strong contrast */
+            --btn-bg-color: #9b88e8; /* Soft purple for buttons */
+            --btn-hover-color: #7350c3; /* Rich purple for hover */
+            --footer-bg-color: #533485; /* Subtle dark footer */
+            --footer-text-color: #9b88e8;
+            --glow-color: #f0d1ff; /* Gentle pastel glow */
+        }
+
+
+        /* Light mode variables */
+        .light-mode {
+            --bg-color: #ffffff; /* White background */
+            --text-color: #29004b; /* Dark purple text */
+            --form-bg-color: #f7f7fc;
+            --input-bg-color: #f0f0f0; /* Light grey for input background */
+            --btn-bg-color: #9a4dff; /* Bright purple for buttons */
+            --btn-hover-color: #7e38cc; /* Darker purple for button hover */
+            --footer-bg-color: #e6dbff; /* Light footer background */
+            --footer-text-color: #9a4dff;
+        }
+        
+        .color-mode {
+            --bg-color: #5e5ed2; /* Purple-blue background */
+            --form-bg-color: #f7f7fc;
+            --input-bg-color: #f0f0f0; /* Light grey for input background */
+            --text-color: blue; /* Blue text */
+            --btn-bg-color: #7777cc; /* Greenish button background */
+            --btn-hover-color: #3b5bba; /* Darker blue button hover color */
+            --footer-bg-color: #5e5ed2; /* Same background color for the footer */
+            --footer-text-color: blue;
+            --overlay-color: rgba(255, 255, 255, 0.7); /* Light transparent overlay */
+        }
+
         body, html {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: white;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
             height: 100vh;
         }
 
@@ -20,32 +59,21 @@
             justify-content: center;
             align-items: center;
             height: 100%;
-            /*background-image: url('https://i.imgur.com/zX5P1Z7.jpg'); /* Placeholder image */
             background-size: cover;
             background-position: center;
-        }
-
-        /* Overlay to darken the background */
-        .signup-container::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7); /* Dark overlay */
+            position: relative;
+            overflow: hidden;
         }
 
         /* Form box styling */
         .signup-form {
-            position: relative;
-            z-index: 1;
-            background-color: #282828;
+            background-color: var(--form-bg-color);
             padding: 40px;
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             width: 400px;
             text-align: center;
+            color: var(--text-color);
         }
 
         .signup-form h2 {
@@ -59,9 +87,9 @@
             padding: 10px;
             margin: 10px 0;
             border-radius: 4px;
-            border: 1px solid #1DB954;
-            background-color: #121212;
-            color: white;
+            border: 1px solid var(--btn-bg-color);
+            background-color: var(--input-bg-color);
+            color: var(--text-color);
         }
 
         .signup-form button {
@@ -70,20 +98,20 @@
             margin-top: 20px;
             border: none;
             border-radius: 4px;
-            background-color: #1DB954;
-            color: white;
+            background-color: var(--btn-bg-color);
+            color: var(--text-color);
             font-size: 1.2em;
             cursor: pointer;
             transition: background-color 0.3s;
         }
 
         .signup-form button:hover {
-            background-color: #1aa34a; /* Darker green on hover */
+            background-color: var(--btn-hover-color); /* Darker purple on hover */
         }
 
         /* Footer styling */
         footer {
-            background-color: #282828;
+            background-color: var(--footer-bg-color);
             text-align: center;
             padding: 20px;
             position: fixed;
@@ -93,7 +121,7 @@
         }
 
         footer a {
-            color: #1DB954;
+            color: var(--footer-text-color);
             text-decoration: none;
         }
 
@@ -101,20 +129,45 @@
             text-decoration: underline;
         }
 
+        /* Toggle Button */
+        .toggle-btn {
+            background-color: var(--btn-bg-color);
+            color: var(--text-color);
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            border-radius: 20px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 2;
+            transition: background-color 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background-color: var(--btn-hover-color);
+        }
     </style>
 </head>
 <body>
+
+    <!-- Dark/Light Mode Toggle -->
+    <button class="toggle-btn" onclick="toggleMode()">Light Mode</button>
 
     <!-- Sign Up Section -->
     <div class="signup-container">
         <form class="signup-form" action="{% url 'signup' %}" method="POST">
             {% csrf_token %}
             <h2>Create an Account</h2>
+            {% if error %}
+                <p style="color: red;">{{ error }}</p>
+            {% endif %}
             <input type="text" name="username" placeholder="Username" required>
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Sign Up</button>
-            <p>Already have an account? <a href="{% url 'login' %}" style="color: #1DB954;">Log In</a></p>
+            <p>Already have an account? <a href="{% url 'login' %}" style="color: var(--btn-bg-color);">Log In</a></p>
         </form>
     </div>
 
@@ -122,6 +175,60 @@
     <footer>
         <p>© 2024 Spotify Wrapper. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
     </footer>
+
+    <script>
+        // Function to toggle between light and dark mode
+        function toggleMode() {
+            const body = document.body;
+            const btn = document.querySelector('.toggle-btn');
+            const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
+                                 body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+        
+            // Switch between modes
+            if (currentTheme === 'light-mode') {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                btn.textContent = 'Color Mode';
+                localStorage.setItem('theme', 'dark-mode');
+            } else if (currentTheme === 'dark-mode') {
+                body.classList.remove('dark-mode');
+                body.classList.add('color-mode');
+                btn.textContent = 'Light Mode';
+                localStorage.setItem('theme', 'color-mode');
+            } else {
+                body.classList.remove('color-mode');
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
+                localStorage.setItem('theme', 'light-mode');
+            }
+        }
+        
+        // Function to apply the saved theme from localStorage
+        function applySavedMode() {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            const btn = document.querySelector('.toggle-btn');
+        
+            // Apply the saved theme if it exists
+            if (savedTheme === 'light-mode') {
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
+            } else if (savedTheme === 'dark-mode') {
+                body.classList.add('dark-mode');
+                btn.textContent = 'Color Mode';
+            } else if (savedTheme === 'color-mode') {
+                body.classList.add('color-mode');
+                btn.textContent = 'Light Mode';
+            } else {
+                // Default to light mode if no theme is saved
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
+            }
+        }
+    
+        // Call applySavedMode on page load to apply the correct theme
+        window.onload = applySavedMode;
+    </script>
 
 </body>
 </html>

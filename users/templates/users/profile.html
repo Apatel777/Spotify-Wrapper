@@ -5,22 +5,123 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
     <style>
+        /* Root variables for dark mode */
+        :root {
+            --bg-color: #2c013b; /* Deep purple for dark mode background */
+            --profile-bg-color: #533485; /* Deep purple for dark mode background */
+            --text-color: #ece4ff; /* Light lavender text for strong contrast */
+            --btn-bg-color: #9b88e8; /* Soft purple for buttons */
+            --btn-delete-color: #ff4d4d; /* Soft purple for buttons */
+            --btn-hover-color: #7350c3; /* Rich purple for hover */
+            --footer-bg-color: #533485; /* Dark purple for footer */
+            --footer-text-color: #ece4ff; /* Dark purple for footer */
+        }
+
+        /* Light mode variables */
+        .light-mode {
+            --bg-color: #ffffff; /* Deep purple for dark mode background */
+            --profile-bg-color: #e6dbff; /* Deep purple for dark mode background */
+            --text-color: #29004b; /* Light lavender text for strong contrast */
+            --btn-bg-color: #9a4dff; /* Soft purple for buttons */
+            --btn-delete-color: #ff4d4d; /* Soft purple for buttons */
+            --btn-hover-color: #7e38cc; /* Rich purple for hover */
+            --footer-bg-color: #e6dbff; /* Dark purple for footer */
+            --footer-text-color: #29004b; /* Dark purple for footer */
+        }
+        
+        .color-mode {
+            --bg-color: #5e5ed2; /* Deep purple for dark mode background */
+            --profile-bg-color: #f7f7fc; /* Deep purple for dark mode background */
+            --text-color: blue; /* Light lavender text for strong contrast */
+            --btn-bg-color: #7777cc; /* Soft purple for buttons */
+            --btn-delete-color: #ff4d4d; /* Soft purple for buttons */
+            --btn-hover-color: #3b5bba; /* Rich purple for hover */
+            --footer-bg-color: #454597; /* Dark purple for footer */
+            --footer-text-color: white; /* Dark purple for footer */
+        }
+        
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
             padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
         }
+        
+        /* Toggle Button */
+        .toggle-btn {
+            background-color: var(--btn-bg-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: var(--btn-hover-color);
+        }
+        
+        /* Navbar styling */
+        .navbar {
+            background-color: var(--footer-bg-color);
+            color: var(--footer-text-color);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .navbar-links {
+            list-style: none;
+        }
+
+        .navbar-links li {
+            display: inline-block;
+            margin-left: 20px;
+        }
+
+        .navbar-links a {
+            color: var(--footer-text-color);
+            text-decoration: none;
+            font-size: 18px;
+        }
+        
         .profile-container {
+            background-color: var(--profile-bg-color);
+            color: var(--text-color);
             max-width: 600px;
-            margin: 0 auto;
-            background-color: white;
+            margin: 40px auto 0 auto;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        
+        .profile-container button {
+            padding: 10px 20px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--btn-bg-color);
+            color: white;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
         h1 {
             font-size: 24px;
             margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 20px;
         }
         .settings {
             margin-bottom: 20px;
@@ -34,41 +135,113 @@
             padding: 8px;
             margin-bottom: 10px;
         }
+        .settings button:hover {
+            background-color: var(--btn-hover-color);
+        }
+        
         .delete-account {
             text-align: center;
             margin-top: 20px;
         }
+        
         .delete-account button {
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
+            background-color: var(--btn-delete-color);
         }
+        
     </style>
 </head>
 <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-brand">SpotifyWrapper</div>
+        <ul class="navbar-links">
+            <li><a href="{% url 'dashboard' %}">Home</a></li>
+            <li><a href="#">Year in Review</a></li>
+            <li><a href="#">Search</a></li>
+            <li><a href="#">Profile</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+            <li><button class="toggle-btn" onclick="toggleMode()">Light Mode</button></li>
+        </ul>
+    </nav>
     <div class="profile-container">
-        <h1>Your Profile</h1>
-        <h1>Username: {{user.username }}</h1>
-        <form method="POST">
+        {% load i18n %}
+        <h1>{% trans "Your Profile" %}</h1>
+        <h2>Username: {{user.username }}</h2>
+        <form method="POST" action="{% url 'set_language' %}">
             {% csrf_token %}
             <div class="settings">
                 <h2>App Settings</h2>
                 <label for="language">Language:</label>
                 <select name="language" id="language">
-                    <option value="en">English</option>
-                    <option value="es">Spanish</option>
-                    <!-- Add more languages as needed -->
+                    <option value="en" {% if request.LANGUAGE_CODE == 'en' %}selected{% endif %}>English</option>
+                    <option value="es" {% if request.LANGUAGE_CODE == 'es' %}selected{% endif %}>Spanish</option>
+                    <option value="fr" {% if request.LANGUAGE_CODE == 'fr' %}selected{% endif %}>French</option>
                 </select>
-                <button type="submit" name="update_settings">Update Settings</button>
+                <button type="submit">Update Settings</button>
             </div>
+        </form>
+        
+        <form method="POST" action="{% url 'delete_account' %}">
+            {% csrf_token %}
             <div class="delete-account">
                 <h2>Account Management</h2>
                 <button type="submit" name="delete_account">Delete Account</button>
             </div>
         </form>
+
     </div>
+    <script>
+        // Function to toggle between light and dark mode
+        function toggleMode() {
+            const body = document.body;
+            const btn = document.querySelector('.toggle-btn');
+            const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
+                                 body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+        
+            // Switch between modes
+            if (currentTheme === 'light-mode') {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                btn.textContent = 'Color Mode';
+                localStorage.setItem('theme', 'dark-mode');
+            } else if (currentTheme === 'dark-mode') {
+                body.classList.remove('dark-mode');
+                body.classList.add('color-mode');
+                btn.textContent = 'Light Mode';
+                localStorage.setItem('theme', 'color-mode');
+            } else {
+                body.classList.remove('color-mode');
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
+                localStorage.setItem('theme', 'light-mode');
+            }
+        }
+        
+        // Function to apply the saved theme from localStorage
+        function applySavedMode() {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            const btn = document.querySelector('.toggle-btn');
+        
+            // Apply the saved theme if it exists
+            if (savedTheme === 'light-mode') {
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
+            } else if (savedTheme === 'dark-mode') {
+                body.classList.add('dark-mode');
+                btn.textContent = 'Color Mode';
+            } else if (savedTheme === 'color-mode') {
+                body.classList.add('color-mode');
+                btn.textContent = 'Light Mode';
+            } else {
+                // Default to light mode if no theme is saved
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
+            }
+        }
+    
+        // Call applySavedMode on page load to apply the correct theme
+        window.onload = applySavedMode;
+    </script>
 </body>
 </html>

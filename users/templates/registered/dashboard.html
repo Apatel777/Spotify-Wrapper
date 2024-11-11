@@ -5,33 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SpotifyWrapper Dashboard</title>
     <style>
-        /* Custom CSS */
-
-        /* Reset some default styling */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* Root variables for dark mode */
+        :root {
+            --bg-color: #2c013b; /* Deep purple for dark mode background */
+            --text-color: #ece4ff; /* Light lavender text for strong contrast */
+            --card-bg-color: #4a2070; /* Darker purple for card background */
+            --btn-bg-color: #9b88e8; /* Soft purple for buttons */
+            --btn-hover-color: #7350c3; /* Rich purple for hover */
+            --footer-bg-color: #533485; /* Dark purple for footer */
+            --footer-text-color: #ece4ff; /* Dark purple for footer */
         }
 
+        /* Light mode variables */
+        .light-mode {
+            --bg-color: #ffffff; /* Bright white background for light mode */
+            --text-color: #29004b; /* Dark purple text for contrast */
+            --card-bg-color: #f7f7fc; /* Soft lavender for card background */
+            --btn-bg-color: #9a4dff; /* Bright purple for buttons */
+            --btn-hover-color: #7e38cc; /* Darker purple for button hover */
+            --footer-bg-color: #e6dbff; /* Soft light lavender for footer background */
+            --footer-text-color: #29004b; /* Dark purple for footer */
+        }
+        
+        .color-mode {
+            --bg-color: #5e5ed2; /* Purple-blue background */
+            --text-color: blue; /* Blue text */
+            --card-bg-color: rgba(247, 247, 252, 0.6); /* Soft lavender for card background */
+            --btn-bg-color: #7777cc; /* Greenish button background */
+            --btn-hover-color: #3b5bba; /* Darker blue button hover color */
+            --footer-bg-color: #454597; /* Same background color for the footer */
+            --footer-text-color: white; /* Dark purple for footer */
+            
+        }
+        
+        
+
+        /* Apply the variable-based colors */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             padding: 20px;
         }
 
-        /* Navigation Bar Styling */
+        /* Navbar styling */
         .navbar {
-            background-color: #1DB954;
+            background-color: var(--footer-bg-color);
+            color: var(--footer-text-color);
             padding: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .navbar-brand {
             font-size: 24px;
-            color: white;
+            font-weight: 600;
         }
 
         .navbar-links {
@@ -44,7 +75,7 @@
         }
 
         .navbar-links a {
-            color: white;
+            color: var(--footer-text-color);
             text-decoration: none;
             font-size: 18px;
         }
@@ -82,6 +113,7 @@
             text-decoration: none;
         }
 
+        /* Main Content */
         .content {
             flex: 1;
             margin-left: 20px;
@@ -99,12 +131,13 @@
 
         /* Card styling */
         .card {
-            background-color: white;
+            background-color: var(--card-bg-color);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 300px;
+            color: var(--text-color);
         }
 
         .card h3 {
@@ -114,7 +147,7 @@
 
         .card p {
             font-size: 16px;
-            color: #555;
+            color: var(--text-color);
         }
 
         /* Responsive Design */
@@ -131,6 +164,21 @@
                 margin-bottom: 20px;
             }
         }
+
+        /* Toggle Button */
+        .toggle-btn {
+            background-color: var(--btn-bg-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .toggle-btn:hover {
+            background-color: var(--btn-hover-color);
+        }
     </style>
 </head>
 <body>
@@ -140,59 +188,117 @@
         <div class="navbar-brand">SpotifyWrapper</div>
         <ul class="navbar-links">
             <li><a href="#">Home</a></li>
-            <li><a href="#">Playlists</a></li>
+            <li><a href="#">Year in Review</a></li>
             <li><a href="#">Search</a></li>
             <li><a href="{% url 'profile' %}">Profile</a></li>
             <li><a href="{% url 'logout' %}">Logout</a></li>
+            <li><button class="toggle-btn" onclick="toggleMode()">Light Mode</button></li>
         </ul>
     </nav>
 
     <!-- Main Dashboard Section -->
     <div class="dashboard">
         <div class="sidebar">
-            <h3>Navigation</h3>
+            <h3>Your Stats</h3>
             <ul>
-                <li><a href="#">Overview</a></li>
-                <li><a href="#">Recently Played</a></li>
-                <li><a href="#">Top Tracks</a></li>
                 <li><a href="#">Top Artists</a></li>
+                <li><a href="#">Top Tracks</a></li>
+                <li><a href="#">Most Played Genres</a></li>
+                <li><a href="#">Listening Time</a></li>
             </ul>
         </div>
 
         <div class="content">
-            <h1>Welcome to Your Dashboard</h1>
+            <h1>Your SpotifyWrapper</h1>
             <div class="cards">
+                <!-- Top Tracks Card -->
                 <div class="card">
-                    <h3>Playlists</h3>
-                    <p>You have 10 playlists.</p>
+                    <h3>Top Tracks</h3>
+                    {% if user_data.top_tracks %}
+                        <ul>
+                            {% for track in user_data.top_tracks %}
+                                <li>
+                                    <strong>{{ track.name }}</strong> by {{ track.artists|join:', ' }}
+                                    <a href="{{ track.external_urls.spotify }}" target="_blank">Listen on Spotify</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No top tracks available.</p>
+                    {% endif %}
                 </div>
-                <div class="card">
-                    <h3>Recently Played</h3>
-                    <p>Your latest track: "Song Title" by "Artist".</p>
-                </div>
+
+                <!-- Top Artists Card -->
                 <div class="card">
                     <h3>Top Artists</h3>
-                    <p>Your top artist this month is: "Artist Name".</p>
+                    {% if user_data.top_artists %}
+                        <p>Your top artist this year is: {{ user_data.top_artists.0.name }}</p>
+                    {% else %}
+                        <p>No top artists available.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Listening Time Card -->
+                <div class="card">
+                    <h3>Listening Time</h3>
+                    <p>Total hours streamed this year: {{ user_data.total_hours }}</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Custom JavaScript for interactive elements
-
-        // Simulate data from an API or user action
-        document.addEventListener('DOMContentLoaded', function() {
-            const playlists = 12;
-            const latestTrack = "Blinding Lights";
-            const latestArtist = "The Weeknd";
-            const topArtist = "Drake";
-
-            // Update card content dynamically
-            document.querySelectorAll('.card')[0].querySelector('p').textContent = `You have ${playlists} playlists.`;
-            document.querySelectorAll('.card')[1].querySelector('p').textContent = `Your latest track: "${latestTrack}" by "${latestArtist}".`;
-            document.querySelectorAll('.card')[2].querySelector('p').textContent = `Your top artist this month is: "${topArtist}".`;
-        });
+        // Function to toggle between light and dark mode
+        function toggleMode() {
+            const body = document.body;
+            const btn = document.querySelector('.toggle-btn');
+            const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
+                                 body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+        
+            // Switch between modes
+            if (currentTheme === 'light-mode') {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                btn.textContent = 'Color Mode';
+                localStorage.setItem('theme', 'dark-mode');
+            } else if (currentTheme === 'dark-mode') {
+                body.classList.remove('dark-mode');
+                body.classList.add('color-mode');
+                btn.textContent = 'Light Mode';
+                localStorage.setItem('theme', 'color-mode');
+            } else {
+                body.classList.remove('color-mode');
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
+                localStorage.setItem('theme', 'light-mode');
+            }
+        }
+        
+        // Function to apply the saved theme from localStorage
+        function applySavedMode() {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            const btn = document.querySelector('.toggle-btn');
+        
+            // Apply the saved theme if it exists
+            if (savedTheme === 'light-mode') {
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
+            } else if (savedTheme === 'dark-mode') {
+                body.classList.add('dark-mode');
+                btn.textContent = 'Color Mode';
+            } else if (savedTheme === 'color-mode') {
+                body.classList.add('color-mode');
+                btn.textContent = 'Light Mode';
+            } else {
+                // Default to light mode if no theme is saved
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
+            }
+        }
+    
+        // Call applySavedMode on page load to apply the correct theme
+        window.onload = applySavedMode;
     </script>
 </body>
 </html>
