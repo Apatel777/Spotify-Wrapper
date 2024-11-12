@@ -210,39 +210,123 @@
 
         <div class="content">
             <h1>Your SpotifyWrapper</h1>
+            {% if messages %}
+            <div class="card">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Debug Info Card -->
+            {% if debug_info %}
+                <div class="card">
+                    <h3>Debug Information</h3>
+                    <ul>
+                        <li>Spotify Connected: {{ debug_info.spotify_connected }}</li>
+                        <li>Profile API Status: {{ debug_info.profile_status }}</li>
+                        <li>Recent Tracks API Status: {{ debug_info.recent_tracks_status }}</li>
+                        <li>Top Tracks API Status: {{ debug_info.top_tracks_status }}</li>
+                    </ul>
+                </div>
+            {% endif %}
+
+            <!-- Cards Container -->
             <div class="cards">
+                <!-- Recent Tracks Card -->
+                {% if recent_tracks %}
+                <div class="card">
+                    <h3>Recently Played</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        {% for item in recent_tracks|slice:":5" %}
+                            <li style="margin-bottom: 15px; padding: 10px; background-color: rgba(0, 0, 0, 0.05); border-radius: 8px;">
+                                <div style="font-weight: bold;">{{ item.track.name }}</div>
+                                <div style="font-size: 0.9em;">
+                                    {% for artist in item.track.artists %}
+                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div style="font-size: 0.8em; opacity: 0.7;">
+                                    {{ item.played_at|slice:"11:16" }}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
                 <!-- Top Tracks Card -->
+                {% if top_tracks %}
                 <div class="card">
                     <h3>Top Tracks</h3>
-                    {% if user_data.top_tracks %}
-                        <ul>
-                            {% for track in user_data.top_tracks %}
-                                <li>
-                                    <strong>{{ track.name }}</strong> by {{ track.artists|join:', ' }}
-                                    <a href="{{ track.external_urls.spotify }}" target="_blank">Listen on Spotify</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>No top tracks available.</p>
-                    {% endif %}
+                    <ul style="list-style: none; padding: 0;">
+                        {% for track in top_tracks.short_term|slice:":5" %}
+                            <li style="margin-bottom: 15px; padding: 10px; background-color: rgba(0, 0, 0, 0.05); border-radius: 8px;">
+                                <div style="font-weight: bold;">{{ track.name }}</div>
+                                <div style="font-size: 0.9em;">
+                                    {% for artist in track.artists %}
+                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div style="font-size: 0.8em; opacity: 0.7;">
+                                    Rank #{{ forloop.counter }}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </div>
+                {% endif %}
+                
+                <!-- Extended Top Tracks Section -->
+                {% if top_tracks %}
+                <div class="card" style="margin-top: 30px;">
+                    <h2 style="margin-bottom: 20px;">Your Complete Top Tracks</h2>
+                    {% for time_range, tracks in top_tracks.items %}
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px;">
+                                {% if time_range == 'short_term' %}
+                                    Last 4 Weeks
+                                {% elif time_range == 'medium_term' %}
+                                    Last 6 Months
+                                {% else %}
+                                    All Time
+                                {% endif %}
+                            </h3>
+                            {% if tracks %}
+                                <div class="card" style="max-height: 400px; overflow-y: auto;">
+                                    <ul style="list-style: none; padding: 0;">
+                                        {% for track in tracks %}
+                                            <li style="margin-bottom: 15px; padding: 10px; background-color: rgba(0, 0, 0, 0.05); border-radius: 8px;">
+                                                <div style="font-weight: bold;">{{ track.name }}</div>
+                                                <div style="font-size: 0.9em;">
+                                                    {% for artist in track.artists %}
+                                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <div style="font-size: 0.8em; opacity: 0.7;">
+                                                    Rank #{{ forloop.counter }}
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <p style="opacity: 0.7;">No tracks found for this time period.</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
 
-                <!-- Top Artists Card -->
-                <div class="card">
-                    <h3>Top Artists</h3>
-                    {% if user_data.top_artists %}
-                        <p>Your top artist this year is: {{ user_data.top_artists.0.name }}</p>
-                    {% else %}
-                        <p>No top artists available.</p>
-                    {% endif %}
-                </div>
-
-                <!-- Listening Time Card -->
-                <div class="card">
-                    <h3>Listening Time</h3>
-                    <p>Total hours streamed this year: {{ user_data.total_hours }}</p>
-                </div>
+                <!-- Error Message -->
+                {% if error %}
+                    <div class="card" style="border-left: 4px solid #ff4444;">
+                        <h3 style="color: #ff4444;">Error</h3>
+                        <p>{{ error }}</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
