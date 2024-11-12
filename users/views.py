@@ -207,15 +207,48 @@ def dashboard(request):
             'medium_term': sp.current_user_top_tracks(limit=10, time_range='medium_term')['items'],
             'long_term': sp.current_user_top_tracks(limit=10, time_range='long_term')['items'],
         }
+        top_artists = {
+            'short_term': sp.current_user_top_artists(limit=10, time_range='short_term')['items'],
+            'medium_term': sp.current_user_top_artists(limit=10, time_range='medium_term')['items'],
+            'long_term': sp.current_user_top_artists(limit=10, time_range='long_term')['items'],
+        }
 
+        # Combine all top tracks from different time ranges
+        all_top_tracks = top_tracks['short_term'] + top_tracks['medium_term'] + top_tracks['long_term']
+
+        # Extract album names from top tracks
+        top_albums = [track['album']['name'] for track in all_top_tracks]
+
+        # Count the most frequent albums
+        from collections import Counter
+        album_counts = Counter(top_albums)
+
+        # Get the most listened-to album
+        most_listened_album = album_counts.most_common(1)
 
         context = {
             'user': user,
             'theme': request.session.get('theme', 'light'),
             'spotify_connected': True,
             'recent_tracks': recent_tracks,
-            'top_tracks': top_tracks
+            'top_tracks': top_tracks,
+            'top_artists': top_artists,
+            'most_listened_album': most_listened_album[0][0] if most_listened_album else None,
+            # Pass most listened album
         }
+        # Optionally, if you want to pass album details (name, artist, cover image)
+        if most_listened_album:
+            # You can fetch the album details from Spotify using the album ID
+            album_name = most_listened_album[0][0]
+            album = sp.search(q='album:' + album_name, type='album', limit=1)
+            if album['albums']['items']:
+                album_info = album['albums']['items'][0]
+                album_details = {
+                    'name': album_info['name'],
+                    'artist': album_info['artists'][0]['name'],
+                    'image_url': album_info['images'][0]['url'] if album_info['images'] else None,
+                }
+                context['most_listened_album_details'] = album_details
 
         return render(request, 'registered/dashboard.html', context)
 
