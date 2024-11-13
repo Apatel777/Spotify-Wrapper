@@ -13,6 +13,8 @@
             --card-bg-color: #4a2070;
             --btn-bg-color: #9b88e8;
             --btn-hover-color: #7350c3;
+            --arrow-btn-color:#9b88e8;
+            --arrow-btn-hover-color: #7350c3;
             --footer-bg-color: #533485;
             --footer-text-color: #ece4ff;
         }
@@ -24,6 +26,8 @@
             --card-bg-color: #f7f7fc;
             --btn-bg-color: #9a4dff;
             --btn-hover-color: #7e38cc;
+            --arrow-btn-color: #9a4dff;
+            --arrow-btn-hover-color: #7e38cc;
             --footer-bg-color: #e6dbff;
             --footer-text-color: #29004b;
         }
@@ -34,6 +38,8 @@
             --card-bg-color: rgba(247, 247, 252, 0.6);
             --btn-bg-color: #7777cc;
             --btn-hover-color: #3b5bba;
+            --arrow-btn-color: white;
+            --arrow-btn-hover-color: white;
             --footer-bg-color: #454597;
             --footer-text-color: white;
         }
@@ -129,7 +135,7 @@
         .cards-container {
             display: flex;
             align-items: center;
-            justify-content: center; /* Align cards to the left */
+            justify-content: center;
             margin-top: 20px;
             overflow-x: auto; /* Enable horizontal scroll */
             white-space: nowrap; /* Prevent cards from wrapping to the next line */
@@ -143,7 +149,9 @@
             box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
             color: var(--text-color);
             width: 600px; /* Set a fixed width for all cards */
+            height: 450px;
             flex-shrink: 0; /* Prevent cards from shrinking */
+            overflow-y: auto;
         }
 
         .card h3 {
@@ -159,13 +167,13 @@
         /* Arrow Styling */
         .arrow {
             font-size: 30px;
-            color: var(--btn-bg-color);
+            color: var(--arrow-btn-color);
             cursor: pointer;
             padding: 10px;
         }
 
         .arrow:hover {
-            color: var(--btn-hover-color);
+            color: var(--arrow-btn-hover-color);
         }
         
         .album-cover {
@@ -288,30 +296,137 @@
                     {% endif %}
                 </div>
                 
-                <!-- Top Tracks Card -->
+                <!-- Top Track Card -->
                 <div id="card2" class="card">
-                    <h3>Top Tracks</h3>
+                    <h3>Top Track</h3>
                     {% if top_tracks %}
                     <ul style="list-style: none; padding: 0;">
-                        {% for track in top_tracks.short_term|slice:":5" %}
-                            <li style="margin-bottom: 15px; padding: 10px; background-color: rgba(0, 0, 0, 0.05); border-radius: 8px;">
-                                <div style="font-weight: bold;">{{ track.name }}</div>
-                                <div style="font-size: 0.9em;">
-                                    {% for artist in track.artists %}
-                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
-                                </div>
-                                <div style="font-size: 0.8em; opacity: 0.7;">
-                                    Rank #{{ forloop.counter }}
-                                </div>
-                            </li>
-                        {% endfor %}
+                    {% with first_track=top_tracks.short_term.0 %}
+                        <li style="margin-bottom: 15px; padding: 10px; background-color: rgba(0, 0, 0, 0.05); border-radius: 8px;">
+                            <!-- Track Name -->
+                            <div style="font-weight: bold;">{{ first_track.name }}</div>
+                    
+                            <!-- Information -->
+                            <div style="font-size: 0.9em;">
+                                {% for artist in first_track.artists %}
+                                    {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                                <br>
+                                Album: {{ first_track.album.name }} <br>
+                                Popularity: {{ first_track.popularity }} / 100
+                            </div>
+                        
+                        </li>
+                    {% endwith %}
+
                     </ul>
                     {% endif %}
                 </div>
                 
-                <!-- Extended Top Tracks Section -->
+                <!-- Extended Top Tracks Section (Short Term) -->
                 <div id="card3" class="card">
+                    <h2 style="margin-bottom: 20px;">Your Complete Top Tracks</h2>
+                    {% if top_tracks %}
+                    {% with tracks=top_tracks.short_term %}
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px;"> Short Term (Last 4 Weeks) </h3>
+                        
+                            {% if tracks %}
+                                <div style="max-height: 300px; overflow-y: auto;">
+                                    <ul style="list-style: none; padding: 0;">
+                                        {% for track in tracks %}
+                                            <li style="margin-bottom: 15px; padding: 10px; background-color: rgba(0, 0, 0, 0.05); border-radius: 8px;">
+                                                <div style="font-weight: bold;">{{ track.name }}</div>
+                                                <div style="font-size: 0.9em;">
+                                                    {% for artist in track.artists %}
+                                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <div style="font-size: 0.8em; opacity: 0.7;">
+                                                    Rank #{{ forloop.counter }}
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <p style="opacity: 0.7;">No tracks found for this time period.</p>
+                            {% endif %}
+                        </div>
+                    {% endwith %}
+                    {% endif %}
+                </div>
+            
+                <!-- Extended Top Tracks Section (Medium Term) -->
+                <div id="card4" class="card">
+                    <h2 style="margin-bottom: 20px;">Your Complete Top Tracks</h2>
+                    {% if top_tracks %}
+                    {% with tracks=top_tracks.medium_term %}
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px;"> Medium Term (Last 6 Months) </h3>
+                        
+                            {% if tracks %}
+                                <div style="max-height: 300px; overflow-y: auto;">
+                                    <ul style="list-style: none; padding: 0;">
+                                        {% for track in tracks %}
+                                            <li style="margin-bottom: 15px; padding: 10px; background-color: rgba(0, 0, 0, 0.05); border-radius: 8px;">
+                                                <div style="font-weight: bold;">{{ track.name }}</div>
+                                                <div style="font-size: 0.9em;">
+                                                    {% for artist in track.artists %}
+                                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <div style="font-size: 0.8em; opacity: 0.7;">
+                                                    Rank #{{ forloop.counter }}
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <p style="opacity: 0.7;">No tracks found for this time period.</p>
+                            {% endif %}
+                        </div>
+                    {% endwith %}
+                    {% endif %}
+                </div>
+            
+                <!-- Extended Top Tracks Section (Long Term) -->
+                <div id="card5" class="card">
+                    <h2 style="margin-bottom: 20px;">Your Complete Top Tracks</h2>
+                    {% if top_tracks %}
+                    {% with tracks=top_tracks.long_term %}
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px;"> Long Term (All Time) </h3>
+                        
+                            {% if tracks %}
+                                <div style="max-height: 300px; overflow-y: auto;">
+                                    <ul style="list-style: none; padding: 0;">
+                                        {% for track in tracks %}
+                                            <li style="margin-bottom: 15px; padding: 10px; background-color: rgba(0, 0, 0, 0.05); border-radius: 8px;">
+                                                <div style="font-weight: bold;">{{ track.name }}</div>
+                                                <div style="font-size: 0.9em;">
+                                                    {% for artist in track.artists %}
+                                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <div style="font-size: 0.8em; opacity: 0.7;">
+                                                    Rank #{{ forloop.counter }}
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <p style="opacity: 0.7;">No tracks found for this time period.</p>
+                            {% endif %}
+                        </div>
+                    {% endwith %}
+                    {% endif %}
+                </div>
+            
+                <!-- Extended Top Tracks Section (All) -->
+                <div id="card6" class="card">
                     <h2 style="margin-bottom: 20px;">Your Complete Top Tracks</h2>
                     {% if top_tracks %}
                     {% for time_range, tracks in top_tracks.items %}
@@ -352,7 +467,7 @@
                 </div>
             
                 <!-- Top Artists Section -->
-                <div id="card4" class="card">
+                <div id="card7" class="card">
                     <h2 style="margin-bottom: 20px;">Your Top Artists</h2>
                     {% if top_artists %}
                     {% for time_range, artists in top_artists.items %}
@@ -396,7 +511,7 @@
                     {% endif %}
                 </div>
             
-                <div id="card5" class="card">
+                <div id="card8" class="card">
                     <h3>Most Listened Album: {{ most_listened_album }}</h3>
                     {% if most_listened_album_details %}
                         <img class = "album-cover" src="{{ most_listened_album_details.image_url }}" alt="Album Cover">
