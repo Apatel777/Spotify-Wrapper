@@ -16,9 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include  # Add 'include' here
+from django.conf.urls.i18n import i18n_patterns
+urlpatterns = []
 
-urlpatterns = [
+urlpatterns += i18n_patterns(
     path('', include('users.urls')),
-    path('users/', include('users.urls')),  # Use 'include' to link to the users app
-]
-
+    prefix_default_language=True
+)

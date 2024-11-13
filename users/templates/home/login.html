@@ -7,39 +7,50 @@
     <style>
         /* Root variables for dark mode */
         :root {
-            --bg-color: #121212;
-            --text-color: white;
-            --form-bg-color: #282828;
-            --input-bg-color: #121212;
-            --btn-bg-color: #1DB954;
-            --btn-hover-color: #1aa34a;
-            --footer-bg-color: #282828;
-            --overlay-color: rgba(0, 0, 0, 0.7);
+            --bg-color: #2c013b; /* Deep purple for dark mode background */
+            --text-color: #ece4ff; /* Light lavender text for strong contrast */
+            --form-bg-color: #3e165b; /* Darker purple for the form background */
+            --input-bg-color: #4a2070; /* Darker purple for input background */
+            --btn-bg-color: #9b88e8; /* Soft purple for buttons */
+            --btn-hover-color: #7350c3; /* Rich purple for hover */
+            --footer-bg-color: #533485; /* Dark purple for footer */
+            --footer-text-color: #9b88e8;
+            --overlay-color: rgba(0, 0, 0, 0.85); /* Darker overlay for contrast */
+        }
+        .light-mode {
+            --bg-color: #ffffff; /* Bright white background for light mode */
+            --text-color: #29004b; /* Dark purple text for contrast */
+            --form-bg-color: #f7f7fc; /* Soft lavender for form background */
+            --input-bg-color: #f0f0f0; /* Light grey for input background */
+            --btn-bg-color: #9a4dff; /* Bright purple for buttons */
+            --btn-hover-color: #7e38cc; /* Darker purple for button hover */
+            --footer-bg-color: #e6dbff; /* Soft light lavender for footer background */
+            --footer-text-color: #9a4dff;
+            --overlay-color: rgba(255, 255, 255, 0.7); /* Light transparent overlay */
+        }
+        .color-mode {
+            --bg-color: #5e5ed2; /* Purple-blue background */
+            --text-color: blue; /* Blue text */
+            --form-bg-color: #f7f7fc; /* Soft lavender for form background */
+            --input-bg-color: #f0f0f0; /* Light grey for input background */
+            --btn-bg-color: #7777cc; /* Greenish button background */
+            --btn-hover-color: #3b5bba; /* Darker blue button hover color */
+            --footer-bg-color: #5e5ed2; /* Same background color for the footer */
+            --footer-text-color: blue;
+            --overlay-color: rgba(255, 255, 255, 0.7); /* Light transparent overlay */
         }
 
-        /* Light mode variables */
-        .light-mode {
-            --bg-color: #ffffff; /* Light background */
-            --text-color: #000000; /* Dark text */
-            --form-bg-color: #f0f0f0; /* Light form background */
-            --input-bg-color: #ffffff; /* White input background */
-            --btn-bg-color: #1DB954; /* Keep the green button */
-            --btn-hover-color: #1aa34a;
-            --footer-bg-color: #f0f0f0; /* Light grey footer */
-            --overlay-color: rgba(255, 255, 255, 0.7); /* Light overlay */
-        }
 
         body, html {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             height: 100vh;
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Main login section */
         .login-container {
             display: flex;
             justify-content: center;
@@ -47,9 +58,9 @@
             height: 100%;
             background-size: cover;
             background-position: center;
+            position: relative;
         }
 
-        /* Overlay to darken or lighten the background */
         .login-container::before {
             content: "";
             position: absolute;
@@ -57,19 +68,18 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: var(--overlay-color); /* Variable for dark/light overlay */
+            background-color: var(--overlay-color);
             transition: background-color 0.3s;
         }
 
-        /* Form box styling */
         .login-form {
             position: relative;
             z-index: 1;
             background-color: var(--form-bg-color);
             padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            width: 400px;
+            border-radius: 10px;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
+            width: 350px;
             text-align: center;
             transition: background-color 0.3s;
         }
@@ -77,14 +87,14 @@
         .login-form h2 {
             margin-bottom: 20px;
             font-size: 2em;
-            font-weight: bold;
+            font-weight: 600;
         }
 
         .login-form input {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 5px;
             border: 1px solid var(--btn-bg-color);
             background-color: var(--input-bg-color);
             color: var(--text-color);
@@ -93,22 +103,22 @@
 
         .login-form button {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-top: 20px;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             background-color: var(--btn-bg-color);
             color: var(--text-color);
             font-size: 1.2em;
+            font-weight: 600;
             cursor: pointer;
             transition: background-color 0.3s;
         }
 
         .login-form button:hover {
-            background-color: var(--btn-hover-color); /* Darker green on hover */
+            background-color: var(--btn-hover-color);
         }
 
-        /* Footer styling */
         footer {
             background-color: var(--footer-bg-color);
             text-align: center;
@@ -117,11 +127,11 @@
             bottom: 0;
             width: 100%;
             font-size: 0.9em;
-            transition: background-color 0.3s;
+            transition: background-color 1s;
         }
 
         footer a {
-            color: var(--btn-bg-color);
+            color: var(--footer-text-color);
             text-decoration: none;
         }
 
@@ -129,7 +139,6 @@
             text-decoration: underline;
         }
 
-        /* Dark/Light mode toggle button */
         .toggle-btn {
             background-color: var(--btn-bg-color);
             color: var(--text-color);
@@ -142,6 +151,10 @@
             top: 20px;
             right: 20px;
             z-index: 2;
+        }
+        
+        .toggle-btn:hover {
+            background-color: var(--btn-hover-color);
         }
 
     </style>
@@ -162,7 +175,7 @@
         <input type="text" name="username" placeholder="Username" required>
         <input type="password" name="password" placeholder="Password" required>
         <button type="submit">Log In</button>
-        <p>Don't have an account? <a href="{% url 'signup' %}" style="color: var(--btn-bg-color);">Sign Up</a></p>
+        <p>Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
     </form>
 </div>
 
@@ -173,15 +186,57 @@
 
 <!-- JavaScript for Dark/Light Mode Toggle -->
 <script>
+    // Function to toggle between light and dark mode
     function toggleMode() {
-        document.body.classList.toggle('light-mode');
-        const toggleBtn = document.querySelector('.toggle-btn');
-        if (document.body.classList.contains('light-mode')) {
-            toggleBtn.textContent = 'Dark Mode';
+        const body = document.body;
+        const btn = document.querySelector('.toggle-btn');
+        const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
+                             body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+    
+        // Switch between modes
+        if (currentTheme === 'light-mode') {
+            body.classList.remove('light-mode');
+            body.classList.add('dark-mode');
+            btn.textContent = 'Color Mode';
+            localStorage.setItem('theme', 'dark-mode');
+        } else if (currentTheme === 'dark-mode') {
+            body.classList.remove('dark-mode');
+            body.classList.add('color-mode');
+            btn.textContent = 'Light Mode';
+            localStorage.setItem('theme', 'color-mode');
         } else {
-            toggleBtn.textContent = 'Light Mode';
+            body.classList.remove('color-mode');
+            body.classList.add('light-mode');
+            btn.textContent = 'Dark Mode';
+            localStorage.setItem('theme', 'light-mode');
         }
     }
+    
+    // Function to apply the saved theme from localStorage
+    function applySavedMode() {
+        const savedTheme = localStorage.getItem('theme');
+        const body = document.body;
+        const btn = document.querySelector('.toggle-btn');
+    
+        // Apply the saved theme if it exists
+        if (savedTheme === 'light-mode') {
+            body.classList.add('light-mode');
+            btn.textContent = 'Dark Mode';
+        } else if (savedTheme === 'dark-mode') {
+            body.classList.add('dark-mode');
+            btn.textContent = 'Color Mode';
+        } else if (savedTheme === 'color-mode') {
+            body.classList.add('color-mode');
+            btn.textContent = 'Light Mode';
+        } else {
+            // Default to light mode if no theme is saved
+            body.classList.add('light-mode');
+            btn.textContent = 'Dark Mode';
+        }
+    }
+
+    // Call applySavedMode on page load to apply the correct theme
+    window.onload = applySavedMode;
 </script>
 
 </body>

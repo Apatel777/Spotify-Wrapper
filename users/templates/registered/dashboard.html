@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,33 +6,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SpotifyWrapper Dashboard</title>
     <style>
-        /* Custom CSS */
-
-        /* Reset some default styling */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* Root variables for dark mode */
+        :root {
+            --bg-color: #2c013b;
+            --text-color: #ece4ff;
+            --card-bg-color: #4a2070;
+            --btn-bg-color: #9b88e8;
+            --btn-hover-color: #7350c3;
+            --arrow-btn-color:#9b88e8;
+            --arrow-btn-hover-color: #7350c3;
+            --footer-bg-color: #533485;
+            --footer-text-color: #ece4ff;
         }
 
+        /* Light mode variables */
+        .light-mode {
+            --bg-color: #ffffff;
+            --text-color: #29004b;
+            --card-bg-color: #f7f7fc;
+            --btn-bg-color: #9a4dff;
+            --btn-hover-color: #7e38cc;
+            --arrow-btn-color: #9a4dff;
+            --arrow-btn-hover-color: #7e38cc;
+            --footer-bg-color: #e6dbff;
+            --footer-text-color: #29004b;
+        }
+        
+        .color-mode {
+            --bg-color: #5e5ed2;
+            --text-color: blue;
+            --card-bg-color: rgba(247, 247, 252, 0.6);
+            --btn-bg-color: #7777cc;
+            --btn-hover-color: #3b5bba;
+            --arrow-btn-color: white;
+            --arrow-btn-hover-color: white;
+            --footer-bg-color: #454597;
+            --footer-text-color: white;
+        }
+        
+        /* Apply the variable-based colors */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             padding: 20px;
         }
 
-        /* Navigation Bar Styling */
+        /* Navbar styling */
         .navbar {
-            background-color: #1DB954;
+            background-color: var(--footer-bg-color);
+            color: var(--footer-text-color);
             padding: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .navbar-brand {
             font-size: 24px;
-            color: white;
+            font-weight: 600;
         }
 
         .navbar-links {
@@ -44,7 +79,7 @@
         }
 
         .navbar-links a {
-            color: white;
+            color: var(--footer-text-color);
             text-decoration: none;
             font-size: 18px;
         }
@@ -53,6 +88,7 @@
         .dashboard {
             display: flex;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
 
         /* Sidebar */
@@ -62,6 +98,8 @@
             color: white;
             padding: 20px;
             border-radius: 10px;
+            margin-right: 20px;
+            flex-shrink: 0;
         }
 
         .sidebar h3 {
@@ -82,29 +120,38 @@
             text-decoration: none;
         }
 
+        /* Content Area */
         .content {
             flex: 1;
-            margin-left: 20px;
         }
 
         .content h1 {
             font-size: 28px;
             margin-bottom: 20px;
+            color: var(--footer-text-color);
         }
-
-        .cards {
+        
+        /* Cards Container */
+        .cards-container {
             display: flex;
-            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            overflow-x: auto; /* Enable horizontal scroll */
+            white-space: nowrap; /* Prevent cards from wrapping to the next line */
         }
-
-        /* Card styling */
+        
+        /* Card Styling */
         .card {
-            background-color: white;
+            background-color: var(--card-bg-color);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 300px;
+            color: var(--text-color);
+            width: 600px; /* Set a fixed width for all cards */
+            height: 450px;
+            flex-shrink: 0; /* Prevent cards from shrinking */
+            overflow-y: auto;
         }
 
         .card h3 {
@@ -114,7 +161,25 @@
 
         .card p {
             font-size: 16px;
-            color: #555;
+            color: var(--text-color);
+        }
+
+        /* Arrow Styling */
+        .arrow {
+            font-size: 30px;
+            color: var(--arrow-btn-color);
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .arrow:hover {
+            color: var(--arrow-btn-hover-color);
+        }
+        
+        .album-cover {
+            max-width: 300px; /* Set the maximum width */
+            height: auto; /* Maintain aspect ratio */
+            margin-top: 10px; /* Optional: Add some space above the image */
         }
 
         /* Responsive Design */
@@ -123,13 +188,24 @@
                 flex-direction: column;
             }
 
-            .cards {
-                flex-direction: column;
-            }
-
             .sidebar {
                 margin-bottom: 20px;
             }
+        }
+
+        /* Toggle Button */
+        .toggle-btn {
+            background-color: var(--btn-bg-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .toggle-btn:hover {
+            background-color: var(--btn-hover-color);
         }
     </style>
 </head>
@@ -140,59 +216,387 @@
         <div class="navbar-brand">SpotifyWrapper</div>
         <ul class="navbar-links">
             <li><a href="#">Home</a></li>
-            <li><a href="#">Playlists</a></li>
+            <li><a href="#">Year in Review</a></li>
             <li><a href="#">Search</a></li>
             <li><a href="{% url 'profile' %}">Profile</a></li>
             <li><a href="{% url 'logout' %}">Logout</a></li>
+            <li><button class="toggle-btn" onclick="toggleMode()">Light Mode</button></li>
         </ul>
     </nav>
 
     <!-- Main Dashboard Section -->
     <div class="dashboard">
         <div class="sidebar">
-            <h3>Navigation</h3>
+            <h3>Your Stats</h3>
             <ul>
-                <li><a href="#">Overview</a></li>
-                <li><a href="#">Recently Played</a></li>
-                <li><a href="#">Top Tracks</a></li>
                 <li><a href="#">Top Artists</a></li>
+                <li><a href="#">Top Tracks</a></li>
+                <li><a href="#">Most Played Genres</a></li>
+                <li><a href="#">Listening Time</a></li>
             </ul>
         </div>
 
         <div class="content">
-            <h1>Welcome to Your Dashboard</h1>
-            <div class="cards">
-                <div class="card">
-                    <h3>Playlists</h3>
-                    <p>You have 10 playlists.</p>
+            <h1>Your SpotifyWrapper</h1>
+            {% if messages %}
+            <div>
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
                 </div>
-                <div class="card">
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Debug Info Card -->
+            {% if debug_info %}
+            <div>
+                <h3>Debug Information</h3>
+                <ul>
+                    <li>Spotify Connected: {{ debug_info.spotify_connected }}</li>
+                    <li>Profile API Status: {{ debug_info.profile_status }}</li>
+                    <li>Recent Tracks API Status: {{ debug_info.recent_tracks_status }}</li>
+                    <li>Top Tracks API Status: {{ debug_info.top_tracks_status }}</li>
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- Error Message -->
+            {% if error %}
+            <div>
+                <h2 style="margin-bottom: 20px;">Error messages</h2>
+                <h3 style="color: #ff4444;">Error</h3>
+                <p>{{ error }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Cards Container -->
+            <div class="cards-container">
+                <span class="arrow" onclick="changeCard('prev')">&#8592;</span>
+
+                <!-- Recent Tracks Card -->
+                <div id="card1" class="card">
                     <h3>Recently Played</h3>
-                    <p>Your latest track: "Song Title" by "Artist".</p>
+                    {% if recent_tracks %}
+                    <ul style="list-style: none; padding: 0;">
+                        {% for item in recent_tracks|slice:":5" %}
+                            <li style="margin-bottom: 15px; padding: 10px; background-color: rgba(0, 0, 0, 0.05); border-radius: 8px;">
+                                <div style="font-weight: bold;">{{ item.track.name }}</div>
+                                <div style="font-size: 0.9em;">
+                                    {% for artist in item.track.artists %}
+                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div style="font-size: 0.8em; opacity: 0.7;">
+                                    {{ item.played_at|slice:"11:16" }}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
                 </div>
-                <div class="card">
-                    <h3>Top Artists</h3>
-                    <p>Your top artist this month is: "Artist Name".</p>
+                
+                <!-- Top Track Card -->
+                <div id="card2" class="card">
+                    <h3>Top Track</h3>
+                    {% if top_tracks %}
+                    <ul style="list-style: none; padding: 0;">
+                    {% with first_track=top_tracks.short_term.0 %}
+                        <li style="margin-bottom: 15px; padding: 10px; background-color: rgba(0, 0, 0, 0.05); border-radius: 8px;">
+                            <!-- Track Name -->
+                            <div style="font-weight: bold;">{{ first_track.name }}</div>
+                    
+                            <!-- Information -->
+                            <div style="font-size: 0.9em;">
+                                {% for artist in first_track.artists %}
+                                    {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                                <br>
+                                Album: {{ first_track.album.name }} <br>
+                                Popularity: {{ first_track.popularity }} / 100
+                            </div>
+                        
+                        </li>
+                    {% endwith %}
+
+                    </ul>
+                    {% endif %}
                 </div>
+                
+                <!-- Extended Top Tracks Section (Short Term) -->
+                <div id="card3" class="card">
+                    <h2 style="margin-bottom: 20px;">Your Complete Top Tracks</h2>
+                    {% if top_tracks %}
+                    {% with tracks=top_tracks.short_term %}
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px;"> Short Term (Last 4 Weeks) </h3>
+                        
+                            {% if tracks %}
+                                <div style="max-height: 300px; overflow-y: auto;">
+                                    <ul style="list-style: none; padding: 0;">
+                                        {% for track in tracks %}
+                                            <li style="margin-bottom: 15px; padding: 10px; background-color: rgba(0, 0, 0, 0.05); border-radius: 8px;">
+                                                <div style="font-weight: bold;">{{ track.name }}</div>
+                                                <div style="font-size: 0.9em;">
+                                                    {% for artist in track.artists %}
+                                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <div style="font-size: 0.8em; opacity: 0.7;">
+                                                    Rank #{{ forloop.counter }}
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <p style="opacity: 0.7;">No tracks found for this time period.</p>
+                            {% endif %}
+                        </div>
+                    {% endwith %}
+                    {% endif %}
+                </div>
+            
+                <!-- Extended Top Tracks Section (Medium Term) -->
+                <div id="card4" class="card">
+                    <h2 style="margin-bottom: 20px;">Your Complete Top Tracks</h2>
+                    {% if top_tracks %}
+                    {% with tracks=top_tracks.medium_term %}
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px;"> Medium Term (Last 6 Months) </h3>
+                        
+                            {% if tracks %}
+                                <div style="max-height: 300px; overflow-y: auto;">
+                                    <ul style="list-style: none; padding: 0;">
+                                        {% for track in tracks %}
+                                            <li style="margin-bottom: 15px; padding: 10px; background-color: rgba(0, 0, 0, 0.05); border-radius: 8px;">
+                                                <div style="font-weight: bold;">{{ track.name }}</div>
+                                                <div style="font-size: 0.9em;">
+                                                    {% for artist in track.artists %}
+                                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <div style="font-size: 0.8em; opacity: 0.7;">
+                                                    Rank #{{ forloop.counter }}
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <p style="opacity: 0.7;">No tracks found for this time period.</p>
+                            {% endif %}
+                        </div>
+                    {% endwith %}
+                    {% endif %}
+                </div>
+            
+                <!-- Extended Top Tracks Section (Long Term) -->
+                <div id="card5" class="card">
+                    <h2 style="margin-bottom: 20px;">Your Complete Top Tracks</h2>
+                    {% if top_tracks %}
+                    {% with tracks=top_tracks.long_term %}
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px;"> Long Term (All Time) </h3>
+                        
+                            {% if tracks %}
+                                <div style="max-height: 300px; overflow-y: auto;">
+                                    <ul style="list-style: none; padding: 0;">
+                                        {% for track in tracks %}
+                                            <li style="margin-bottom: 15px; padding: 10px; background-color: rgba(0, 0, 0, 0.05); border-radius: 8px;">
+                                                <div style="font-weight: bold;">{{ track.name }}</div>
+                                                <div style="font-size: 0.9em;">
+                                                    {% for artist in track.artists %}
+                                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <div style="font-size: 0.8em; opacity: 0.7;">
+                                                    Rank #{{ forloop.counter }}
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <p style="opacity: 0.7;">No tracks found for this time period.</p>
+                            {% endif %}
+                        </div>
+                    {% endwith %}
+                    {% endif %}
+                </div>
+            
+                <!-- Extended Top Tracks Section (All) -->
+                <div id="card6" class="card">
+                    <h2 style="margin-bottom: 20px;">Your Complete Top Tracks</h2>
+                    {% if top_tracks %}
+                    {% for time_range, tracks in top_tracks.items %}
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px;">
+                                {% if time_range == 'short_term' %}
+                                    Last 4 Weeks
+                                {% elif time_range == 'medium_term' %}
+                                    Last 6 Months
+                                {% else %}
+                                    All Time
+                                {% endif %}
+                            </h3>
+                            {% if tracks %}
+                                <div style="max-height: 300px; overflow-y: auto;">
+                                    <ul style="list-style: none; padding: 0;">
+                                        {% for track in tracks %}
+                                            <li style="margin-bottom: 15px; padding: 10px; background-color: rgba(0, 0, 0, 0.05); border-radius: 8px;">
+                                                <div style="font-weight: bold;">{{ track.name }}</div>
+                                                <div style="font-size: 0.9em;">
+                                                    {% for artist in track.artists %}
+                                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <div style="font-size: 0.8em; opacity: 0.7;">
+                                                    Rank #{{ forloop.counter }}
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <p style="opacity: 0.7;">No tracks found for this time period.</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            
+                <!-- Top Artists Section -->
+                <div id="card7" class="card">
+                    <h2 style="margin-bottom: 20px;">Your Top Artists</h2>
+                    {% if top_artists %}
+                    {% for time_range, artists in top_artists.items %}
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px;">
+                                {% if time_range == 'short_term' %}
+                                    Last 4 Weeks
+                                {% elif time_range == 'medium_term' %}
+                                    Last 6 Months
+                                {% else %}
+                                    All Time
+                                {% endif %}
+                            </h3>
+                            {% if artists %}
+                                <div style="max-height: 400px; overflow-y: auto;">
+                                    <ul style="list-style: none; padding: 0;">
+                                        {% for artist in artists %}
+                                            <li style="margin-bottom: 15px; padding: 10px; background-color: rgba(0, 0, 0, 0.05); border-radius: 8px;">
+                                                <div style="font-weight: bold;">{{ artist.name }}</div>
+                                                <div style="font-size: 0.8em; opacity: 0.7;">
+                                                    Followers: {{ artist.followers.total }}
+                                                </div>
+                                                <div style="font-size: 0.8em; opacity: 0.7;">
+                                                    Genres: 
+                                                    {% for genre in artist.genres %}
+                                                        {{ genre }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <div style="font-size: 0.8em; opacity: 0.7;">
+                                                    Rank #{{ forloop.counter }}
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <p style="opacity: 0.7;">No top artists found for this time period.</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            
+                <div id="card8" class="card">
+                    <h3>Most Listened Album: {{ most_listened_album }}</h3>
+                    {% if most_listened_album_details %}
+                        <img class = "album-cover" src="{{ most_listened_album_details.image_url }}" alt="Album Cover">
+                        <p>Artist: {{ most_listened_album_details.artist }}</p>
+                    {% endif %}
+                </div>
+
+                <span class="arrow" onclick="changeCard('next')">&#8594;</span>
             </div>
         </div>
     </div>
 
     <script>
-        // Custom JavaScript for interactive elements
+        let currentCardIndex = 0;
+        const cards = document.querySelectorAll('.card');
 
-        // Simulate data from an API or user action
-        document.addEventListener('DOMContentLoaded', function() {
-            const playlists = 12;
-            const latestTrack = "Blinding Lights";
-            const latestArtist = "The Weeknd";
-            const topArtist = "Drake";
+        // Display the first card by default
+        displayCard(currentCardIndex);
 
-            // Update card content dynamically
-            document.querySelectorAll('.card')[0].querySelector('p').textContent = `You have ${playlists} playlists.`;
-            document.querySelectorAll('.card')[1].querySelector('p').textContent = `Your latest track: "${latestTrack}" by "${latestArtist}".`;
-            document.querySelectorAll('.card')[2].querySelector('p').textContent = `Your top artist this month is: "${topArtist}".`;
-        });
+        function displayCard(index) {
+            cards.forEach((card, i) => {
+                card.style.display = i === index ? 'block' : 'none';
+            });
+        }
+
+        function changeCard(direction) {
+            if (direction === 'next') {
+                currentCardIndex = (currentCardIndex + 1) % cards.length;
+            } else if (direction === 'prev') {
+                currentCardIndex = (currentCardIndex - 1 + cards.length) % cards.length;
+            }
+            displayCard(currentCardIndex);
+        }
+
+        // Function to toggle between light and dark mode
+        function toggleMode() {
+            const body = document.body;
+            const btn = document.querySelector('.toggle-btn');
+            const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
+                                 body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+        
+            // Switch between modes
+            if (currentTheme === 'light-mode') {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                btn.textContent = 'Color Mode';
+                localStorage.setItem('theme', 'dark-mode');
+            } else if (currentTheme === 'dark-mode') {
+                body.classList.remove('dark-mode');
+                body.classList.add('color-mode');
+                btn.textContent = 'Light Mode';
+                localStorage.setItem('theme', 'color-mode');
+            } else {
+                body.classList.remove('color-mode');
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
+                localStorage.setItem('theme', 'light-mode');
+            }
+        }
+        
+        // Function to apply the saved theme from localStorage
+        function applySavedMode() {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            const btn = document.querySelector('.toggle-btn');
+        
+            // Apply the saved theme if it exists
+            if (savedTheme === 'light-mode') {
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
+            } else if (savedTheme === 'dark-mode') {
+                body.classList.add('dark-mode');
+                btn.textContent = 'Color Mode';
+            } else if (savedTheme === 'color-mode') {
+                body.classList.add('color-mode');
+                btn.textContent = 'Light Mode';
+            } else {
+                // Default to light mode if no theme is saved
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode';
+            }
+        }
+    
+        // Call applySavedMode on page load to apply the correct theme
+        window.onload = applySavedMode;
     </script>
 </body>
 </html>
