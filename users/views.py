@@ -11,98 +11,48 @@ from urllib.parse import urlencode
 from .models import User
 from spotipy.oauth2 import SpotifyOAuth
 import requests
-
-
-
-
-def create_spotify_auth_url():
-    params = {
-        "response_type": "code",
-        "client_id": settings.SPOTIFY_CLIENT_ID,
-        "redirect_uri": settings.SPOTIFY_REDIRECT_URI,
-        "scope": "user-read-private user-read-email user-top-read",
-        "show_dialog": 'true',
-
-    }
-    auth_url = "https://accounts.spotify.com/authorize?" + urlencode(params)
-    return auth_url
-
-@login_required
-def spotify_callback(request):
-    # Check if the user is authenticated
-    if not request.user.is_authenticated:
-        print("Not authenticated")
-        return redirect('login')  # Redirect to login page if the user is not authenticated
-
-    code = request.GET.get('code')
-
-    if code:
-        try:
-            # Initialize the Spotipy client with credentials and updated scope
-            sp_oauth = SpotifyOAuth(
-                client_id=settings.SPOTIFY_CLIENT_ID,
-                client_secret=settings.SPOTIFY_CLIENT_SECRET,
-                redirect_uri=settings.SPOTIFY_REDIRECT_URI,
-                scope="user-read-private user-read-email user-top-read"  # Ensure user-top-read is included
-            )
-            token_info = sp_oauth.get_access_token(code)
-            access_token = token_info['access_token']
-
-            # Initialize Spotipy with the access token
-            sp = spotipy.Spotify(auth=access_token)
-
-            # Get the user's top tracks
-            #top_tracks = sp.current_user_top_tracks(limit=10)  # Example call to fetch top tracks
-
-            # Get the current logged-in user
-            user = request.user
-
-            # Update the user's profile with Spotify data
-            user.spotify_access_token = access_token
-            #user.spotify_top_tracks = top_tracks  # Assuming you have a field to store top tracks
-            user.save()
-
-            # Redirect the user to the dashboard once everything is set
-            return redirect('dashboard')  # Make sure dashboard view is accessible and not redirecting to the callback again
-
-        except Exception as e:
-            # Handle errors like invalid authorization or data retrieval failure
-            return HttpResponse(f"Error retrieving user data from Spotify: {str(e)}")
-
-    # If there is no 'code' in the GET request, it indicates something went wrong with the Spotify callback
-    return HttpResponse("No authorization code found.")
+from django.utils import timezone
+from django.contrib import messages
+from django.db import IntegrityError
 
 def home_view(request):
     return render(request, 'home/home.html', {})
+
+
 def signup(request):
-    # Get the theme from session, default to light mode
+    """Handle user signup and Spotify OAuth initiation"""
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+
     theme = request.session.get('theme', 'light')
 
     if request.method == 'POST':
-        username = request.POST['username']
-        email = request.POST['email']
-        password = request.POST['password']
+        print(f"Starting signup process for username: {request.POST.get('username')}")
 
-        # Check if the email or username is already in use
-        if User.objects.filter(email=email).exists():
-            return render(request, 'home/signup.html', {'theme': theme, 'error': 'Email already in use'})
-        if User.objects.filter(username=username).exists():
-            return render(request, 'home/signup.html', {'theme': theme, 'error': 'Username already in use'})
+        # Store new signup data
+        request.session['signup_data'] = {
+            'username': request.POST['username'],
+            'email': request.POST['email'],
+            'password': request.POST['password'],
+        }
 
-        # Hash the password before saving
-        hashed_password = make_password(password)
+        # Validation checks with early return
+        if User.objects.filter(username=request.POST['username']).exists():
+            messages.error(request, 'Username already exists')
+            return render(request, 'home/signup.html', {'error': 'Username already exists', 'theme': theme})
+        if User.objects.filter(username=request.POST['email']).exists():
+            messages.error(request, 'Email already exists')
+            return render(request, 'home/signup.html', {'error': 'Email already exists', 'theme': theme})
 
-        # Create and save the user (without logging them in yet)
-        user = User(username=username, email=email, password=hashed_password)
-        user.save()
+        # Generate new state parameter
+        import secrets
+        state = secrets.token_urlsafe(32)
+        request.session['oauth_state'] = state
 
-        # Log in the user after signup
-        login(request, user)
+        # Redirect to Spotify OAuth
+        print("Redirecting to Spotify OAuth URL: ...")
+        return HttpResponseRedirect(create_spotify_auth_url(state))
 
-        # Redirect to Spotify OAuth for linkage
-        return HttpResponseRedirect(create_spotify_auth_url())
-
-    # Render the signup form with the theme
     return render(request, 'home/signup.html', {'theme': theme})
 
 
@@ -131,39 +81,184 @@ def login_view(request):
 
     return render(request, 'home/login.html', {'theme': theme})
 
+def create_spotify_auth_url(state=None):
+    """Create Spotify authorization URL with state parameter and force_dialog=true"""
+    params = {
+        "response_type": "code",
+        "client_id": settings.SPOTIFY_CLIENT_ID,
+        "redirect_uri": settings.SPOTIFY_REDIRECT_URI,
+        "scope": "user-read-private user-read-email user-top-read user-read-recently-played",
+        "show_dialog": 'true',  # Force showing the Spotify login dialog
+        "force_dialog": 'true'  # Additional parameter to force new login
+    }
+    if state:
+        params["state"] = state
+
+    auth_url = "https://accounts.spotify.com/authorize?" + urlencode(params)
+    print(f"Generated Spotify auth URL with parameters: {params}")
+    return auth_url
+
+def refresh_spotify_token(user):
+    """Helper function to refresh expired Spotify token"""
+    sp_oauth = SpotifyOAuth(
+        client_id=settings.SPOTIFY_CLIENT_ID,
+        client_secret=settings.SPOTIFY_CLIENT_SECRET,
+        redirect_uri=settings.SPOTIFY_REDIRECT_URI,
+        scope="user-read-private user-read-email user-top-read user-read-recently-played"
+    )
+
+    try:
+        token_info = sp_oauth.refresh_access_token(user.spotify_refresh_token)
+        user.spotify_access_token = token_info['access_token']
+        user.spotify_refresh_token = token_info.get('refresh_token', user.spotify_refresh_token)
+        user.spotify_token_expires = timezone.now() + timezone.timedelta(seconds=token_info['expires_in'])
+        user.save(update_fields=['spotify_access_token', 'spotify_refresh_token', 'spotify_token_expires'])
+        return token_info['access_token']
+    except Exception as e:
+        print(f"Error refreshing token: {e}")
+        return None
+
+
+def spotify_callback(request):
+    """Handle Spotify OAuth callback and create user"""
+    code = request.GET.get('code')
+    state = request.GET.get('state')
+    stored_state = request.session.get('oauth_state')
+    signup_data = request.session.get('signup_data')
+
+    # Verify state parameter to prevent CSRF
+    if not state or state != stored_state:
+        messages.error(request, 'Invalid OAuth state')
+        return redirect('signup')
+
+    if not code or not signup_data:
+        messages.error(request, 'Missing required data')
+        return redirect('signup')
+
+    try:
+        # Initialize Spotify OAuth
+        sp_oauth = SpotifyOAuth(
+            client_id=settings.SPOTIFY_CLIENT_ID,
+            client_secret=settings.SPOTIFY_CLIENT_SECRET,
+            redirect_uri=settings.SPOTIFY_REDIRECT_URI,
+            scope="user-read-private user-read-email user-top-read user-read-recently-played"
+        )
+
+        # Get token info
+        token_info = sp_oauth.get_access_token(code)
+
+        # Get Spotify user info
+        sp = spotipy.Spotify(auth=token_info['access_token'])
+        spotify_user = sp.current_user()
+        spotify_id = spotify_user['id']
+
+        # Check if Spotify account is already linked
+        if User.objects.filter(spotify_id=spotify_id).exists():
+            messages.error(request, 'This Spotify account is already linked to another user')
+            return redirect('signup')
+
+        # Create new user
+        user = User.objects.create_user(
+            username=signup_data['username'],
+            email=signup_data['email'],
+            password=signup_data['password'],
+            spotify_id=spotify_id
+        )
+
+        # Set Spotify tokens
+        user.spotify_access_token = token_info['access_token']
+        user.spotify_refresh_token = token_info['refresh_token']
+        user.spotify_token_expires = timezone.now() + timezone.timedelta(seconds=token_info['expires_in'])
+        user.save()
+
+        # Clean up session data
+        request.session.pop('signup_data', None)
+        request.session.pop('oauth_state', None)
+
+        # Log the user in
+        login(request, user)
+        messages.success(request, 'Successfully created account and connected to Spotify!')
+
+        return redirect('dashboard')
+
+    except Exception as e:
+        messages.error(request, f'Error during signup: {str(e)}')
+        return redirect('signup')
+
 @login_required
 def dashboard(request):
     user = request.user
 
-    # Assuming the access token is stored in the user's model
-    access_token = user.spotify_access_token  # Adjust field name if necessary
+    # Check if token needs refresh
+    if user.spotify_token_expires and timezone.now() >= user.spotify_token_expires:
+        new_token = refresh_spotify_token(user)
+        if not new_token:
+            messages.error(request, "Error refreshing Spotify connection. Please try logging in again.")
+            return redirect('logout')
+        access_token = new_token
+    else:
+        access_token = user.spotify_access_token
 
-    if not access_token:
-        # Redirect to Spotify OAuth if access token is missing
-        return HttpResponseRedirect(create_spotify_auth_url())
+    try:
+        sp = spotipy.Spotify(auth=access_token)
+        recent_tracks = sp.current_user_recently_played(limit=50)['items']
+        top_tracks = {
+            'short_term': sp.current_user_top_tracks(limit=10, time_range='short_term')['items'],
+            'medium_term': sp.current_user_top_tracks(limit=10, time_range='medium_term')['items'],
+            'long_term': sp.current_user_top_tracks(limit=10, time_range='long_term')['items'],
+        }
+        top_artists = {
+            'short_term': sp.current_user_top_artists(limit=10, time_range='short_term')['items'],
+            'medium_term': sp.current_user_top_artists(limit=10, time_range='medium_term')['items'],
+            'long_term': sp.current_user_top_artists(limit=10, time_range='long_term')['items'],
+        }
 
-    # Use the access token to get the user's top tracks
-    headers = {"Authorization": f"Bearer {access_token}"}
+        # Combine all top tracks from different time ranges
+        all_top_tracks = top_tracks['short_term'] + top_tracks['medium_term'] + top_tracks['long_term']
 
-    #top_tracks_url = "https://api.spotify.com/v1/me/top/tracks"
-    # response = requests.get(top_tracks_url, headers=headers)
-    #
-    # if response.status_code == 200:
-    #     # Parse the top tracks data
-    #     top_tracks_data = response.json()
-    #     top_tracks = top_tracks_data.get('items', [])  # List of top tracks
-    # else:
-    #     top_tracks = []
-    #     error_message = "Could not retrieve top tracks from Spotify."
-    #     print(error_message)
+        # Extract album names from top tracks
+        top_albums = [track['album']['name'] for track in all_top_tracks]
 
-    # Render the dashboard template with the top tracks
-    context = {
-        'user': user,
-        #'top_tracks': top_tracks,
-        'theme': request.session.get('theme', 'light'),  # Get theme from session
-    }
-    return render(request, 'registered/dashboard.html', context)
+        # Count the most frequent albums
+        from collections import Counter
+        album_counts = Counter(top_albums)
+
+        # Get the most listened-to album
+        most_listened_album = album_counts.most_common(1)
+
+        context = {
+            'user': user,
+            'theme': request.session.get('theme', 'light'),
+            'spotify_connected': True,
+            'recent_tracks': recent_tracks,
+            'top_tracks': top_tracks,
+            'top_artists': top_artists,
+            'most_listened_album': most_listened_album[0][0] if most_listened_album else None,
+            # Pass most listened album
+        }
+        # Optionally, if you want to pass album details (name, artist, cover image)
+        if most_listened_album:
+            # You can fetch the album details from Spotify using the album ID
+            album_name = most_listened_album[0][0]
+            album = sp.search(q='album:' + album_name, type='album', limit=1)
+            if album['albums']['items']:
+                album_info = album['albums']['items'][0]
+                album_details = {
+                    'name': album_info['name'],
+                    'artist': album_info['artists'][0]['name'],
+                    'image_url': album_info['images'][0]['url'] if album_info['images'] else None,
+                }
+                context['most_listened_album_details'] = album_details
+
+        return render(request, 'registered/dashboard.html', context)
+
+    except Exception as e:
+        messages.error(request, f"Error fetching Spotify data: {str(e)}")
+        return render(request, 'registered/dashboard.html', {
+            'user': user,
+            'theme': request.session.get('theme', 'light'),
+            'spotify_connected': False
+        })
 
 
 def profile_view(request):
