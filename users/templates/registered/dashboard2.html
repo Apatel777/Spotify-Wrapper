@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpotifyWrapper Dashboard</title>
+    <style>
+        /* Modern UI Variables */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #111827;
+            --card-bg-color: #ffffff;
+            --card-border-color: #e5e7eb;
+            --hover-bg-color: #f9fafb;
+            --tab-active-color: #6366f1;
+            --tab-hover-color: #4f46e5;
+        }
+
+        /* Dark mode variables */
+        .dark-mode {
+            --bg-color: #111827;
+            --text-color: #f9fafb;
+            --card-bg-color: #1f2937;
+            --card-border-color: #374151;
+            --hover-bg-color: #374151;
+            --tab-active-color: #818cf8;
+            --tab-hover-color: #6366f1;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* Recently Played Grid */
+        .track-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .track-item {
+            text-align: center;
+        }
+
+        .track-image {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .track-name {
+            font-weight: 500;
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .track-artist {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Tabs */
+        .tabs {
+            border: 1px solid var(--card-border-color);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .tab-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            padding: 0.25rem;
+            background-color: var(--card-bg-color);
+            border-bottom: 1px solid var(--card-border-color);
+        }
+
+        .tab-trigger {
+            padding: 0.5rem;
+            background: none;
+            border: none;
+            border-radius: 0.25rem;
+            color: var(--text-color);
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .tab-trigger:hover {
+            background-color: var(--hover-bg-color);
+        }
+
+        .tab-trigger.active {
+            background-color: var(--tab-active-color);
+            color: white;
+        }
+
+        /* Top Items List */
+        .top-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            gap: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .top-item:hover {
+            background-color: var(--hover-bg-color);
+        }
+
+        .top-item-number {
+            font-size: 1.125rem;
+            font-weight: 600;
+            width: 2rem;
+            text-align: center;
+        }
+
+        .top-item-image {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.25rem;
+        }
+
+        .top-item-info {
+            flex: 1;
+        }
+
+        .top-item-name {
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .top-item-artist {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        /* Toggle Theme Button */
+        .theme-toggle {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--card-border-color);
+            color: var(--text-color);
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--hover-bg-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Recently Played Card -->
+        <div class="card">
+            <div class="card-header">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <h2 class="card-title">Recently Played</h2>
+            </div>
+            <div class="track-grid">
+                {% for item in recent_tracks|slice:":5" %}
+                <div class="track-item">
+                    <img class="track-image" src="/api/placeholder/120/120" alt="Track artwork">
+                    <p class="track-name">{{ item.track.name }}</p>
+                    <p class="track-artist">
+                        {% for artist in item.track.artists %}
+                            {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Tabs Section -->
+        <div class="tabs">
+            <div class="tab-list" role="tablist">
+                <button class="tab-trigger active" role="tab" onclick="showTab('tracks')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18V5l12-2v13"></path>
+                        <circle cx="6" cy="18" r="3"></circle>
+                        <circle cx="18" cy="16" r="3"></circle>
+                    </svg>
+                    Top Tracks
+                </button>
+                <button class="tab-trigger" role="tab" onclick="showTab('artists')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    Top Artists
+                </button>
+            </div>
+
+            <!-- Top Tracks Content -->
+            <div id="tracks-tab" class="card" role="tabpanel">
+                {% if top_tracks %}
+                {% for track in top_tracks.short_term|slice:":5" %}
+                <div class="top-item">
+                    <span class="top-item-number">{{ forloop.counter }}</span>
+                    <img class="top-item-image" src="/api/placeholder/48/48" alt="Track artwork">
+                    <div class="top-item-info">
+                        <p class="top-item-name">{{ track.name }}</p>
+                        <p class="top-item-artist">
+                            {% for artist in track.artists %}
+                                {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Top Artists Content -->
+            <div id="artists-tab" class="card" role="tabpanel" style="display: none;">
+                {% if top_artists %}
+                <div class="track-grid">
+                    {% for artist in top_artists.short_term|slice:":5" %}
+                    <div class="track-item">
+                        <img class="track-image" src="/api/placeholder/200/200" alt="{{ artist.name }}" style="border-radius: 50%;">
+                        <p class="track-name">{{ artist.name }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Most Listened Album Card -->
+        <div class="card">
+            <div class="card-header">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <h2 class="card-title">Most Listened Album</h2>
+            </div>
+            <div style="display: flex; gap: 1.5rem; align-items: center;">
+                <img src="/api/placeholder/128/128" alt="Album artwork" style="width: 8rem; height: 8rem; border-radius: 0.5rem;">
+                <div>
+                    <h3 style="margin: 0; font-size: 1.25rem;">{{ most_listened_album_details.name }}</h3>
+                    <p style="margin: 0.25rem 0 0 0; color: #6b7280;">{{ most_listened_album_details.artist }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="theme-toggle" onclick="toggleTheme()">
+        Toggle theme
+    </button>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
+                panel.style.display = 'none';
+            });
+            
+            // Show selected tab
+            document.getElementById(`${tabName}-tab`).style.display = 'block';
+            
+            // Update active state of triggers
+            document.querySelectorAll('.tab-trigger').forEach(trigger => {
+                trigger.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        }
+
+        // Apply saved theme on load
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+</body>
+</html>
