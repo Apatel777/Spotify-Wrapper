@@ -436,7 +436,7 @@
     </div>
 
     <button class="theme-toggle" onclick="toggleTheme()">
-        Toggle theme: Light Mode
+        Toggle Theme: Light Mode
     </button>
 
     <script>
@@ -483,17 +483,17 @@
             if (currentTheme === 'light-mode') {
                 body.classList.remove('light-mode');
                 body.classList.add('dark-mode');
-                btn.textContent = 'Toggle theme: Color Mode';
+                btn.textContent = 'Toggle Theme: Color Mode';
                 localStorage.setItem('theme', 'dark-mode');
             } else if (currentTheme === 'dark-mode') {
                 body.classList.remove('dark-mode');
                 body.classList.add('color-mode');
-                btn.textContent = 'Toggle theme: Light Mode';
+                btn.textContent = 'Toggle Theme: Light Mode';
                 localStorage.setItem('theme', 'color-mode');
             } else {
                 body.classList.remove('color-mode');
                 body.classList.add('light-mode');
-                btn.textContent = 'Toggle theme: Dark Mode';
+                btn.textContent = 'Toggle Theme: Dark Mode';
                 localStorage.setItem('theme', 'light-mode');
             }
         }
@@ -507,17 +507,17 @@
             // Apply the saved theme if it exists
             if (savedTheme === 'light-mode') {
                 body.classList.add('light-mode');
-                btn.textContent = 'Toggle theme: Dark Mode';
+                btn.textContent = 'Toggle Theme: Dark Mode';
             } else if (savedTheme === 'dark-mode') {
                 body.classList.add('dark-mode');
-                btn.textContent = 'Toggle theme: Color Mode';
+                btn.textContent = 'Toggle Theme: Color Mode';
             } else if (savedTheme === 'color-mode') {
                 body.classList.add('color-mode');
-                btn.textContent = 'Toggle theme: Light Mode';
+                btn.textContent = 'Toggle Theme: Light Mode';
             } else {
                 // Default to light mode if no theme is saved
                 body.classList.add('light-mode');
-                btn.textContent = 'Toggle theme: Dark Mode';
+                btn.textContent = 'Toggle Theme: Dark Mode';
             }
         }
     

@@ -304,7 +304,7 @@ def set_language(request):
             print("Good language")
             translation.activate(user_language)
             request.session['django_language'] = user_language
-            return HttpResponseRedirect(f'/{user_language}/profile2/')
+            return HttpResponseRedirect(f'/{user_language}/profile/')
         else:
             print("Bad language")
     else:
