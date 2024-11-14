@@ -80,7 +80,7 @@
 
         .navbar-links li {
             display: inline-block;
-            margin-left: 20px;
+            margin-right: 20px;
         }
 
         .navbar-links a {
@@ -316,7 +316,7 @@
                 {% if top_tracks %}
                 {% for track in top_tracks.short_term|slice:":5" %}
                 <div class="top-item">
-                    <span class="top-item-number">{{ forloop.counter }}</span>
+                    <span class="top-item-number"># {{ forloop.counter }}</span>
                     <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
                     <div class="top-item-info">
                         <p class="top-item-name">{{ track.name }}</p>
@@ -338,7 +338,7 @@
                     {% for artist in top_artists.short_term|slice:":5" %}
                     <div class="track-item">
                         <img class="track-image" src="{{ artist.images.0.url }}" alt="{{ artist.name }}" style="border-radius: 50%;">
-                        <p class="track-name">{{ artist.name }}</p>
+                        <p class="track-name" style="overflow: visible">{{ artist.name }}</p>
                     </div>
                     {% endfor %}
                 </div>
@@ -373,7 +373,7 @@
                     {% if top_tracks.medium_term %}
                         {% for track in top_tracks.medium_term|slice:":5" %}
                         <div class="top-item">
-                            <span class="top-item-number">{{ forloop.counter }}</span>
+                            <span class="top-item-number"># {{ forloop.counter }}</span>
                             <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
                             <div class="top-item-info">
                                 <p class="top-item-name">{{ track.name }}</p>
@@ -397,7 +397,7 @@
                     {% if top_tracks.long_term|length > 0 %}
                         {% for track in top_tracks.long_term|slice:":5" %}
                         <div class="top-item">
-                            <span class="top-item-number">{{ forloop.counter }}</span>
+                            <span class="top-item-number"># {{ forloop.counter }}</span>
                             <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
                             <div class="top-item-info">
                                 <p class="top-item-name">{{ track.name }}</p>
