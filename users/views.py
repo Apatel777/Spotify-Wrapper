@@ -250,11 +250,11 @@ def dashboard(request):
                 }
                 context['most_listened_album_details'] = album_details
 
-        return render(request, 'registered/dashboard.html', context)
+        return render(request, 'registered/dashboard2.html', context)
 
     except Exception as e:
         messages.error(request, f"Error fetching Spotify data: {str(e)}")
-        return render(request, 'registered/dashboard.html', {
+        return render(request, 'registered/dashboard2.html', {
             'user': user,
             'theme': request.session.get('theme', 'light'),
             'spotify_connected': False
@@ -269,7 +269,7 @@ def profile_view(request):
             return redirect('home')
         # add in whatever other stuff the profile view will have
 
-    return render(request, 'users/profile.html', {'form': [], 'theme': theme})
+    return render(request, 'users/profile2.html', {'form': [], 'theme': theme})
 
 def logout_view(request):
     logout(request)

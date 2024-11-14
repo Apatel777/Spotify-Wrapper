@@ -26,19 +26,72 @@
             --tab-active-color: #818cf8;
             --tab-hover-color: #6366f1;
         }
+        
+        /* Color mode variables */
+        .color-mode {
+            --bg-color: #f0f4f8; /* Light, cheerful background */
+            --text-color: #333333; /* Darker text for contrast */
+            --card-bg-color: #ffebc5; /* Soft peach for cards */
+            --card-border-color: #f5a623; /* Bright orange border */
+            --hover-bg-color: #ffcd94; /* Lighter peach for hover */
+            --tab-active-color: #4cb1ff; /* Bright sky blue for active tabs */
+            --tab-hover-color: #ff914d; /* Vibrant orange for hover */
+        }
+
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 1.5rem;
+            padding: 1.5rem 1.5rem 1.5rem 1.5rem;
             line-height: 1.5;
+            align-items: center; 
+            display: flex; /* Enable flexbox layout */
+            flex-direction: column; /* Stack elements vertically */
+            overflow-y: scroll; /* Hides vertical scrollbars */
+            
+        }
+        body::-webkit-scrollbar {
+            display: none; /* Hides the scrollbar */
+        }
+        
+        /* Navbar styling */
+        .navbar {
+            background-color: var(--tab-hover-color);
+            width: 95%;
+            position: fixed;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .navbar-links {
+            list-style: none;
+        }
+
+        .navbar-links li {
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .navbar-links a {
+            color: var(--footer-text-color);
+            text-decoration: none;
+            font-size: 18px;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            width: 85%;
+            margin: 100px auto 0 auto;
         }
 
         /* Card Styles */
@@ -102,8 +155,6 @@
 
         /* Tabs */
         .tabs {
-            border: 1px solid var(--card-border-color);
-            border-radius: 0.5rem;
             overflow: hidden;
         }
 
@@ -113,10 +164,12 @@
             gap: 0.5rem;
             padding: 0.25rem;
             background-color: var(--card-bg-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: 0.5rem;
             border-bottom: 1px solid var(--card-border-color);
         }
 
-        .tab-trigger {
+        .tab-trigger, .time-tab-trigger {
             padding: 0.5rem;
             background: none;
             border: none;
@@ -130,11 +183,11 @@
             gap: 0.5rem;
         }
 
-        .tab-trigger:hover {
+        .tab-trigger:hover, .time-tab-trigger:hover {
             background-color: var(--hover-bg-color);
         }
 
-        .tab-trigger.active {
+        .tab-trigger.active, .time-tab-trigger.active {
             background-color: var(--tab-active-color);
             color: white;
         }
@@ -202,6 +255,17 @@
     </style>
 </head>
 <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-brand">SpotifyWrapper</div>
+        <ul class="navbar-links">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Year in Review</a></li>
+            <li><a href="#">Search</a></li>
+            <li><a href="{% url 'profile' %}">Profile</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+        </ul>
+    </nav>
     <div class="container">
         <!-- Recently Played Card -->
         <div class="card">
@@ -213,9 +277,9 @@
                 <h2 class="card-title">Recently Played</h2>
             </div>
             <div class="track-grid">
-                {% for item in recent_tracks|slice:":5" %}
+                {% for item in recent_tracks|slice:":15" %}
                 <div class="track-item">
-                    <img class="track-image" src="/api/placeholder/120/120" alt="Track artwork">
+                    <img class="track-image" src="{{ item.track.album.images.0.url }}" alt="Track artwork">
                     <p class="track-name">{{ item.track.name }}</p>
                     <p class="track-artist">
                         {% for artist in item.track.artists %}
@@ -252,8 +316,8 @@
                 {% if top_tracks %}
                 {% for track in top_tracks.short_term|slice:":5" %}
                 <div class="top-item">
-                    <span class="top-item-number">{{ forloop.counter }}</span>
-                    <img class="top-item-image" src="/api/placeholder/48/48" alt="Track artwork">
+                    <span class="top-item-number"># {{ forloop.counter }}</span>
+                    <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
                     <div class="top-item-info">
                         <p class="top-item-name">{{ track.name }}</p>
                         <p class="top-item-artist">
@@ -273,11 +337,81 @@
                 <div class="track-grid">
                     {% for artist in top_artists.short_term|slice:":5" %}
                     <div class="track-item">
-                        <img class="track-image" src="/api/placeholder/200/200" alt="{{ artist.name }}" style="border-radius: 50%;">
-                        <p class="track-name">{{ artist.name }}</p>
+                        <img class="track-image" src="{{ artist.images.0.url }}" alt="{{ artist.name }}" style="border-radius: 50%;">
+                        <p class="track-name" style="overflow: visible">{{ artist.name }}</p>
                     </div>
                     {% endfor %}
                 </div>
+                {% endif %}
+            </div>
+        </div>
+    
+        <!-- Time Tabs Section -->
+        <div class="tabs">
+            <div class="tab-list" role="time_tablist">
+                <button class="time-tab-trigger active" role="time_tab" onclick="showTimeTab('mid_time_tracks')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18V5l12-2v13"></path>
+                        <circle cx="6" cy="18" r="3"></circle>
+                        <circle cx="18" cy="16" r="3"></circle>
+                    </svg>
+                    Medium Term Top Tracks (Last 6 Months)
+                </button>
+                <button class="time-tab-trigger" role="time_tab" onclick="showTimeTab('long_time_tracks')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18V5l12-2v13"></path>
+                        <circle cx="6" cy="18" r="3"></circle>
+                        <circle cx="18" cy="16" r="3"></circle>
+                    </svg>
+                    Long Term Top Tracks (All Time)
+                </button>
+            </div>
+    
+            <!-- Medium Top Tracks Time -->
+            <div id="mid_time_tracks" class="card" role="time_tabpanel">
+                {% if top_tracks %}
+                    {% if top_tracks.medium_term %}
+                        {% for track in top_tracks.medium_term|slice:":5" %}
+                        <div class="top-item">
+                            <span class="top-item-number"># {{ forloop.counter }}</span>
+                            <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
+                            <div class="top-item-info">
+                                <p class="top-item-name">{{ track.name }}</p>
+                                <p class="top-item-artist">
+                                    {% for artist in track.artists %}
+                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="opacity: 0.7;">No tracks found for this time period.</p>
+                    {% endif %}
+                {% endif %}
+            </div>
+        
+            <!-- Long Top Tracks Time -->
+            <div id="long_time_tracks" class="card" role="time_tabpanel">
+                {% if top_tracks %}
+                    {% if top_tracks.long_term|length > 0 %}
+                        {% for track in top_tracks.long_term|slice:":5" %}
+                        <div class="top-item">
+                            <span class="top-item-number"># {{ forloop.counter }}</span>
+                            <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
+                            <div class="top-item-info">
+                                <p class="top-item-name">{{ track.name }}</p>
+                                <p class="top-item-artist">
+                                    {% for artist in track.artists %}
+                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="opacity: 0.7;">No tracks found for this time period.</p>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
@@ -292,7 +426,7 @@
                 <h2 class="card-title">Most Listened Album</h2>
             </div>
             <div style="display: flex; gap: 1.5rem; align-items: center;">
-                <img src="/api/placeholder/128/128" alt="Album artwork" style="width: 8rem; height: 8rem; border-radius: 0.5rem;">
+                <img src="{{ most_listened_album_details.image_url }}" alt="Album artwork" style="width: 8rem; height: 8rem; border-radius: 0.5rem;">
                 <div>
                     <h3 style="margin: 0; font-size: 1.25rem;">{{ most_listened_album_details.name }}</h3>
                     <p style="margin: 0.25rem 0 0 0; color: #6b7280;">{{ most_listened_album_details.artist }}</p>
@@ -302,7 +436,7 @@
     </div>
 
     <button class="theme-toggle" onclick="toggleTheme()">
-        Toggle theme
+        Toggle Theme: Light Mode
     </button>
 
     <script>
@@ -321,16 +455,74 @@
             });
             event.currentTarget.classList.add('active');
         }
+        
+        function showTimeTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('[role="time_tabpanel"]').forEach(panel => {
+                panel.style.display = 'none';
+            });
+            
+            // Show selected tab
+            document.getElementById(`${tabName}`).style.display = 'block';
+            
+            // Update active state of triggers
+            document.querySelectorAll('.time-tab-trigger').forEach(trigger => {
+                trigger.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
 
+        // Function to toggle between light and dark mode
         function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+            const body = document.body;
+            const btn = document.querySelector('.theme-toggle');
+            const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
+                                 body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+        
+            // Switch between modes
+            if (currentTheme === 'light-mode') {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                btn.textContent = 'Toggle Theme: Color Mode';
+                localStorage.setItem('theme', 'dark-mode');
+            } else if (currentTheme === 'dark-mode') {
+                body.classList.remove('dark-mode');
+                body.classList.add('color-mode');
+                btn.textContent = 'Toggle Theme: Light Mode';
+                localStorage.setItem('theme', 'color-mode');
+            } else {
+                body.classList.remove('color-mode');
+                body.classList.add('light-mode');
+                btn.textContent = 'Toggle Theme: Dark Mode';
+                localStorage.setItem('theme', 'light-mode');
+            }
         }
-
-        // Apply saved theme on load
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
+        
+        // Function to apply the saved theme from localStorage
+        function applySavedMode() {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            const btn = document.querySelector('.theme-toggle');
+        
+            // Apply the saved theme if it exists
+            if (savedTheme === 'light-mode') {
+                body.classList.add('light-mode');
+                btn.textContent = 'Toggle Theme: Dark Mode';
+            } else if (savedTheme === 'dark-mode') {
+                body.classList.add('dark-mode');
+                btn.textContent = 'Toggle Theme: Color Mode';
+            } else if (savedTheme === 'color-mode') {
+                body.classList.add('color-mode');
+                btn.textContent = 'Toggle Theme: Light Mode';
+            } else {
+                // Default to light mode if no theme is saved
+                body.classList.add('light-mode');
+                btn.textContent = 'Toggle Theme: Dark Mode';
+            }
         }
+    
+        // Call applySavedMode on page load to apply the correct theme
+        window.onload = applySavedMode;
     </script>
 </body>
 </html>
