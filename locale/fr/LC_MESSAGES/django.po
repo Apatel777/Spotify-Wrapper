@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-06 17:32+0000\n"
+"POT-Creation-Date: 2024-11-15 02:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,18 +17,41 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-#: SpotifyWrapper/settings.py:165
+
+#: SpotifyWrapper/settings.py:166
 msgid "English"
 msgstr "Anglais"
 
-#: SpotifyWrapper/settings.py:166
+#: SpotifyWrapper/settings.py:167
 msgid "Spanish"
 msgstr "Espagnol"
 
-#: SpotifyWrapper/settings.py:167
+#: SpotifyWrapper/settings.py:168
 msgid "French"
 msgstr "Français"
 
-#: users/templates/users/profile.html:54
+#: users/templates/registered/dashboard2.html:263
+msgid "Home"
+msgstr "Maison"
+
+#: users/templates/registered/dashboard2.html:266
+#, fuzzy
+#| msgid "Your Profile"
+msgid "Profile"
+msgstr "Profil"
+
+#: users/templates/registered/dashboard2.html:267
+msgid "Contact"
+msgstr "Contact"
+
+#: users/templates/registered/dashboard2.html:268
+msgid "Logout"
+msgstr "Déconnexion"
+
+#: users/templates/users/profile.html:169
 msgid "Your Profile"
 msgstr "Votre Profil"
+
+#: users/templates/users/profile2.html:166
+msgid "Username"
+msgstr ""

@@ -1,7 +1,12 @@
+from django.http import HttpResponse
 from django.urls import path
 from . import views
+
+def favicon(request):
+    return HttpResponse(status=204)
 #urls for the page pathways
 urlpatterns = [
+    path('favicon.ico', favicon),
     path('set_theme/<str:theme>/', views.set_theme, name='set_theme'),
     path('set_language/', views.set_language, name='set_language'),
 
@@ -18,4 +23,5 @@ urlpatterns = [
     path('delete_account/', views.delete_account_view, name='delete_account'),
     path('profile/', views.profile_view, name='profile'),
     path('contact/', views.contact_view, name='contact'),
+    path('games/', views.games_view, name='games'),
 ]

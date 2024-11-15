@@ -226,6 +226,9 @@ def dashboard(request):
         # Get the most listened-to album
         most_listened_album = album_counts.most_common(1)
 
+        request.session['top_tracks'] = top_tracks
+        request.session['top_artists'] = top_artists
+
         context = {
             'user': user,
             'theme': request.session.get('theme', 'light'),
@@ -233,7 +236,7 @@ def dashboard(request):
             'recent_tracks': recent_tracks,
             'top_tracks': top_tracks,
             'top_artists': top_artists,
-            'most_listened_album': most_listened_album[0][0] if most_listened_album else None,
+            'most_listened_album': most_listened_album[0][0] if most_listened_album else None
             # Pass most listened album
         }
         # Optionally, if you want to pass album details (name, artist, cover image)
@@ -249,6 +252,7 @@ def dashboard(request):
                     'image_url': album_info['images'][0]['url'] if album_info['images'] else None,
                 }
                 context['most_listened_album_details'] = album_details
+                request.session['top_albums'] = album_details
 
         return render(request, 'registered/dashboard2.html', context)
 
@@ -260,6 +264,27 @@ def dashboard(request):
             'spotify_connected': False
         })
 
+def games_view(request):
+    theme = request.session.get('theme', 'light')  # Default to light mode
+    selected_game = request.GET.get('game')  # Retrieve the selected game
+
+    if selected_game == "0":
+        game_type = "Guess Top Track"
+    elif selected_game == "1":
+        game_type = "Guess Top Album"
+    elif selected_game == "2":
+        game_type = "Guess Artist"
+    else:
+        game_type = "Unknown Game"
+
+    context = {
+        'theme': theme,
+        'top_tracks': request.session.get('top_tracks', {}),
+        'top_artists': request.session.get('top_artists', {}),
+        'top_albums': request.session.get('top_albums', {}),
+        'game_type': game_type,
+    }
+    return render(request, 'users/games.html', context)
 
 def profile_view(request):
     theme = request.session.get('theme', 'light')  # Default to light mode
@@ -291,7 +316,6 @@ def contact_view(request):
         # You can either redirect to the google form or return the URL as context
         messages.success(request, 'Your message has been sent successfully!')
 
-        # Instead of redirecting to the form directly here, pass the URL to the template
         return HttpResponseRedirect(google_form_url)
 
     return render(request, 'users/contact.html', {'form': [], 'theme': theme})
