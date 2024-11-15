@@ -271,6 +271,32 @@ def profile_view(request):
 
     return render(request, 'users/profile2.html', {'form': [], 'theme': theme})
 
+
+def contact_view(request):
+    theme = request.session.get('theme', 'light')  # Default to light mode
+    if request.method == 'POST':
+        # Extract data from the form
+        name = request.POST.get('name')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+
+        import urllib.parse
+
+        name = urllib.parse.quote(name)  # Encode the name to handle special characters like spaces
+        subject = urllib.parse.quote(subject)
+        message = urllib.parse.quote(message)
+
+        # Construct the pre-filled Google Form URL
+        google_form_url = f'https://docs.google.com/forms/d/e/1FAIpQLSecVvMgS6_UKQNTcaEOZr55KLL5mHBa2sJfsk-A4skYfKRlxA/viewform?usp=pp_url&entry.1434750794={name}&entry.1846469222={subject}&entry.1381661191={message}'
+        # You can either redirect to the google form or return the URL as context
+        messages.success(request, 'Your message has been sent successfully!')
+
+        # Instead of redirecting to the form directly here, pass the URL to the template
+        return HttpResponseRedirect(google_form_url)
+
+    return render(request, 'users/contact.html', {'form': [], 'theme': theme})
+
+
 def logout_view(request):
     logout(request)
     return redirect('home')  # Redirect to home after logout

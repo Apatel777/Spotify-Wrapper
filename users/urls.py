@@ -17,4 +17,5 @@ urlpatterns = [
     path('wraps/', views.wraps_view, name='wraps'),
     path('delete_account/', views.delete_account_view, name='delete_account'),
     path('profile/', views.profile_view, name='profile'),
+    path('contact/', views.contact_view, name='contact'),
 ]

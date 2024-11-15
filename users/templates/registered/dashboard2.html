@@ -263,6 +263,7 @@
             <li><a href="#">Year in Review</a></li>
             <li><a href="#">Search</a></li>
             <li><a href="{% url 'profile' %}">Profile</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
             <li><a href="{% url 'logout' %}">Logout</a></li>
         </ul>
     </nav>
@@ -434,6 +435,23 @@
             </div>
         </div>
     </div>
+    
+    <!-- Social Media Share Buttons -->
+    <div class="social-buttons">
+        <button onclick="shareOnX()" class="share-button share-x">
+            Share on X
+        </button>
+
+        <button onclick="shareOnLinkedIn()" class="share-button share-linkedin">
+            Share on LinkedIn
+        </button>
+        
+        <button onclick="copyForInstagram()" class="share-button share-instagram">
+            Copy for Instagram
+        </button>
+    </div>
+    
+    <div id="alert" class="alert"></div>
 
     <button class="theme-toggle" onclick="toggleTheme()">
         Toggle Theme: Light Mode
@@ -470,6 +488,62 @@
                 trigger.classList.remove('active');
             });
             event.currentTarget.classList.add('active');
+        }
+        
+        // Function to show notification
+        function showNotification(message, duration = 3000) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, duration);
+        }
+
+        // Function to get share content
+        function getShareContent() {
+            const tracks = [
+                {% for item in recent_tracks %}
+                    "{{ item.track.name }}"{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ];
+            
+            const trackList = tracks.join(', ');
+            const currentUrl = window.location.href;
+            
+            return {
+                text: `Check out my top tracks: ${trackList}`,
+                url: currentUrl
+            };
+        }
+
+        // Share on X (Twitter)
+        function shareOnX() {
+            const { text, url } = getShareContent();
+            const shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+            window.open(shareUrl, '_blank');
+        }
+
+        // Share on LinkedIn
+        function shareOnLinkedIn() {
+            const { text, url } = getShareContent();
+            const shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent('My Top Tracks')}&summary=${encodeURIComponent(text)}`;
+            window.open(shareUrl, '_blank');
+        }
+
+        // Copy for Instagram
+        async function copyForInstagram() {
+            const { text, url } = getShareContent();
+            const shareText = `${text}\n${url}`;
+            
+            try {
+                await navigator.clipboard.writeText(shareText);
+                showNotification('✓ Link copied to clipboard for Instagram!');
+            } catch (err) {
+                showNotification('❌ Failed to copy. Please try again.');
+                console.error('Failed to copy:', err);
+            }
         }
 
         // Function to toggle between light and dark mode
