@@ -156,7 +156,7 @@ load_dotenv()
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 SPOTIFY_REDIRECT_URI = 'http://localhost:8000/spotify/callback/'  # Adjust as necessary
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+CLOUD_API_KEY = os.getenv("CLOUD_API_KEY")
 
 
 LOGIN_URL = 'login'
@@ -174,5 +174,5 @@ USE_L10N = True
 
 LANGUAGE_CODE = 'en'
 LOCALE_PATHS = [
-    os.path.join(settings.BASE_DIR, 'locale'),  # Path to the locale directory
+    os.path.join(BASE_DIR, 'locale'),  # Path to the locale directory
 ]

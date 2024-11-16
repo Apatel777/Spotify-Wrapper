@@ -44,4 +44,4 @@ sqlparse==0.5.1
 uritemplate==4.1.1
 urllib3==2.2.3
 views==0.3
-beautifulsoup4~=4.12.3
+polib~=1.2.0

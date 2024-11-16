@@ -402,7 +402,7 @@ def analyze_music_taste(request):
         tracks_text = "\n".join(track_info)
 
         # Configure Gemini
-        genai.configure(api_key=settings.GEMINI_API_KEY)
+        genai.configure(api_key=settings.CLOUD_API_KEY)
         model = genai.GenerativeModel('gemini-pro')
 
         prompt = """Based on these songs:
