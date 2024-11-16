@@ -1,3 +1,5 @@
+{% load auto_trans %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50,7 +52,6 @@
             display: flex; /* Enable flexbox layout */
             flex-direction: column; /* Stack elements vertically */
             overflow-y: scroll; /* Hides vertical scrollbars */
-            
         }
         body::-webkit-scrollbar {
             display: none; /* Hides the scrollbar */
@@ -76,10 +77,11 @@
 
         .navbar-links {
             list-style: none;
+            display: flex;
         }
 
         .navbar-links li {
-            display: inline-block;
+            position: relative;
             margin-right: 20px;
         }
 
@@ -87,6 +89,50 @@
             color: var(--footer-text-color);
             text-decoration: none;
             font-size: 18px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .navbar-links a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Dropdown menu styling */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%; /* Position it right below the "Games" link */
+            left: 0;
+            background-color: var(--tab-hover-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            list-style: none;
+            margin: 0;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+        
+        .dropdown-menu li {
+            margin: 0;
+        }
+        
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: var(--footer-text-color);
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dropdown-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Show dropdown on hover */
+        .dropdown:hover .dropdown-menu {
+            display: block;
         }
 
         .container {
@@ -233,6 +279,34 @@
             font-size: 0.875rem;
             margin: 0;
         }
+        
+        .play-button {
+            background: #1DB954;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 15px;
+        }
+        
+        .play-button:hover {
+            background: #1ed760;
+        }
+        
+        .play-button.playing {
+            background: #ff5252;
+        }
+        
+        .preview-unavailable {
+            color: #999;
+            font-style: italic;
+            font-size: 0.9em;
+        }
 
         /* Toggle Theme Button */
         .theme-toggle {
@@ -255,14 +329,22 @@
     </style>
 </head>
 <body>
+    {% auto_trans %}
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="navbar-brand">SpotifyWrapper</div>
         <ul class="navbar-links">
             <li><a href="#">Home</a></li>
-            <li><a href="#">Year in Review</a></li>
-            <li><a href="#">Search</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-trigger">Games</a>
+                <ul class="dropdown-menu">
+                    <li><a href="{% url 'games' %}?game=0">Guess Top Track</a></li>
+                    <li><a href="{% url 'games' %}?game=1">Guess Top Album</a></li>
+                    <li><a href="{% url 'games' %}?game=2">Guess Artist</a>
+                </ul>
+            </li>
             <li><a href="{% url 'profile' %}">Profile</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
             <li><a href="{% url 'logout' %}">Logout</a></li>
         </ul>
     </nav>
@@ -315,7 +397,7 @@
             <div id="tracks-tab" class="card" role="tabpanel">
                 {% if top_tracks %}
                 {% for track in top_tracks.short_term|slice:":5" %}
-                <div class="top-item">
+                <div class="top-item" data-track-uri="{{ track.uri }}" data-preview-url="{{ track.preview_url }}">
                     <span class="top-item-number"># {{ forloop.counter }}</span>
                     <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
                     <div class="top-item-info">
@@ -326,6 +408,15 @@
                             {% endfor %}
                         </p>
                     </div>
+                    {% if track.preview_url %}
+                        <button class="play-button" onclick="togglePlay(this, '{{ track.preview_url }}')">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <polygon points="5 3 19 12 5 21" />
+                            </svg>
+                        </button>
+                    {% else %}
+                        <span class="preview-unavailable">Preview unavailable</span>
+                    {% endif %}
                 </div>
                 {% endfor %}
                 {% endif %}
@@ -434,12 +525,93 @@
             </div>
         </div>
     </div>
+    
+    <!-- Social Media Share Buttons -->
+    <div class="social-buttons">
+        <button onclick="shareOnX()" class="share-button share-x">
+            Share on X
+        </button>
+
+        <button onclick="shareOnLinkedIn()" class="share-button share-linkedin">
+            Share on LinkedIn
+        </button>
+        
+        <button onclick="copyForInstagram()" class="share-button share-instagram">
+            Copy for Instagram
+        </button>
+    </div>
+    
+    <div id="alert" class="alert"></div>
 
     <button class="theme-toggle" onclick="toggleTheme()">
         Toggle Theme: Light Mode
     </button>
 
     <script>
+        let currentAudio = null;
+        let currentButton = null;
+
+        function togglePlay(button, previewUrl) {
+            // If there's already a track playing
+            if (currentAudio && currentButton) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                updateButtonIcon(currentButton, false);
+                
+                // If we're clicking the same button, just stop playback
+                if (currentButton === button) {
+                    currentAudio = null;
+                    currentButton = null;
+                    return;
+                }
+            }
+
+            // Play the new track
+            const audio = new Audio(previewUrl);
+            currentAudio = audio;
+            currentButton = button;
+            
+            audio.play();
+            updateButtonIcon(button, true);
+
+            // When the preview ends
+            audio.onended = function() {
+                updateButtonIcon(button, false);
+                currentAudio = null;
+                currentButton = null;
+            };
+        }
+
+        function updateButtonIcon(button, isPlaying) {
+            if (isPlaying) {
+                button.innerHTML = `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="6" y="4" width="4" height="16"/>
+                        <rect x="14" y="4" width="4" height="16"/>
+                    </svg>
+                `;
+                button.classList.add('playing');
+            } else {
+                button.innerHTML = `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polygon points="5 3 19 12 5 21" />
+                    </svg>
+                `;
+                button.classList.remove('playing');
+            }
+        }
+
+        // Stop playback when switching tabs/closing window
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                updateButtonIcon(currentButton, false);
+                currentAudio = null;
+                currentButton = null;
+            }
+        });
+    
         function showTab(tabName) {
             // Hide all tabs
             document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
@@ -456,6 +628,18 @@
             event.currentTarget.classList.add('active');
         }
         
+        // Ensure both tabs are hidden initially
+        document.addEventListener("DOMContentLoaded", function() {
+            // Hide all tabs initially
+            document.querySelectorAll('[role="time_tabpanel"]').forEach(panel => {
+                panel.style.display = 'none';
+            });
+            
+        
+            // Show the 'mid_time_tracks' tab by default (or any other default tab)
+            document.getElementById('mid_time_tracks').style.display = 'block';
+        });
+        
         function showTimeTab(tabName) {
             // Hide all tabs
             document.querySelectorAll('[role="time_tabpanel"]').forEach(panel => {
@@ -470,6 +654,64 @@
                 trigger.classList.remove('active');
             });
             event.currentTarget.classList.add('active');
+        }
+        
+        
+        
+        // Function to show notification
+        function showNotification(message, duration = 3000) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, duration);
+        }
+
+        // Function to get share content
+        function getShareContent() {
+            const tracks = [
+                {% for item in recent_tracks %}
+                    "{{ item.track.name }}"{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ];
+            
+            const trackList = tracks.join(', ');
+            const currentUrl = window.location.href;
+            
+            return {
+                text: `Check out my top tracks: ${trackList}`,
+                url: currentUrl
+            };
+        }
+
+        // Share on X (Twitter)
+        function shareOnX() {
+            const { text, url } = getShareContent();
+            const shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+            window.open(shareUrl, '_blank');
+        }
+
+        // Share on LinkedIn
+        function shareOnLinkedIn() {
+            const { text, url } = getShareContent();
+            const shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent('My Top Tracks')}&summary=${encodeURIComponent(text)}`;
+            window.open(shareUrl, '_blank');
+        }
+
+        // Copy for Instagram
+        async function copyForInstagram() {
+            const { text, url } = getShareContent();
+            const shareText = `${text}\n${url}`;
+            
+            try {
+                await navigator.clipboard.writeText(shareText);
+                showNotification('✓ Link copied to clipboard for Instagram!');
+            } catch (err) {
+                showNotification('❌ Failed to copy. Please try again.');
+                console.error('Failed to copy:', err);
+            }
         }
 
         // Function to toggle between light and dark mode
@@ -524,5 +766,6 @@
         // Call applySavedMode on page load to apply the correct theme
         window.onload = applySavedMode;
     </script>
+    {% endauto_trans %}
 </body>
 </html>

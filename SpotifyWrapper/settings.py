@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'django_social_share',
     'SiteSpotify.apps.SitespotifyConfig',
     'users'
 ]
@@ -62,7 +63,7 @@ ROOT_URLCONF = "SpotifyWrapper.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ['users/templates', 'users/'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
