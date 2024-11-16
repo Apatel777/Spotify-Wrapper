@@ -360,3 +360,79 @@ def set_language(request):
     else:
         print("No POST")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+from django.core.cache import cache
+from django.conf import settings
+
+
+def analyze_music_taste(request):
+    theme = request.session.get('theme', 'light')
+
+    # Safely get top_tracks from session
+    all_top_tracks = request.session.get('top_tracks', {})
+    if not all_top_tracks or 'short_term' not in all_top_tracks:
+        return render(request, 'users/analysis.html', {
+            'theme': theme,
+            'error': 'No tracks found. Please connect to Spotify first.'
+        })
+
+    top_tracks = all_top_tracks['short_term'][:5]
+
+    try:
+        import google.generativeai as genai
+
+        # Create cache key from track IDs
+        cache_key = f"music_analysis_{'_'.join([t.get('id', '') for t in top_tracks])}"
+
+        # Check cache first
+        cached_analysis = cache.get(cache_key)
+        if cached_analysis:
+            return render(request, 'users/analysis.html', {
+                'theme': theme,
+                'top_tracks': top_tracks,
+                'analysis': cached_analysis
+            })
+
+        # Format track data
+        track_info = []
+        for track in top_tracks:
+            artists = ", ".join([artist['name'] for artist in track['artists']])
+            track_info.append(f"{track['name']} by {artists}")
+
+        tracks_text = "\n".join(track_info)
+
+        # Configure Gemini
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        model = genai.GenerativeModel('gemini-pro')
+
+        prompt = """Based on these songs:
+{}
+
+Generate a fun 3-paragraph personality analysis about someone who likes these songs.
+Paragraph 1: Their likely personality traits and how they might think
+Paragraph 2: Their potential style and fashion preferences
+Paragraph 3: Their probable hobbies and interests
+
+Keep it positive and playful, focusing on the overall vibe rather than specific songs.""".format(tracks_text)
+
+        # Generate analysis
+        response = model.generate_content(prompt)
+        analysis = response.text
+
+        # Cache successful analysis
+        if analysis:
+            cache.set(cache_key, analysis, 60 * 60 * 24)  # 24 hours
+
+        return render(request, 'users/analysis.html', {
+            'theme': theme,
+            'top_tracks': top_tracks,
+            'analysis': analysis
+        })
+
+    except Exception as e:
+        print(f"Analysis generation error: {str(e)}")  # For debugging
+        return render(request, 'users/analysis.html', {
+            'theme': theme,
+            'top_tracks': top_tracks,
+            'error': 'Unable to generate analysis at this time. Please try again later.'
+        })

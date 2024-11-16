@@ -156,6 +156,7 @@ load_dotenv()
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 SPOTIFY_REDIRECT_URI = 'http://localhost:8000/spotify/callback/'  # Adjust as necessary
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 
 LOGIN_URL = 'login'

@@ -5,59 +5,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile</title>
+    <title>SpotifyWrapper Analysis</title>
     <style>
-        /* Root variables for dark mode */
+        /* Modern UI Variables */
         :root {
-            --bg-color: #2c013b; /* Deep purple for dark mode background */
-            --profile-bg-color: #533485; /* Dark purple for profile background */
-            --text-color: #ece4ff; /* Light lavender text for contrast */
-            --btn-bg-color: #9b88e8; /* Soft purple for buttons */
-            --btn-delete-color: #ff4d4d; /* Red for delete button */
-            --btn-hover-color: #7350c3; /* Rich purple for hover */
-            --footer-bg-color: #533485; /* Dark purple for footer */
-            --footer-text-color: #ece4ff; /* Footer text color */
+            --bg-color: #ffffff;
+            --text-color: #111827;
+            --card-bg-color: #ffffff;
+            --card-border-color: #e5e7eb;
+            --hover-bg-color: #f9fafb;
+            --nave-bg-color: #4f46e5;
         }
 
-        /* Light mode variables */
-        .light-mode {
-            --bg-color: #ffffff; /* White for light mode background */
-            --profile-bg-color: #e6dbff; /* Light purple for profile background */
-            --text-color: #29004b; /* Dark purple for text */
-            --btn-bg-color: #9a4dff; /* Bright purple for buttons */
-            --btn-delete-color: #ff4d4d; /* Red for delete button */
-            --btn-hover-color: #7e38cc; /* Darker purple for hover */
-            --footer-bg-color: #e6dbff; /* Light purple for footer */
-            --footer-text-color: #29004b; /* Footer text color */
+        /* Dark mode variables */
+        .dark-mode {
+            --bg-color: #111827;
+            --text-color: #f9fafb;
+            --card-bg-color: #1f2937;
+            --card-border-color: #374151;
+            --hover-bg-color: #374151;
+            --nave-bg-color: #6366f1;
         }
-
+        
         /* Color mode variables */
         .color-mode {
-            --bg-color: #5e5ed2; /* Purple-blue for background */
-            --profile-bg-color: #f7f7fc; /* Off-white for profile background */
-            --text-color: blue; /* Blue text */
-            --btn-bg-color: #7777cc; /* Soft blue for buttons */
-            --btn-delete-color: #ff4d4d; /* Red for delete button */
-            --btn-hover-color: #3b5bba; /* Blue for hover */
-            --footer-bg-color: #454597; /* Darker blue for footer */
-            --footer-text-color: white; /* White text for footer */
+            --bg-color: #f0f4f8; /* Light, cheerful background */
+            --text-color: #333333; /* Darker text for contrast */
+            --card-bg-color: #ffebc5; /* Soft peach for cards */
+            --card-border-color: #f5a623; /* Bright orange border */
+            --hover-bg-color: #ffcd94; /* Lighter peach for hover */
+            --nave-bg-color: #ff914d; /* Vibrant orange for hover */
         }
+
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
-            color: var(--footer-text-color);
+            color: var(--text-color);
             margin: 0;
             padding: 1.5rem 1.5rem 1.5rem 1.5rem;
             line-height: 1.5;
             align-items: center; 
             display: flex; /* Enable flexbox layout */
             flex-direction: column; /* Stack elements vertically */
+            overflow-y: scroll; /* Hides vertical scrollbars */
         }
-
+        body::-webkit-scrollbar {
+            display: none; /* Hides the scrollbar */
+        }
+        
         /* Navbar styling */
         .navbar {
-            background-color: var(--footer-bg-color);
+            background-color: var(--nave-bg-color);
             width: 95%;
             position: fixed;
             padding: 15px;
@@ -67,23 +66,22 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         .navbar-brand {
             font-size: 24px;
             font-weight: 600;
-            color: var(--footer-text-color);
         }
-        
+
         .navbar-links {
             list-style: none;
             display: flex;
         }
-        
+
         .navbar-links li {
-            position: relative; /* Required for dropdown positioning */
+            position: relative;
             margin-right: 20px;
         }
-        
+
         .navbar-links a {
             color: var(--footer-text-color);
             text-decoration: none;
@@ -103,7 +101,7 @@
             position: absolute;
             top: 100%; /* Position it right below the "Games" link */
             left: 0;
-            background-color: var(--footer-bg-color);
+            background-color: var(--nave-bg-color);
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             list-style: none;
@@ -133,39 +131,26 @@
         .dropdown:hover .dropdown-menu {
             display: block;
         }
-        
-        .profile-container {
-            background-color: var(--profile-bg-color);
-            color: var(--text-color);
-            width: 50%;
+
+        .container {
+            width: 85%;
             margin: 100px auto 0 auto;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        h1, h2 {
-            font-size: 24px;
+        /* Card Styles */
+        .card {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
-        .settings {
-            margin-bottom: 20px;
-        }
-
-        .settings label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .settings select {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-        }
-
-        .delete-account {
-            text-align: center;
-            margin-top: 20px;
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
         }
 
         /* Toggle Theme Button */
@@ -175,22 +160,17 @@
             right: 1.5rem;
             padding: 0.75rem 1.5rem;
             border-radius: 9999px;
-            background-color: var(--footer-bg-color);
-            border: 1px solid;
-            color: var(--footer-text-color);
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--card-border-color);
+            color: var(--text-color);
             font-weight: 500;
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        button:hover {
-            background-color: var(--btn-hover-color);
+        .theme-toggle:hover {
+            background-color: var(--hover-bg-color);
         }
-        
-        .delete-account button {
-            background-color: var(--btn-delete-color);
-        }
-
     </style>
 </head>
 <body>
@@ -208,41 +188,28 @@
                     <li><a href="{% url 'games' %}?game=2">Guess Artist</a>
                 </ul>
             </li>
-            <li><a href="{% url 'analysis' %}">LLM Analysis</a></li>
-            <li><a href="#">Profile</a></li>
+            <li><a href="#">LLM Analysis</a></li>
+            <li><a href="{% url 'profile' %}">Profile</a></li>
             <li><a href="{% url 'contact' %}">Contact</a></li>
             <li><a href="{% url 'logout' %}">Logout</a></li>
         </ul>
     </nav>
-
-    <div class="profile-container">
-        <h1>Your Profile</h1>
-        <h2>{% trans "Username:" %} {{user.username }}</h2>
-        <form method="POST" action="{% url 'set_language' %}">
-            {% csrf_token %}
-            <div class="settings">
-                <h2>App Settings</h2>
-                <label for="language">Language:</label>
-                <select name="language" id="language">
-                    <option value="en" {% if request.LANGUAGE_CODE == 'en' %}selected{% endif %}>English</option>
-                    <option value="es" {% if request.LANGUAGE_CODE == 'es' %}selected{% endif %}>Spanish</option>
-                    <option value="fr" {% if request.LANGUAGE_CODE == 'fr' %}selected{% endif %}>French</option>
-                </select>
-                <button type="submit">Update Settings</button>
-            </div>
-        </form>
         
-        <form method="POST" action="{% url 'delete_account' %}">
-            {% csrf_token %}
-            <div class="delete-account">
-                <h2>Account Management</h2>
-                <button type="submit" name="delete_account">Delete Account</button>
-            </div>
-        </form>
+    <div class="container">
+        <div class="card">
+            <h2 class="card-title">Your Music Personality Analysis</h2>
+            {% if error %}
+                <div>{{ error }}</div>
+            {% elif analysis %}
+                <div>{{ analysis|linebreaks }}</div>
+            {% else %}
+                <div>Generating analysis...</div>
+            {% endif %}
+        </div>
     </div>
-    
+
     <button class="theme-toggle" onclick="toggleTheme()">
-        {% trans "Toggle Theme:"%} Light Mode 
+        Toggle Theme: Light Mode
     </button>
 
     <script>
@@ -257,17 +224,17 @@
             if (currentTheme === 'light-mode') {
                 body.classList.remove('light-mode');
                 body.classList.add('dark-mode');
-                btn.textContent = '{% trans "Toggle Theme:"%} Color Mode';
+                btn.textContent = 'Toggle Theme: Color Mode';
                 localStorage.setItem('theme', 'dark-mode');
             } else if (currentTheme === 'dark-mode') {
                 body.classList.remove('dark-mode');
                 body.classList.add('color-mode');
-                btn.textContent = '{% trans "Toggle Theme:"%} Light Mode';
+                btn.textContent = 'Toggle Theme: Light Mode';
                 localStorage.setItem('theme', 'color-mode');
             } else {
                 body.classList.remove('color-mode');
                 body.classList.add('light-mode');
-                btn.textContent = '{% trans "Toggle Theme:"%} Dark Mode';
+                btn.textContent = 'Toggle Theme: Dark Mode';
                 localStorage.setItem('theme', 'light-mode');
             }
         }
@@ -281,17 +248,17 @@
             // Apply the saved theme if it exists
             if (savedTheme === 'light-mode') {
                 body.classList.add('light-mode');
-                btn.textContent = '{% trans "Toggle Theme:"%} Dark Mode';
+                btn.textContent = 'Toggle Theme: Dark Mode';
             } else if (savedTheme === 'dark-mode') {
                 body.classList.add('dark-mode');
-                btn.textContent = '{% trans "Toggle Theme:"%} Color Mode';
+                btn.textContent = 'Toggle Theme: Color Mode';
             } else if (savedTheme === 'color-mode') {
                 body.classList.add('color-mode');
-                btn.textContent = '{% trans "Toggle Theme:"%} Light Mode';
+                btn.textContent = 'Toggle Theme: Light Mode';
             } else {
                 // Default to light mode if no theme is saved
                 body.classList.add('light-mode');
-                btn.textContent = '{% trans "Toggle Theme:"%} Dark Mode';
+                btn.textContent = 'Toggle Theme: Dark Mode';
             }
         }
     
