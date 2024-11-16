@@ -1,3 +1,4 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,7 +55,7 @@
             margin: 0;
             padding: 1.5rem 1.5rem 1.5rem 1.5rem;
             line-height: 1.5;
-            align-items: center; 
+            align-items: center;
             display: flex; /* Enable flexbox layout */
             flex-direction: column; /* Stack elements vertically */
             min-height: 100vh;
@@ -100,11 +101,11 @@
             border-radius: 4px;
             transition: background-color 0.3s ease;
         }
-        
+
         .navbar-links a:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
-        
+
         /* Dropdown menu styling */
         .dropdown-menu {
             display: none;
@@ -119,11 +120,11 @@
             padding: 10px 0;
             z-index: 1000;
         }
-        
+
         .dropdown-menu li {
             margin: 0;
         }
-        
+
         .dropdown-menu a {
             display: block;
             padding: 10px 20px;
@@ -132,11 +133,11 @@
             text-decoration: none;
             transition: background-color 0.3s ease;
         }
-        
+
         .dropdown-menu a:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
-        
+
         /* Show dropdown on hover */
         .dropdown:hover .dropdown-menu {
             display: block;
@@ -228,25 +229,26 @@
     <nav class="navbar">
         <div class="navbar-brand">SpotifyWrapper</div>
         <ul class="navbar-links">
-            <li><a href="{% url 'dashboard' %}">Home</a></li>
+            <li><a href="{% url 'dashboard' %}">{% trans 'Home' %}</a></li>
             <li class="dropdown">
-                <a href="#" class="dropdown-trigger">Games</a>
+                <a href="#" class="dropdown-trigger">{% trans 'Games' %}</a>
                 <ul class="dropdown-menu">
-                    <li><a href="{% url 'games' %}?game=0">Guess Top Track</a></li>
-                    <li><a href="{% url 'games' %}?game=1">Guess Top Album</a></li>
-                    <li><a href="{% url 'games' %}?game=2">Guess Artist</a>
+                    <li><a href="{% url 'games' %}?game=0">{% trans 'Guess Top Track' %}</a></li>
+                    <li><a href="{% url 'games' %}?game=1">{% trans 'Guess Top Album' %}</a></li>
+                    <li><a href="{% url 'games' %}?game=2">{% trans 'Guess Artist' %}</a>
                 </ul>
             </li>
-            <li><a href="{% url 'profile' %}">Profile</a></li>
-            <li><a href="#">Contact</a></li>
-            <li><a href="{% url 'logout' %}">Logout</a></li>
+            <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
+            <li><a href="{% url 'profile' %}">{% trans 'Profile' %}</a></li>
+            <li><a href="#">{% trans 'Contact' %}</a></li>
+            <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
         </ul>
     </nav>
 
     <div class="contact-container">
-        <h1>Contact Us</h1>
-        <p>Have a question or feedback? We'd love to hear from you.</p>
-        
+        <h1>{% trans 'Contact Us' %}</h1>
+        <p>{% trans "Have a question or feedback? We'd love to hear from you." %}</p>
+
         {% if messages %}
             <div class="messages">
                 {% for message in messages %}
@@ -254,43 +256,43 @@
                 {% endfor %}
             </div>
         {% endif %}
-        
+
         <form action="{{ google_form_url }}" method="POST" target="_blank">
             {% csrf_token %}
             <div class="form-group">
-                <label for="name">Name</label>
+                <label for="name">{% trans 'Name' %}</label>
                 <input type="text" id="name" name="name" required>
             </div>
-        
+
             <div class="form-group">
                 <label for="subject">Subject</label>
                 <select id="subject" name="subject" required>
-                    <option value="">Select a subject</option>
-                    <option value="General">General Inquiry</option>
-                    <option value="Technical">Technical Support</option>
-                    <option value="Feedback">Feedback</option>
-                    <option value="Bug">Report a Bug</option>
-                    <option value="Feature">Feature Request</option>
+                    <option value="">{% trans 'Select a subject' %}</option>
+                    <option value="General">{% trans 'General Inquiry' %}</option>
+                    <option value="Technical">{% trans 'Technical Support' %}</option>
+                    <option value="Feedback">{% trans 'Feedback' %}</option>
+                    <option value="Bug">{% trans 'Report a Bug' %}</option>
+                    <option value="Feature">{% trans 'Feature Request' %}</option>
                 </select>
             </div>
-        
+
             <div class="form-group">
-                <label for="message">Message</label>
+                <label for="message">{% trans 'Message' %}</label>
                 <textarea id="message" name="message" required></textarea>
             </div>
-        
-            <button type="submit">Send Message</button>
+
+            <button type="submit">{% trans 'Send Message' %}</button>
         </form>
 
 
         <div class="contact-info">
-            <h3>Additional Ways to Reach Us</h3>
-            <p><strong>Email:</strong> support@spotifywrapper.com</p>
-            <p><strong>Response Time:</strong> We typically respond within 24-48 hours</p>
-            <p><strong>Hours:</strong> Monday - Friday, 9:00 AM - 5:00 PM EST</p>
+            <h3>{% trans 'Additional Ways to Reach Us' %}</h3>
+            <p><strong>{% trans 'Email:' %}</strong> support@spotifywrapper.com</p>
+            <p><strong>{% trans 'Response Time:' %}</strong> {% trans 'We typically respond within 24-48 hours' %}</p>
+            <p><strong>{% trans 'Hours:' %}</strong> {% trans 'Monday - Friday:' %}, 9:00 AM - 5:00 PM EST</p>
         </div>
     </div>
-    
+
     <button class="theme-toggle" onclick="toggleTheme()">
         Toggle Theme: Light Mode
     </button>
@@ -302,7 +304,7 @@
             const btn = document.querySelector('.theme-toggle');
             const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
                                  body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
-        
+
             if (currentTheme === 'light-mode') {
                 body.classList.remove('light-mode');
                 body.classList.add('dark-mode');
@@ -320,12 +322,12 @@
                 localStorage.setItem('theme', 'light-mode');
             }
         }
-        
+
         function applySavedMode() {
             const savedTheme = localStorage.getItem('theme');
             const body = document.body;
             const btn = document.querySelector('.theme-toggle');
-        
+
             if (savedTheme === 'light-mode') {
                 body.classList.add('light-mode');
                 btn.textContent = 'Toggle Theme: Dark Mode';
@@ -340,7 +342,7 @@
                 btn.textContent = 'Toggle Theme: Dark Mode';
             }
         }
-    
+
         window.onload = applySavedMode;
     </script>
 </body>

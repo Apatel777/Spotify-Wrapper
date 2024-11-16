@@ -1,4 +1,3 @@
-{% load auto_trans %}
 {% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
@@ -93,11 +92,11 @@
             border-radius: 4px;
             transition: background-color 0.3s ease;
         }
-        
+
         .navbar-links a:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
-        
+
         /* Dropdown menu styling */
         .dropdown-menu {
             display: none;
@@ -112,11 +111,11 @@
             padding: 10px 0;
             z-index: 1000;
         }
-        
+
         .dropdown-menu li {
             margin: 0;
         }
-        
+
         .dropdown-menu a {
             display: block;
             padding: 10px 20px;
@@ -125,11 +124,11 @@
             text-decoration: none;
             transition: background-color 0.3s ease;
         }
-        
+
         .dropdown-menu a:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
-        
+
         /* Show dropdown on hover */
         .dropdown:hover .dropdown-menu {
             display: block;
@@ -279,7 +278,7 @@
             font-size: 0.875rem;
             margin: 0;
         }
-        
+
         .play-button {
             background: #1DB954;
             color: white;
@@ -293,15 +292,15 @@
             justify-content: center;
             margin-left: 15px;
         }
-        
+
         .play-button:hover {
             background: #1ed760;
         }
-        
+
         .play-button.playing {
             background: #ff5252;
         }
-        
+
         .preview-unavailable {
             color: #999;
             font-style: italic;
@@ -329,7 +328,6 @@
     </style>
 </head>
 <body>
-    {% auto_trans %}
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="navbar-brand">SpotifyWrapper</div>
@@ -343,6 +341,7 @@
                     <li><a href="{% url 'games' %}?game=2">Guess Artist</a>
                 </ul>
             </li>
+            <li><a href="{% url 'analysis' %}">LLM Analysis</a></li>
             <li><a href="{% url 'profile' %}">Profile</a></li>
             <li><a href="{% url 'contact' %}">Contact</a></li>
             <li><a href="{% url 'logout' %}">Logout</a></li>
@@ -557,7 +556,7 @@
                 currentAudio.pause();
                 currentAudio.currentTime = 0;
                 updateButtonIcon(currentButton, false);
-                
+
                 // If we're clicking the same button, just stop playback
                 if (currentButton === button) {
                     currentAudio = null;
@@ -570,7 +569,7 @@
             const audio = new Audio(previewUrl);
             currentAudio = audio;
             currentButton = button;
-            
+
             audio.play();
             updateButtonIcon(button, true);
 
@@ -611,7 +610,7 @@
                 currentButton = null;
             }
         });
-    
+
         function showTab(tabName) {
             // Hide all tabs
             document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
@@ -766,6 +765,5 @@
         // Call applySavedMode on page load to apply the correct theme
         window.onload = applySavedMode;
     </script>
-    {% endauto_trans %}
 </body>
 </html>
