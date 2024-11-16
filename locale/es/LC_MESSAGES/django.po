@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-16 18:08+0000\n"
+"POT-Creation-Date: 2024-11-16 23:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,57 +30,73 @@ msgstr "Español"
 msgid "French"
 msgstr "Francés"
 
-#: users/templates/users/contact.html users/templates/users/games.html
-#: users/templates/users/profile2.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
 msgid "Home"
 msgstr "Hogar"
 
-#: users/templates/users/contact.html users/templates/users/games.html
-#: users/templates/users/profile2.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
 msgid "Games"
 msgstr "Juegos"
 
-#: users/templates/users/contact.html users/templates/users/games.html
-#: users/templates/users/profile2.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
 msgid "Guess Top Track"
 msgstr "Adivina la pista superior"
 
-#: users/templates/users/contact.html users/templates/users/games.html
-#: users/templates/users/profile2.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
 msgid "Guess Top Album"
 msgstr "Adivina el mejor álbum"
 
-#: users/templates/users/contact.html users/templates/users/games.html
-#: users/templates/users/profile2.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
 msgid "Guess Artist"
 msgstr "Adivina el artista"
 
-#: users/templates/users/contact.html users/templates/users/profile2.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
 msgid "LLM Analysis"
 msgstr "Análisis de LLM"
 
-#: users/templates/users/contact.html users/templates/users/games.html
-#: users/templates/users/profile2.html
-#, fuzzy
-#| msgid "Your Profile"
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
 msgid "Profile"
-msgstr "Tu perfil"
+msgstr "Perfil"
 
-#: users/templates/users/contact.html users/templates/users/games.html
-#: users/templates/users/profile2.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
 msgid "Contact"
 msgstr "Contacto"
 
-#: users/templates/users/contact.html users/templates/users/games.html
-#: users/templates/users/profile2.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
 msgid "Logout"
 msgstr "Cerrar sesión"
 
+#: users/templates/users/analysis.html
+msgid "Your Music Personality Analysis"
+msgstr "Análisis de tu personalidad musical"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/profile2.html
+msgid "Toggle Theme: Light Mode"
+msgstr "Cambiar tema: Modo claro"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/profile2.html
+msgid "Toggle Theme: Dark Mode"
+msgstr "Cambiar tema: Modo oscuro"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/profile2.html
+msgid "Toggle Theme: Color Mode"
+msgstr "Cambiar tema: Modo de color"
+
 #: users/templates/users/contact.html
-#, fuzzy
-#| msgid "Contact"
 msgid "Contact Us"
-msgstr "Contacto"
+msgstr "Contáctenos"
 
 #: users/templates/users/contact.html
 msgid "Have a question or feedback? We'd love to hear from you."
@@ -119,10 +135,8 @@ msgid "Message"
 msgstr "Mensaje"
 
 #: users/templates/users/contact.html
-#, fuzzy
-#| msgid "Message"
 msgid "Send Message"
-msgstr "Mensaje"
+msgstr "Enviar mensaje"
 
 #: users/templates/users/contact.html
 msgid "Additional Ways to Reach Us"
@@ -148,11 +162,13 @@ msgstr "Horas:"
 msgid "Monday - Friday:"
 msgstr "Lunes - Viernes:"
 
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Guess Clip"
+msgstr "Adivina el clip"
+
 #: users/templates/users/games.html
-#, fuzzy
-#| msgid "Select a subject"
 msgid "Selected Game:"
-msgstr "Seleccione un tema"
+msgstr "Juego seleccionado:"
 
 #: users/templates/users/games.html
 msgid "Can you guess your #1 most played track?"
@@ -167,12 +183,20 @@ msgid "Can you guess your #1 most played artist?"
 msgstr "¿Puedes adivinar cuál es tu artista más escuchado #1?"
 
 #: users/templates/users/games.html
+msgid "Can you guess based on the clip?"
+msgstr "¿Puedes adivinarlo basándose en el clip?"
+
+#: users/templates/users/games.html
 msgid "Enter your guess"
 msgstr "Introduce tu conjetura"
 
 #: users/templates/users/games.html
 msgid "Make a Guess"
 msgstr "Haz una suposición"
+
+#: users/templates/users/games.html
+msgid "Attempts remaining:"
+msgstr "Intentos restantes:"
 
 #: users/templates/users/profile.html users/templates/users/profile2.html
 msgid "Your Profile"
@@ -191,10 +215,8 @@ msgid "Language:"
 msgstr "Idioma:"
 
 #: users/templates/users/profile2.html
-#, fuzzy
-#| msgid "App Settings"
 msgid "Update Settings"
-msgstr "Configuración de la aplicación"
+msgstr "Actualizar configuración"
 
 #: users/templates/users/profile2.html
 msgid "Account Management"
@@ -203,21 +225,3 @@ msgstr "Gestión de cuentas"
 #: users/templates/users/profile2.html
 msgid "Delete Account"
 msgstr "Eliminar cuenta"
-
-#: users/templates/users/profile2.html
-#, fuzzy
-#| msgid "Toggle Theme:"
-msgid "Toggle Theme: Light Mode"
-msgstr "Cambiar tema:"
-
-#: users/templates/users/profile2.html
-#, fuzzy
-#| msgid "Toggle Theme:"
-msgid "Toggle Theme: Dark Mode"
-msgstr "Cambiar tema:"
-
-#: users/templates/users/profile2.html
-#, fuzzy
-#| msgid "Toggle Theme:"
-msgid "Toggle Theme: Color Mode"
-msgstr "Cambiar tema:"

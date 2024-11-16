@@ -332,21 +332,22 @@
     <nav class="navbar">
         <div class="navbar-brand">SpotifyWrapper</div>
         <ul class="navbar-links">
-            <li><a href="#">Home</a></li>
+            <li><a href="#">{% trans 'Home' %}</a></li>
             <li class="dropdown">
-                <a href="#" class="dropdown-trigger">Games</a>
+                <a href="#" class="dropdown-trigger">{% trans 'Games' %}</a>
                 <ul class="dropdown-menu">
-                    <li><a href="{% url 'games' %}?game=0">Guess Top Track</a></li>
-                    <li><a href="{% url 'games' %}?game=1">Guess Top Album</a></li>
-                    <li><a href="{% url 'games' %}?game=2">Guess Artist</a>
+                    <li><a href="{% url 'games' %}?game=0">{% trans 'Guess Top Track' %}</a></li>
+                    <li><a href="{% url 'games' %}?game=1">{% trans 'Guess Top Album' %}</a></li>
+                    <li><a href="{% url 'games' %}?game=2">{% trans 'Guess Artist' %}</a>
                 </ul>
             </li>
-            <li><a href="{% url 'analysis' %}">LLM Analysis</a></li>
-            <li><a href="{% url 'profile' %}">Profile</a></li>
-            <li><a href="{% url 'contact' %}">Contact</a></li>
-            <li><a href="{% url 'logout' %}">Logout</a></li>
+            <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
+            <li><a href="{% url 'profile' %}">{% trans 'Profile' %}</a></li>
+            <li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>
+            <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
         </ul>
     </nav>
+    
     <div class="container">
         <!-- Recently Played Card -->
         <div class="card">
@@ -355,7 +356,7 @@
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                 </svg>
-                <h2 class="card-title">Recently Played</h2>
+                <h2 class="card-title">{% trans 'Recently Played' %}</h2>
             </div>
             <div class="track-grid">
                 {% for item in recent_tracks|slice:":15" %}
@@ -381,14 +382,14 @@
                         <circle cx="6" cy="18" r="3"></circle>
                         <circle cx="18" cy="16" r="3"></circle>
                     </svg>
-                    Top Tracks
+                    {% trans 'Top Tracks' %}
                 </button>
                 <button class="tab-trigger" role="tab" onclick="showTab('artists')">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
-                    Top Artists
+                    {% trans 'Top Artists' %}
                 </button>
             </div>
 
@@ -414,7 +415,7 @@
                             </svg>
                         </button>
                     {% else %}
-                        <span class="preview-unavailable">Preview unavailable</span>
+                        <span class="preview-unavailable">{% trans 'Preview unavailable' %}</span>
                     {% endif %}
                 </div>
                 {% endfor %}
@@ -445,7 +446,7 @@
                         <circle cx="6" cy="18" r="3"></circle>
                         <circle cx="18" cy="16" r="3"></circle>
                     </svg>
-                    Medium Term Top Tracks (Last 6 Months)
+                    {% trans 'Medium Term Top Tracks (Last 6 Months)' %}
                 </button>
                 <button class="time-tab-trigger" role="time_tab" onclick="showTimeTab('long_time_tracks')">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -453,7 +454,7 @@
                         <circle cx="6" cy="18" r="3"></circle>
                         <circle cx="18" cy="16" r="3"></circle>
                     </svg>
-                    Long Term Top Tracks (All Time)
+                    {% trans 'Long Term Top Tracks (All Time)' %}
                 </button>
             </div>
     
@@ -476,7 +477,7 @@
                         </div>
                         {% endfor %}
                     {% else %}
-                        <p style="opacity: 0.7;">No tracks found for this time period.</p>
+                        <p style="opacity: 0.7;">{% trans 'No tracks found for this time period.' %}</p>
                     {% endif %}
                 {% endif %}
             </div>
@@ -500,7 +501,7 @@
                         </div>
                         {% endfor %}
                     {% else %}
-                        <p style="opacity: 0.7;">No tracks found for this time period.</p>
+                        <p style="opacity: 0.7;">{% trans 'No tracks found for this time period.' %}</p>
                     {% endif %}
                 {% endif %}
             </div>
@@ -513,7 +514,7 @@
                     <circle cx="12" cy="12" r="10"></circle>
                     <circle cx="12" cy="12" r="3"></circle>
                 </svg>
-                <h2 class="card-title">Most Listened Album</h2>
+                <h2 class="card-title">{% trans 'Most Listened Album' %}</h2>
             </div>
             <div style="display: flex; gap: 1.5rem; align-items: center;">
                 <img src="{{ most_listened_album_details.image_url }}" alt="Album artwork" style="width: 8rem; height: 8rem; border-radius: 0.5rem;">
@@ -528,22 +529,22 @@
     <!-- Social Media Share Buttons -->
     <div class="social-buttons">
         <button onclick="shareOnX()" class="share-button share-x">
-            Share on X
+            {% trans 'Share on X' %}
         </button>
 
         <button onclick="shareOnLinkedIn()" class="share-button share-linkedin">
-            Share on LinkedIn
+            {% trans 'Share on LinkedIn' %}
         </button>
         
         <button onclick="copyForInstagram()" class="share-button share-instagram">
-            Copy for Instagram
+            {% trans 'Copy for Instagram' %}
         </button>
     </div>
     
     <div id="alert" class="alert"></div>
 
     <button class="theme-toggle" onclick="toggleTheme()">
-        Toggle Theme: Light Mode
+        {% trans 'Toggle Theme: Light Mode' %}
     </button>
 
     <script>
@@ -713,56 +714,58 @@
             }
         }
 
+        // Define translations
+        const THEME_LABELS = {
+            light: '{% trans "Toggle Theme: Dark Mode"|escapejs %}',
+            dark: '{% trans "Toggle Theme: Color Mode"|escapejs %}',
+            color: '{% trans "Toggle Theme: Light Mode"|escapejs %}'
+        };
+        
         // Function to toggle between light and dark mode
         function toggleTheme() {
             const body = document.body;
             const btn = document.querySelector('.theme-toggle');
             const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
                                  body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
-        
-            // Switch between modes
+
             if (currentTheme === 'light-mode') {
                 body.classList.remove('light-mode');
                 body.classList.add('dark-mode');
-                btn.textContent = 'Toggle Theme: Color Mode';
+                btn.textContent = THEME_LABELS.color;
                 localStorage.setItem('theme', 'dark-mode');
             } else if (currentTheme === 'dark-mode') {
                 body.classList.remove('dark-mode');
                 body.classList.add('color-mode');
-                btn.textContent = 'Toggle Theme: Light Mode';
+                btn.textContent = THEME_LABELS.light;
                 localStorage.setItem('theme', 'color-mode');
             } else {
                 body.classList.remove('color-mode');
                 body.classList.add('light-mode');
-                btn.textContent = 'Toggle Theme: Dark Mode';
+                btn.textContent = THEME_LABELS.dark;
                 localStorage.setItem('theme', 'light-mode');
             }
         }
-        
-        // Function to apply the saved theme from localStorage
+
         function applySavedMode() {
             const savedTheme = localStorage.getItem('theme');
             const body = document.body;
             const btn = document.querySelector('.theme-toggle');
-        
-            // Apply the saved theme if it exists
+
             if (savedTheme === 'light-mode') {
                 body.classList.add('light-mode');
-                btn.textContent = 'Toggle Theme: Dark Mode';
+                btn.textContent = THEME_LABELS.dark;
             } else if (savedTheme === 'dark-mode') {
                 body.classList.add('dark-mode');
-                btn.textContent = 'Toggle Theme: Color Mode';
+                btn.textContent = THEME_LABELS.color;
             } else if (savedTheme === 'color-mode') {
                 body.classList.add('color-mode');
-                btn.textContent = 'Toggle Theme: Light Mode';
+                btn.textContent = THEME_LABELS.light;
             } else {
-                // Default to light mode if no theme is saved
                 body.classList.add('light-mode');
-                btn.textContent = 'Toggle Theme: Dark Mode';
+                btn.textContent = THEME_LABELS.dark;
             }
         }
-    
-        // Call applySavedMode on page load to apply the correct theme
+
         window.onload = applySavedMode;
     </script>
 </body>

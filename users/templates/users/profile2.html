@@ -204,6 +204,7 @@
                     <li><a href="{% url 'games' %}?game=0">{% trans 'Guess Top Track' %}</a></li>
                     <li><a href="{% url 'games' %}?game=1">{% trans 'Guess Top Album' %}</a></li>
                     <li><a href="{% url 'games' %}?game=2">{% trans 'Guess Artist' %}</a>
+                    <li><a href="{% url 'games' %}?game=3">{% trans 'Guess Clip' %}</a>
                 </ul>
             </li>
             <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
@@ -246,9 +247,9 @@
     <script>
         // Define translations
         const THEME_LABELS = {
-            light: '{% trans "Toggle Theme: Dark Mode" %}',
-            dark: '{% trans "Toggle Theme: Color Mode" %}',
-            color: '{% trans "Toggle Theme: Light Mode" %}'
+            light: '{% trans "Toggle Theme: Dark Mode"|escapejs %}',
+            dark: '{% trans "Toggle Theme: Color Mode"|escapejs %}',
+            color: '{% trans "Toggle Theme: Light Mode"|escapejs %}'
         };
         
         // Function to toggle between light and dark mode
