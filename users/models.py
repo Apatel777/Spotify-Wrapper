@@ -3,7 +3,10 @@ from django.db import models, transaction
 from django.utils import timezone
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
+import logging
 
+# Setting up a logger
+logger = logging.getLogger(__name__)
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
@@ -49,6 +52,7 @@ class User(AbstractUser):
         Uses transaction.atomic to ensure database consistency.
         """
         if not spotify_id:
+            logger.error("Spotify ID cannot be null or empty")
             return False
 
         # If this user already has this Spotify ID, just return True
@@ -58,6 +62,7 @@ class User(AbstractUser):
         # Check if another user has this Spotify ID
         existing_user = User.objects.filter(spotify_id=spotify_id).first()
         if existing_user and existing_user.id != self.id:
+            logger.error(f"Spotify ID {spotify_id} is already in use by another user.")
             return False
 
         try:
@@ -70,7 +75,7 @@ class User(AbstractUser):
             self.spotify_id = spotify_id
             return True
         except (User.DoesNotExist, IntegrityError) as e:
-            print(f"Error setting Spotify ID: {str(e)}")
+            logger.error(f"Error setting Spotify ID: {str(e)}")
             return False
 
     @transaction.atomic
@@ -88,7 +93,7 @@ class User(AbstractUser):
             bool: True if successful, False otherwise
         """
         if not all([access_token, refresh_token, expires_in]):
-            print("Missing required token information")
+            logger.error("Missing required token information")
             return False
 
         try:
@@ -113,9 +118,10 @@ class User(AbstractUser):
 
             return True
         except Exception as e:
-            print(f"Error setting Spotify tokens: {str(e)}")
+            logger.error(f"Error setting Spotify tokens: {str(e)}")
             return False
 
+    @transaction.atomic
     def clear_spotify_data(self):
         """
         Clear all Spotify-related data for the user.
@@ -142,5 +148,5 @@ class User(AbstractUser):
             ])
             return True
         except Exception as e:
-            print(f"Error clearing Spotify data: {str(e)}")
+            logger.error(f"Error clearing Spotify data: {str(e)}")
             return False

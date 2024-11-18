@@ -1,4 +1,8 @@
+import logging
+import os
 import random
+import secrets
+
 import spotipy
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -13,75 +17,107 @@ import requests
 from django.utils import timezone
 from django.contrib import messages
 from django.db import IntegrityError
+from django.db import transaction  # Added for atomic transactions
+from django.core.exceptions import ValidationError  # Added for validation errors
 
 def home_view(request):
     return render(request, 'home/home.html', {})
 
+logger = logging.getLogger(__name__)
+
 
 def signup(request):
-    """Handle user signup and Spotify OAuth initiation"""
+    """
+    Handle user signup with Spotify OAuth verification.
+    Flow:
+    1. User fills out signup form
+    2. Validate form data
+    3. Store data in session
+    4. Redirect to Spotify OAuth
+    5. Verify Spotify auth in callback
+    6. Create user account if authorized
+    """
+    theme = request.session.get('theme', 'light')
     if request.user.is_authenticated:
+        logger.info("User already authenticated, redirecting to dashboard")
         return redirect('dashboard')
 
-    theme = request.session.get('theme', 'light')
-
     if request.method == 'POST':
-        print(f"Starting signup process for username: {request.POST.get('username')}")
+        logger.info("Processing signup form submission")
 
-        # Store new signup data
-        request.session['signup_data'] = {
+        # Basic form validation
+        required_fields = ['username', 'email', 'password']
+        if not all(field in request.POST for field in required_fields):
+            logger.warning("Missing required signup fields")
+            messages.error(request, "All fields are required")
+            return render(request, 'home/signup.html', {'error': 'All fields are required'})
+
+        # Store signup data securely in session
+        signup_data = {
             'username': request.POST['username'],
             'email': request.POST['email'],
             'password': request.POST['password'],
         }
 
-        # Validation checks with early return
-        if User.objects.filter(username=request.POST['username']).exists():
-            messages.error(request, 'Username already exists')
-            return render(request, 'home/signup.html', {'error': 'Username already exists', 'theme': theme})
-        if User.objects.filter(username=request.POST['email']).exists():
-            messages.error(request, 'Email already exists')
-            return render(request, 'home/signup.html', {'error': 'Email already exists', 'theme': theme})
+        # Validate unique constraints
+        if User.objects.filter(username=signup_data['username']).exists():
+            logger.warning(f"Username {signup_data['username']} already exists")
+            messages.error(request, "Username already exists")
+            return render(request, 'home/signup.html', {'error': 'Username already exists'})
 
-        # Generate new state parameter
-        import secrets
+        if User.objects.filter(email=signup_data['email']).exists():
+            logger.warning(f"Email {signup_data['email']} already exists")
+            messages.error(request, "Email already exists")
+            return render(request, 'home/signup.html', {'error': 'Email already exists'})
+
+        # Store data securely in session
+        request.session['signup_data'] = signup_data
+
+        # Generate and store OAuth state for CSRF protection
         state = secrets.token_urlsafe(32)
         request.session['oauth_state'] = state
 
-        # Redirect to Spotify OAuth
-        print("Redirecting to Spotify OAuth URL: ...")
+        # Set session expiry for security
+        request.session.set_expiry(300)  # 5 minutes
+
+        logger.info(f"Redirecting user to Spotify OAuth. State: {state}")
         return HttpResponseRedirect(create_spotify_auth_url(state))
 
     return render(request, 'home/signup.html', {'theme': theme})
 
 
 def login_view(request):
+    """Handle login for predefined users"""
     theme = request.session.get('theme', 'light')
+    print(f"Current theme: {theme}")
 
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
+        print(f"Login attempt with username: {username}")
 
-        # Authenticate the user
         user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            # Log the user in
+        if user is not None and user.is_active:
+            print(f"User {username} authenticated successfully")
             login(request, user)
 
-            # Redirect to Spotify OAuth for linkage if not done yet
-            if not user.email:  # Assuming email is set via Spotify OAuth
-                return HttpResponseRedirect(create_spotify_auth_url())
+            if not user.spotify_id:
+                print("User has no Spotify account linked, redirecting to OAuth")
+                state = secrets.token_urlsafe(32)
+                request.session['oauth_state'] = state
+                return HttpResponseRedirect(create_spotify_auth_url(state))
 
-            # Redirect to the dashboard after successful login
+            print("User logged in and redirected to dashboard")
             return redirect('dashboard')
         else:
-            return render(request, 'home/login.html', {'theme': theme, 'error': 'Invalid username or password'})
+            print(f"Login failed for username: {username}")
+            return render(request, 'home/login.html', {'theme': theme, 'error': 'Invalid credentials'})
 
     return render(request, 'home/login.html', {'theme': theme})
 
+
 def create_spotify_auth_url(state=None):
-    """Create Spotify authorization URL with state parameter and force_dialog=true"""
+    """Create Spotify authorization URL forcing login dialog"""
     params = {
         "response_type": "code",
         "client_id": settings.SPOTIFY_CLIENT_ID,
@@ -93,9 +129,125 @@ def create_spotify_auth_url(state=None):
     if state:
         params["state"] = state
 
-    auth_url = "https://accounts.spotify.com/authorize?" + urlencode(params)
-    print(f"Generated Spotify auth URL with parameters: {params}")
-    return auth_url
+    return "https://accounts.spotify.com/authorize?" + urlencode(params)
+
+
+def spotify_callback(request):
+    """
+    Handle Spotify OAuth callback and user account creation.
+    Verifies OAuth state, creates user account, and links Spotify.
+    """
+    code = request.GET.get('code')
+    state = request.GET.get('state')
+    stored_state = request.session.get('oauth_state')
+    signup_data = request.session.get('signup_data')
+
+    logger.info("Processing Spotify OAuth callback")
+
+    # Verify OAuth state for security
+    if not state or state != stored_state:
+        logger.error("Invalid OAuth state in callback")
+        messages.error(request, "Invalid authentication state. Please try again.")
+        return redirect('signup')
+
+    if not code:
+        logger.error("Missing authorization code in callback")
+        messages.error(request, "Authentication failed. Please try again.")
+        return redirect('signup')
+
+    if not signup_data:
+        logger.error("Missing signup data in session")
+        messages.error(request, "Signup session expired. Please try again.")
+        return redirect('signup')
+
+    try:
+        # Initialize Spotify OAuth
+        sp_oauth = SpotifyOAuth(
+            client_id=settings.SPOTIFY_CLIENT_ID,
+            client_secret=settings.SPOTIFY_CLIENT_SECRET,
+            redirect_uri=settings.SPOTIFY_REDIRECT_URI,
+            scope="user-read-private user-read-email user-top-read user-read-recently-played",
+            show_dialog = True
+        )
+
+        # Clear any cached tokens
+        cache_path = sp_oauth.cache_handler.cache_path
+        if os.path.exists(cache_path):
+            os.remove(cache_path)
+
+        # Get token info
+        token_info = sp_oauth.get_access_token(code)
+        if not token_info:
+            logger.error("Failed to get Spotify access token")
+            messages.error(request, "Failed to connect with Spotify. Please try again.")
+            return redirect('signup')
+
+        # Get Spotify user info
+        sp = spotipy.Spotify(auth=token_info['access_token'])
+        spotify_user = sp.current_user()
+        spotify_id = spotify_user['id']
+
+        print("Full user object:")
+        import json
+        print(json.dumps(spotify_user, indent=2))
+
+        # Also try getting playlists to verify the account
+        playlists = sp.current_user_playlists()
+        print("\nPlaylists:")
+        for playlist in playlists['items']:
+            print(f"- {playlist['name']}")
+
+        # Check if Spotify account is already linked
+        if User.objects.filter(spotify_id=spotify_id).exists():
+            logger.error(f"Spotify account {spotify_id} already linked to another user")
+            messages.error(request, "This Spotify account is already linked to another user.")
+            return redirect('signup')
+
+        # Create new user account with transaction
+        try:
+            with transaction.atomic():
+                # Create user account
+                user = User.objects.create_user(
+                    username=signup_data['username'],
+                    email=signup_data['email'],
+                    password=signup_data['password']
+                )
+
+                # Link Spotify account
+                success = user.set_spotify_id(spotify_id)
+                if not success:
+                    raise ValidationError("Failed to link Spotify account")
+
+                # Set Spotify tokens
+                success = user.set_spotify_tokens(
+                    token_info['access_token'],
+                    token_info['refresh_token'],
+                    token_info['expires_in']
+                )
+                if not success:
+                    raise ValidationError("Failed to store Spotify tokens")
+
+                # Clean up session
+                request.session.pop('signup_data', None)
+                request.session.pop('oauth_state', None)
+
+                # Log user in
+                login(request, user)
+
+                logger.info(f"User account created successfully: {user.username}")
+                messages.success(request, "Account created successfully!")
+                return redirect('dashboard')
+
+        except Exception as e:
+            logger.error(f"Failed to create user account: {str(e)}")
+            messages.error(request, "Failed to create account. Please try again.")
+            return redirect('signup')
+
+    except Exception as e:
+        logger.error(f"Error during Spotify callback: {str(e)}")
+        messages.error(request, "An error occurred. Please try again.")
+        return redirect('signup')
+
 
 def refresh_spotify_token(user):
     """Helper function to refresh expired Spotify token"""
@@ -108,81 +260,15 @@ def refresh_spotify_token(user):
 
     try:
         token_info = sp_oauth.refresh_access_token(user.spotify_refresh_token)
-        user.spotify_access_token = token_info['access_token']
-        user.spotify_refresh_token = token_info.get('refresh_token', user.spotify_refresh_token)
-        user.spotify_token_expires = timezone.now() + timezone.timedelta(seconds=token_info['expires_in'])
-        user.save(update_fields=['spotify_access_token', 'spotify_refresh_token', 'spotify_token_expires'])
+        user.set_spotify_tokens(
+            token_info['access_token'],
+            token_info.get('refresh_token', user.spotify_refresh_token),
+            token_info['expires_in']
+        )
         return token_info['access_token']
     except Exception as e:
         print(f"Error refreshing token: {e}")
         return None
-
-
-def spotify_callback(request):
-    """Handle Spotify OAuth callback and create user"""
-    code = request.GET.get('code')
-    state = request.GET.get('state')
-    stored_state = request.session.get('oauth_state')
-    signup_data = request.session.get('signup_data')
-
-    # Verify state parameter to prevent CSRF
-    if not state or state != stored_state:
-        messages.error(request, 'Invalid OAuth state')
-        return redirect('signup')
-
-    if not code or not signup_data:
-        messages.error(request, 'Missing required data')
-        return redirect('signup')
-
-    try:
-        # Initialize Spotify OAuth
-        sp_oauth = SpotifyOAuth(
-            client_id=settings.SPOTIFY_CLIENT_ID,
-            client_secret=settings.SPOTIFY_CLIENT_SECRET,
-            redirect_uri=settings.SPOTIFY_REDIRECT_URI,
-            scope="user-read-private user-read-email user-top-read user-read-recently-played"
-        )
-
-        # Get token info
-        token_info = sp_oauth.get_access_token(code)
-
-        # Get Spotify user info
-        sp = spotipy.Spotify(auth=token_info['access_token'])
-        spotify_user = sp.current_user()
-        spotify_id = spotify_user['id']
-
-        # Check if Spotify account is already linked
-        if User.objects.filter(spotify_id=spotify_id).exists():
-            messages.error(request, 'This Spotify account is already linked to another user')
-            return redirect('signup')
-
-        # Create new user
-        user = User.objects.create_user(
-            username=signup_data['username'],
-            email=signup_data['email'],
-            password=signup_data['password'],
-            spotify_id=spotify_id
-        )
-
-        # Set Spotify tokens
-        user.spotify_access_token = token_info['access_token']
-        user.spotify_refresh_token = token_info['refresh_token']
-        user.spotify_token_expires = timezone.now() + timezone.timedelta(seconds=token_info['expires_in'])
-        user.save()
-
-        # Clean up session data
-        request.session.pop('signup_data', None)
-        request.session.pop('oauth_state', None)
-
-        # Log the user in
-        login(request, user)
-        messages.success(request, 'Successfully created account and connected to Spotify!')
-
-        return redirect('dashboard')
-
-    except Exception as e:
-        messages.error(request, f'Error during signup: {str(e)}')
-        return redirect('signup')
 
 @login_required
 def dashboard(request):
