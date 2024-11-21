@@ -2,29 +2,34 @@ import logging
 import os
 import random
 import secrets
+import requests
+import json
 
-import spotipy
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.conf import settings
 from django.contrib.auth.hashers import make_password
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from urllib.parse import urlencode
 from .models import *
+
+import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-import requests
+from datetime import datetime
 from django.utils import timezone
 from django.contrib import messages
 from django.db import IntegrityError
 from django.db import transaction  # Added for atomic transactions
 from django.core.exceptions import ValidationError  # Added for validation errors
-
-def home_view(request):
-    return render(request, 'home/home.html', {})
+from django.core.cache import cache
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.views.decorators.http import require_http_methods
 
 logger = logging.getLogger(__name__)
 
+def home_view(request):
+    return render(request, 'home/home.html', {})
 
 def signup(request):
     """
@@ -448,6 +453,7 @@ def wraps_view(request):
 def delete_account_view(request):
     theme = request.session.get('theme', 'light')  # Default to light mode
     if request.method == 'POST':
+        SpotifyData.objects.filter(user=request.user).delete()
         request.user.delete()
         return redirect('home')
     return render(request, 'users/delete_account.html', {'theme': theme})
@@ -470,10 +476,6 @@ def set_language(request):
     else:
         print("No POST")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-
-from django.core.cache import cache
-from django.conf import settings
-
 
 def analyze_music_taste(request):
     theme = request.session.get('theme', 'light')
@@ -547,36 +549,6 @@ Keep it positive and playful, focusing on the overall vibe rather than specific 
             'error': 'Unable to generate analysis at this time. Please try again later.'
         })
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
-from django.views.decorators.http import require_http_methods
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-import json
-import spotipy
-import logging
-
-# def refresh_spotify_token(user):
-#     """Helper function to refresh expired Spotify token"""
-#     sp_oauth = SpotifyOAuth(
-#         client_id=settings.SPOTIFY_CLIENT_ID,
-#         client_secret=settings.SPOTIFY_CLIENT_SECRET,
-#         redirect_uri=settings.SPOTIFY_REDIRECT_URI,
-#         scope="user-read-private user-read-email user-top-read user-read-recently-played"
-#     )
-#
-#     try:
-#         token_info = sp_oauth.refresh_access_token(user.spotify_refresh_token)
-#         user.set_spotify_tokens(
-#             token_info['access_token'],
-#             token_info.get('refresh_token', user.spotify_refresh_token),
-#             token_info['expires_in']
-#         )
-#         return token_info['access_token']
-#     except Exception as e:
-#         print(f"Error refreshing token: {e}")
-#         return None
-
 def refresh_spotify_token(user):
     """
     Refresh the Spotify access token for a user.
@@ -605,9 +577,6 @@ def refresh_spotify_token(user):
         logger.error(f"Error refreshing token for user {user.id}: {str(e)}")
         return None
 
-
-from django.views.decorators.csrf import ensure_csrf_cookie
-from datetime import datetime
 @login_required
 @ensure_csrf_cookie
 @require_http_methods(["POST"])
