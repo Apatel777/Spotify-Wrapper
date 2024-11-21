@@ -1,4 +1,6 @@
 {% load i18n %}
+{% load static %}
+{% csrf_token %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,7 +29,7 @@
             --tab-active-color: #818cf8;
             --tab-hover-color: #6366f1;
         }
-        
+
         /* Color mode variables */
         .color-mode {
             --bg-color: #f0f4f8; /* Light, cheerful background */
@@ -47,7 +49,7 @@
             margin: 0;
             padding: 1.5rem 1.5rem 1.5rem 1.5rem;
             line-height: 1.5;
-            align-items: center; 
+            align-items: center;
             display: flex; /* Enable flexbox layout */
             flex-direction: column; /* Stack elements vertically */
             overflow-y: scroll; /* Hides vertical scrollbars */
@@ -55,7 +57,7 @@
         body::-webkit-scrollbar {
             display: none; /* Hides the scrollbar */
         }
-        
+
         /* Navbar styling */
         .navbar {
             background-color: var(--tab-hover-color);
@@ -328,37 +330,45 @@
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="navbar-brand">SpotifyWrapper</div>
-        <ul class="navbar-links">
-            <li><a href="#">Home</a></li>
-            <li class="dropdown">
-                <a href="#" class="dropdown-trigger">Games</a>
-                <ul class="dropdown-menu">
-                    <li><a href="{% url 'games' %}?game=0">Guess Top Track</a></li>
-                    <li><a href="{% url 'games' %}?game=1">Guess Top Album</a></li>
-                    <li><a href="{% url 'games' %}?game=2">Guess Artist</a>
-                </ul>
-            </li>
-            <li><a href="{% url 'analysis' %}">LLM Analysis</a></li>
-            <li><a href="{% url 'profile' %}">Profile</a></li>
-            <li><a href="{% url 'contact' %}">Contact</a></li>
-            <li><a href="{% url 'logout' %}">Logout</a></li>
-        </ul>
-    </nav>
-    <div class="container">
-        <!-- Recently Played Card -->
-        <div class="card">
-            <div class="card-header">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                <h2 class="card-title">Recently Played</h2>
-            </div>
-            <div class="track-grid">
-                {% for item in recent_tracks|slice:":15" %}
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <div class="navbar-brand">SpotifyWrapper</div>
+    <ul class="navbar-links">
+        <li><a href="#">Home</a></li>
+        <li class="dropdown">
+            <a href="#" class="dropdown-trigger">Games</a>
+            <ul class="dropdown-menu">
+                <li><a href="{% url 'games' %}?game=0">Guess Top Track</a></li>
+                <li><a href="{% url 'games' %}?game=1">Guess Top Album</a></li>
+                <li><a href="{% url 'games' %}?game=2">Guess Artist</a>
+            </ul>
+        </li>
+        <<<<<<< HEAD
+        <li><a href="{% url 'analysis' %}">LLM Analysis</a></li>
+        <li><a href="{% url 'profile' %}">Profile</a></li>
+        <li><a href="{% url 'contact' %}">Contact</a></li>
+        <li><a href="{% url 'logout' %}">Logout</a></li>
+        =======
+        <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
+        <li><a href="{% url 'wraps' %}">{% trans 'Past Wraps' %}</a></li>
+        <li><a href="{% url 'profile' %}">{% trans 'Profile' %}</a></li>
+        <li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>
+        <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
+        >>>>>>> ray-signin
+    </ul>
+</nav>
+<div class="container">
+    <!-- Recently Played Card -->
+    <div class="card">
+        <div class="card-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <h2 class="card-title">Recently Played</h2>
+        </div>
+        <div class="track-grid">
+            {% for item in recent_tracks|slice:":15" %}
                 <div class="track-item">
                     <img class="track-image" src="{{ item.track.album.images.0.url }}" alt="Track artwork">
                     <p class="track-name">{{ item.track.name }}</p>
@@ -368,402 +378,470 @@
                         {% endfor %}
                     </p>
                 </div>
-                {% endfor %}
-            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Tabs Section -->
+    <div class="tabs">
+        <div class="tab-list" role="tablist">
+            <button class="tab-trigger active" role="tab" onclick="showTab('tracks')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18V5l12-2v13"></path>
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <circle cx="18" cy="16" r="3"></circle>
+                </svg>
+                Top Tracks
+            </button>
+            <button class="tab-trigger" role="tab" onclick="showTab('artists')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Top Artists
+            </button>
         </div>
 
-        <!-- Tabs Section -->
-        <div class="tabs">
-            <div class="tab-list" role="tablist">
-                <button class="tab-trigger active" role="tab" onclick="showTab('tracks')">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 18V5l12-2v13"></path>
-                        <circle cx="6" cy="18" r="3"></circle>
-                        <circle cx="18" cy="16" r="3"></circle>
-                    </svg>
-                    Top Tracks
-                </button>
-                <button class="tab-trigger" role="tab" onclick="showTab('artists')">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                    Top Artists
-                </button>
-            </div>
-
-            <!-- Top Tracks Content -->
-            <div id="tracks-tab" class="card" role="tabpanel">
-                {% if top_tracks %}
+        <!-- Top Tracks Content -->
+        <div id="tracks-tab" class="card" role="tabpanel">
+            {% if top_tracks %}
                 {% for track in top_tracks.short_term|slice:":5" %}
-                <div class="top-item" data-track-uri="{{ track.uri }}" data-preview-url="{{ track.preview_url }}">
-                    <span class="top-item-number"># {{ forloop.counter }}</span>
-                    <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
-                    <div class="top-item-info">
-                        <p class="top-item-name">{{ track.name }}</p>
-                        <p class="top-item-artist">
-                            {% for artist in track.artists %}
-                                {{ artist.name }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        </p>
+                    <div class="top-item" data-track-uri="{{ track.uri }}" data-preview-url="{{ track.preview_url }}">
+                        <span class="top-item-number"># {{ forloop.counter }}</span>
+                        <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
+                        <div class="top-item-info">
+                            <p class="top-item-name">{{ track.name }}</p>
+                            <p class="top-item-artist">
+                                {% for artist in track.artists %}
+                                    {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                        </div>
+                        {% if track.preview_url %}
+                            <button class="play-button" onclick="togglePlay(this, '{{ track.preview_url }}')">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <polygon points="5 3 19 12 5 21" />
+                                </svg>
+                            </button>
+                        {% else %}
+                            <span class="preview-unavailable">Preview unavailable</span>
+                        {% endif %}
                     </div>
-                    {% if track.preview_url %}
-                        <button class="play-button" onclick="togglePlay(this, '{{ track.preview_url }}')">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <polygon points="5 3 19 12 5 21" />
-                            </svg>
-                        </button>
-                    {% else %}
-                        <span class="preview-unavailable">Preview unavailable</span>
-                    {% endif %}
-                </div>
                 {% endfor %}
-                {% endif %}
-            </div>
+            {% endif %}
+        </div>
 
-            <!-- Top Artists Content -->
-            <div id="artists-tab" class="card" role="tabpanel" style="display: none;">
-                {% if top_artists %}
+        <!-- Top Artists Content -->
+        <div id="artists-tab" class="card" role="tabpanel" style="display: none;">
+            {% if top_artists %}
                 <div class="track-grid">
                     {% for artist in top_artists.short_term|slice:":5" %}
-                    <div class="track-item">
-                        <img class="track-image" src="{{ artist.images.0.url }}" alt="{{ artist.name }}" style="border-radius: 50%;">
-                        <p class="track-name" style="overflow: visible">{{ artist.name }}</p>
-                    </div>
+                        <div class="track-item">
+                            <img class="track-image" src="{{ artist.images.0.url }}" alt="{{ artist.name }}" style="border-radius: 50%;">
+                            <p class="track-name" style="overflow: visible">{{ artist.name }}</p>
+                        </div>
                     {% endfor %}
                 </div>
-                {% endif %}
-            </div>
+            {% endif %}
         </div>
-    
-        <!-- Time Tabs Section -->
-        <div class="tabs">
-            <div class="tab-list" role="time_tablist">
-                <button class="time-tab-trigger active" role="time_tab" onclick="showTimeTab('mid_time_tracks')">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 18V5l12-2v13"></path>
-                        <circle cx="6" cy="18" r="3"></circle>
-                        <circle cx="18" cy="16" r="3"></circle>
-                    </svg>
-                    Medium Term Top Tracks (Last 6 Months)
-                </button>
-                <button class="time-tab-trigger" role="time_tab" onclick="showTimeTab('long_time_tracks')">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 18V5l12-2v13"></path>
-                        <circle cx="6" cy="18" r="3"></circle>
-                        <circle cx="18" cy="16" r="3"></circle>
-                    </svg>
-                    Long Term Top Tracks (All Time)
-                </button>
-            </div>
-    
-            <!-- Medium Top Tracks Time -->
-            <div id="mid_time_tracks" class="card" role="time_tabpanel">
-                {% if top_tracks %}
-                    {% if top_tracks.medium_term %}
-                        {% for track in top_tracks.medium_term|slice:":5" %}
-                        <div class="top-item">
-                            <span class="top-item-number"># {{ forloop.counter }}</span>
-                            <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
-                            <div class="top-item-info">
-                                <p class="top-item-name">{{ track.name }}</p>
-                                <p class="top-item-artist">
-                                    {% for artist in track.artists %}
-                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
-                                </p>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <p style="opacity: 0.7;">No tracks found for this time period.</p>
-                    {% endif %}
-                {% endif %}
-            </div>
-        
-            <!-- Long Top Tracks Time -->
-            <div id="long_time_tracks" class="card" role="time_tabpanel">
-                {% if top_tracks %}
-                    {% if top_tracks.long_term|length > 0 %}
-                        {% for track in top_tracks.long_term|slice:":5" %}
-                        <div class="top-item">
-                            <span class="top-item-number"># {{ forloop.counter }}</span>
-                            <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
-                            <div class="top-item-info">
-                                <p class="top-item-name">{{ track.name }}</p>
-                                <p class="top-item-artist">
-                                    {% for artist in track.artists %}
-                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
-                                </p>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <p style="opacity: 0.7;">No tracks found for this time period.</p>
-                    {% endif %}
-                {% endif %}
-            </div>
-        </div>
+    </div>
 
-        <!-- Most Listened Album Card -->
-        <div class="card">
-            <div class="card-header">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <circle cx="12" cy="12" r="3"></circle>
+    <!-- Time Tabs Section -->
+    <div class="tabs">
+        <div class="tab-list" role="time_tablist">
+            <button class="time-tab-trigger active" role="time_tab" onclick="showTimeTab('mid_time_tracks')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18V5l12-2v13"></path>
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <circle cx="18" cy="16" r="3"></circle>
                 </svg>
-                <h2 class="card-title">Most Listened Album</h2>
-            </div>
-            <div style="display: flex; gap: 1.5rem; align-items: center;">
-                <img src="{{ most_listened_album_details.image_url }}" alt="Album artwork" style="width: 8rem; height: 8rem; border-radius: 0.5rem;">
-                <div>
-                    <h3 style="margin: 0; font-size: 1.25rem;">{{ most_listened_album_details.name }}</h3>
-                    <p style="margin: 0.25rem 0 0 0; color: #6b7280;">{{ most_listened_album_details.artist }}</p>
-                </div>
+                Medium Term Top Tracks (Last 6 Months)
+            </button>
+            <button class="time-tab-trigger" role="time_tab" onclick="showTimeTab('long_time_tracks')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18V5l12-2v13"></path>
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <circle cx="18" cy="16" r="3"></circle>
+                </svg>
+                Long Term Top Tracks (All Time)
+            </button>
+        </div>
+
+        <!-- Medium Top Tracks Time -->
+        <div id="mid_time_tracks" class="card" role="time_tabpanel">
+            {% if top_tracks %}
+                {% if top_tracks.medium_term %}
+                    {% for track in top_tracks.medium_term|slice:":5" %}
+                        <div class="top-item">
+                            <span class="top-item-number"># {{ forloop.counter }}</span>
+                            <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
+                            <div class="top-item-info">
+                                <p class="top-item-name">{{ track.name }}</p>
+                                <p class="top-item-artist">
+                                    {% for artist in track.artists %}
+                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="opacity: 0.7;">No tracks found for this time period.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <!-- Long Top Tracks Time -->
+        <div id="long_time_tracks" class="card" role="time_tabpanel">
+            {% if top_tracks %}
+                {% if top_tracks.long_term|length > 0 %}
+                    {% for track in top_tracks.long_term|slice:":5" %}
+                        <div class="top-item">
+                            <span class="top-item-number"># {{ forloop.counter }}</span>
+                            <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
+                            <div class="top-item-info">
+                                <p class="top-item-name">{{ track.name }}</p>
+                                <p class="top-item-artist">
+                                    {% for artist in track.artists %}
+                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="opacity: 0.7;">No tracks found for this time period.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Most Listened Album Card -->
+    <div class="card">
+        <div class="card-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <h2 class="card-title">Most Listened Album</h2>
+        </div>
+        <div style="display: flex; gap: 1.5rem; align-items: center;">
+            <img src="{{ most_listened_album_details.image_url }}" alt="Album artwork" style="width: 8rem; height: 8rem; border-radius: 0.5rem;">
+            <div>
+                <h3 style="margin: 0; font-size: 1.25rem;">{{ most_listened_album_details.name }}</h3>
+                <p style="margin: 0.25rem 0 0 0; color: #6b7280;">{{ most_listened_album_details.artist }}</p>
             </div>
         </div>
     </div>
-    
-    <!-- Social Media Share Buttons -->
-    <div class="social-buttons">
-        <button onclick="shareOnX()" class="share-button share-x">
-            Share on X
-        </button>
+</div>
 
-        <button onclick="shareOnLinkedIn()" class="share-button share-linkedin">
-            Share on LinkedIn
-        </button>
-        
-        <button onclick="copyForInstagram()" class="share-button share-instagram">
-            Copy for Instagram
-        </button>
-    </div>
-    
-    <div id="alert" class="alert"></div>
-
-    <button class="theme-toggle" onclick="toggleTheme()">
-        Toggle Theme: Light Mode
+<div>
+    <button onclick="saveSpotifyData('RECENTLY_PLAYED')" class="save-spotify-btn">
+        Save Recently Played
+    </button>
+    <!-- Add more buttons for other wrapper types -->
+    <button onclick="saveSpotifyData('TOP_TRACKS_SHORT')" class="save-spotify-btn">
+        Save Top Tracks (Short Term)
+    </button>
+    <button onclick="saveSpotifyData('TOP_TRACKS_MEDIUM')" class="save-spotify-btn">
+        Save Top Tracks (Medium Term)
+    </button>
+    <button onclick="saveSpotifyData('TOP_TRACKS_LONG')" class="save-spotify-btn">
+        Save Top Tracks (Long Term)
+    </button>
+    <button onclick="saveSpotifyData('TOP_ARTISTS')" class="save-spotify-btn">
+        Save Top Artists
+    </button>
+    <button onclick="saveSpotifyData('TOP_ALBUM')" class="save-spotify-btn">
+        Save Top Album
+    </button>
+</div>
+<!-- Social Media Share Buttons -->
+<div class="social-buttons">
+    <button onclick="shareOnX()" class="share-button share-x">
+        Share on X
     </button>
 
-    <script>
-        let currentAudio = null;
-        let currentButton = null;
+    <button onclick="shareOnLinkedIn()" class="share-button share-linkedin">
+        Share on LinkedIn
+    </button>
 
-        function togglePlay(button, previewUrl) {
-            // If there's already a track playing
-            if (currentAudio && currentButton) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                updateButtonIcon(currentButton, false);
+    <button onclick="copyForInstagram()" class="share-button share-instagram">
+        Copy for Instagram
+    </button>
+</div>
 
-                // If we're clicking the same button, just stop playback
-                if (currentButton === button) {
-                    currentAudio = null;
-                    currentButton = null;
-                    return;
-                }
-            }
+<div id="alert" class="alert"></div>
 
-            // Play the new track
-            const audio = new Audio(previewUrl);
-            currentAudio = audio;
-            currentButton = button;
+<button class="theme-toggle" onclick="toggleTheme()">
+    Toggle Theme: Light Mode
+</button>
 
-            audio.play();
-            updateButtonIcon(button, true);
+<script>
 
-            // When the preview ends
-            audio.onended = function() {
-                updateButtonIcon(button, false);
-                currentAudio = null;
-                currentButton = null;
-            };
+    function getCookie(name) {
+        console.log('All cookies:', document.cookie);
+        const cookies = document.cookie.split('; ');
+        const csrfCookie = cookies.find(row => row.startsWith('csrftoken='));
+
+        if (csrfCookie) {
+            const token = csrfCookie.split('=')[1];
+            console.log('CSRF Token found:', token);
+            return token;
         }
 
-        function updateButtonIcon(button, isPlaying) {
-            if (isPlaying) {
-                button.innerHTML = `
+        console.error('No CSRF token found in cookies');
+        return null;
+    }
+
+    const lang = "{{ lang }}"
+    async function saveSpotifyData(wrapperType) {
+        const csrfToken = getCookie('csrftoken');
+
+        // Validate CSRF token before sending
+        if (!csrfToken) {
+            alert('CSRF token missing');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/{{ lang }}/handle-spotify-data/`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken  // Ensure correct header name
+                },
+                body: JSON.stringify({
+                    wrapper_type: wrapperType,
+                    action: "saved"
+                })
+            });
+
+            // Rest of your existing code remains the same
+        } catch (error) {
+            console.error('Saving error:', error);
+            alert('An error occurred while saving data');
+        }
+    }
+
+    let currentAudio = null;
+    let currentButton = null;
+
+    function togglePlay(button, previewUrl) {
+        // If there's already a track playing
+        if (currentAudio && currentButton) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            updateButtonIcon(currentButton, false);
+
+            // If we're clicking the same button, just stop playback
+            if (currentButton === button) {
+                currentAudio = null;
+                currentButton = null;
+                return;
+            }
+        }
+
+        // Play the new track
+        const audio = new Audio(previewUrl);
+        currentAudio = audio;
+        currentButton = button;
+
+        audio.play();
+        updateButtonIcon(button, true);
+
+        // When the preview ends
+        audio.onended = function() {
+            updateButtonIcon(button, false);
+            currentAudio = null;
+            currentButton = null;
+        };
+    }
+
+    function updateButtonIcon(button, isPlaying) {
+        if (isPlaying) {
+            button.innerHTML = `
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <rect x="6" y="4" width="4" height="16"/>
                         <rect x="14" y="4" width="4" height="16"/>
                     </svg>
                 `;
-                button.classList.add('playing');
-            } else {
-                button.innerHTML = `
+            button.classList.add('playing');
+        } else {
+            button.innerHTML = `
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <polygon points="5 3 19 12 5 21" />
                     </svg>
                 `;
-                button.classList.remove('playing');
-            }
+            button.classList.remove('playing');
         }
+    }
 
-        // Stop playback when switching tabs/closing window
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden && currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                updateButtonIcon(currentButton, false);
-                currentAudio = null;
-                currentButton = null;
-            }
+    // Stop playback when switching tabs/closing window
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden && currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            updateButtonIcon(currentButton, false);
+            currentAudio = null;
+            currentButton = null;
+        }
+    });
+
+    function showTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
+            panel.style.display = 'none';
         });
 
-        function showTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
-                panel.style.display = 'none';
-            });
-            
-            // Show selected tab
-            document.getElementById(`${tabName}-tab`).style.display = 'block';
-            
-            // Update active state of triggers
-            document.querySelectorAll('.tab-trigger').forEach(trigger => {
-                trigger.classList.remove('active');
-            });
-            event.currentTarget.classList.add('active');
-        }
-        
-        // Ensure both tabs are hidden initially
-        document.addEventListener("DOMContentLoaded", function() {
-            // Hide all tabs initially
-            document.querySelectorAll('[role="time_tabpanel"]').forEach(panel => {
-                panel.style.display = 'none';
-            });
-            
-        
-            // Show the 'mid_time_tracks' tab by default (or any other default tab)
-            document.getElementById('mid_time_tracks').style.display = 'block';
+        // Show selected tab
+        document.getElementById(`${tabName}-tab`).style.display = 'block';
+
+        // Update active state of triggers
+        document.querySelectorAll('.tab-trigger').forEach(trigger => {
+            trigger.classList.remove('active');
         });
-        
-        function showTimeTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('[role="time_tabpanel"]').forEach(panel => {
-                panel.style.display = 'none';
-            });
-            
-            // Show selected tab
-            document.getElementById(`${tabName}`).style.display = 'block';
-            
-            // Update active state of triggers
-            document.querySelectorAll('.time-tab-trigger').forEach(trigger => {
-                trigger.classList.remove('active');
-            });
-            event.currentTarget.classList.add('active');
-        }
-        
-        
-        
-        // Function to show notification
-        function showNotification(message, duration = 3000) {
-            const alert = document.getElementById('alert');
-            alert.textContent = message;
-            alert.style.display = 'block';
-            
-            setTimeout(() => {
-                alert.style.display = 'none';
-            }, duration);
-        }
+        event.currentTarget.classList.add('active');
+    }
 
-        // Function to get share content
-        function getShareContent() {
-            const tracks = [
-                {% for item in recent_tracks %}
-                    "{{ item.track.name }}"{% if not forloop.last %},{% endif %}
-                {% endfor %}
-            ];
-            
-            const trackList = tracks.join(', ');
-            const currentUrl = window.location.href;
-            
-            return {
-                text: `Check out my top tracks: ${trackList}`,
-                url: currentUrl
-            };
-        }
+    // Ensure both tabs are hidden initially
+    document.addEventListener("DOMContentLoaded", function() {
+        // Hide all tabs initially
+        document.querySelectorAll('[role="time_tabpanel"]').forEach(panel => {
+            panel.style.display = 'none';
+        });
 
-        // Share on X (Twitter)
-        function shareOnX() {
-            const { text, url } = getShareContent();
-            const shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
-            window.open(shareUrl, '_blank');
-        }
 
-        // Share on LinkedIn
-        function shareOnLinkedIn() {
-            const { text, url } = getShareContent();
-            const shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent('My Top Tracks')}&summary=${encodeURIComponent(text)}`;
-            window.open(shareUrl, '_blank');
-        }
+        // Show the 'mid_time_tracks' tab by default (or any other default tab)
+        document.getElementById('mid_time_tracks').style.display = 'block';
+    });
 
-        // Copy for Instagram
-        async function copyForInstagram() {
-            const { text, url } = getShareContent();
-            const shareText = `${text}\n${url}`;
-            
-            try {
-                await navigator.clipboard.writeText(shareText);
-                showNotification('✓ Link copied to clipboard for Instagram!');
-            } catch (err) {
-                showNotification('❌ Failed to copy. Please try again.');
-                console.error('Failed to copy:', err);
-            }
-        }
+    function showTimeTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('[role="time_tabpanel"]').forEach(panel => {
+            panel.style.display = 'none';
+        });
 
-        // Function to toggle between light and dark mode
-        function toggleTheme() {
-            const body = document.body;
-            const btn = document.querySelector('.theme-toggle');
-            const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
-                                 body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
-        
-            // Switch between modes
-            if (currentTheme === 'light-mode') {
-                body.classList.remove('light-mode');
-                body.classList.add('dark-mode');
-                btn.textContent = 'Toggle Theme: Color Mode';
-                localStorage.setItem('theme', 'dark-mode');
-            } else if (currentTheme === 'dark-mode') {
-                body.classList.remove('dark-mode');
-                body.classList.add('color-mode');
-                btn.textContent = 'Toggle Theme: Light Mode';
-                localStorage.setItem('theme', 'color-mode');
-            } else {
-                body.classList.remove('color-mode');
-                body.classList.add('light-mode');
-                btn.textContent = 'Toggle Theme: Dark Mode';
-                localStorage.setItem('theme', 'light-mode');
-            }
+        // Show selected tab
+        document.getElementById(`${tabName}`).style.display = 'block';
+
+        // Update active state of triggers
+        document.querySelectorAll('.time-tab-trigger').forEach(trigger => {
+            trigger.classList.remove('active');
+        });
+        event.currentTarget.classList.add('active');
+    }
+
+
+
+    // Function to show notification
+    function showNotification(message, duration = 3000) {
+        const alert = document.getElementById('alert');
+        alert.textContent = message;
+        alert.style.display = 'block';
+
+        setTimeout(() => {
+            alert.style.display = 'none';
+        }, duration);
+    }
+
+    // Function to get share content
+    function getShareContent() {
+        const tracks = [
+            {% for item in recent_tracks %}
+                "{{ item.track.name }}"{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        const trackList = tracks.join(', ');
+        const currentUrl = window.location.href;
+
+        return {
+            text: `Check out my top tracks: ${trackList}`,
+            url: currentUrl
+        };
+    }
+
+    // Share on X (Twitter)
+    function shareOnX() {
+        const { text, url } = getShareContent();
+        const shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+        window.open(shareUrl, '_blank');
+    }
+
+    // Share on LinkedIn
+    function shareOnLinkedIn() {
+        const { text, url } = getShareContent();
+        const shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent('My Top Tracks')}&summary=${encodeURIComponent(text)}`;
+        window.open(shareUrl, '_blank');
+    }
+
+    // Copy for Instagram
+    async function copyForInstagram() {
+        const { text, url } = getShareContent();
+        const shareText = `${text}\n${url}`;
+
+        try {
+            await navigator.clipboard.writeText(shareText);
+            showNotification('✓ Link copied to clipboard for Instagram!');
+        } catch (err) {
+            showNotification('❌ Failed to copy. Please try again.');
+            console.error('Failed to copy:', err);
         }
-        
-        // Function to apply the saved theme from localStorage
-        function applySavedMode() {
-            const savedTheme = localStorage.getItem('theme');
-            const body = document.body;
-            const btn = document.querySelector('.theme-toggle');
-        
-            // Apply the saved theme if it exists
-            if (savedTheme === 'light-mode') {
-                body.classList.add('light-mode');
-                btn.textContent = 'Toggle Theme: Dark Mode';
-            } else if (savedTheme === 'dark-mode') {
-                body.classList.add('dark-mode');
-                btn.textContent = 'Toggle Theme: Color Mode';
-            } else if (savedTheme === 'color-mode') {
-                body.classList.add('color-mode');
-                btn.textContent = 'Toggle Theme: Light Mode';
-            } else {
-                // Default to light mode if no theme is saved
-                body.classList.add('light-mode');
-                btn.textContent = 'Toggle Theme: Dark Mode';
-            }
+    }
+
+    // Function to toggle between light and dark mode
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.querySelector('.theme-toggle');
+        const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
+            body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+
+        // Switch between modes
+        if (currentTheme === 'light-mode') {
+            body.classList.remove('light-mode');
+            body.classList.add('dark-mode');
+            btn.textContent = 'Toggle Theme: Color Mode';
+            localStorage.setItem('theme', 'dark-mode');
+        } else if (currentTheme === 'dark-mode') {
+            body.classList.remove('dark-mode');
+            body.classList.add('color-mode');
+            btn.textContent = 'Toggle Theme: Light Mode';
+            localStorage.setItem('theme', 'color-mode');
+        } else {
+            body.classList.remove('color-mode');
+            body.classList.add('light-mode');
+            btn.textContent = 'Toggle Theme: Dark Mode';
+            localStorage.setItem('theme', 'light-mode');
         }
-    
-        // Call applySavedMode on page load to apply the correct theme
-        window.onload = applySavedMode;
-    </script>
+    }
+
+    // Function to apply the saved theme from localStorage
+    function applySavedMode() {
+        const savedTheme = localStorage.getItem('theme');
+        const body = document.body;
+        const btn = document.querySelector('.theme-toggle');
+
+        // Apply the saved theme if it exists
+        if (savedTheme === 'light-mode') {
+            body.classList.add('light-mode');
+            btn.textContent = 'Toggle Theme: Dark Mode';
+        } else if (savedTheme === 'dark-mode') {
+            body.classList.add('dark-mode');
+            btn.textContent = 'Toggle Theme: Color Mode';
+        } else if (savedTheme === 'color-mode') {
+            body.classList.add('color-mode');
+            btn.textContent = 'Toggle Theme: Light Mode';
+        } else {
+            // Default to light mode if no theme is saved
+            body.classList.add('light-mode');
+            btn.textContent = 'Toggle Theme: Dark Mode';
+        }
+    }
+
+    // Call applySavedMode on page load to apply the correct theme
+    window.onload = applySavedMode;
+</script>
 </body>
 </html>

@@ -25,7 +25,7 @@
             --hover-bg-color: #374151;
             --nave-bg-color: #6366f1;
         }
-        
+
         /* Color mode variables */
         .color-mode {
             --bg-color: #f0f4f8; /* Light, cheerful background */
@@ -44,7 +44,7 @@
             margin: 0;
             padding: 1.5rem 1.5rem 1.5rem 1.5rem;
             line-height: 1.5;
-            align-items: center; 
+            align-items: center;
             display: flex; /* Enable flexbox layout */
             flex-direction: column; /* Stack elements vertically */
             overflow-y: scroll; /* Hides vertical scrollbars */
@@ -52,7 +52,7 @@
         body::-webkit-scrollbar {
             display: none; /* Hides the scrollbar */
         }
-        
+
         /* Navbar styling */
         .navbar {
             background-color: var(--nave-bg-color);
@@ -89,11 +89,11 @@
             border-radius: 4px;
             transition: background-color 0.3s ease;
         }
-        
+
         .navbar-links a:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
-        
+
         /* Dropdown menu styling */
         .dropdown-menu {
             display: none;
@@ -108,11 +108,11 @@
             padding: 10px 0;
             z-index: 1000;
         }
-        
+
         .dropdown-menu li {
             margin: 0;
         }
-        
+
         .dropdown-menu a {
             display: block;
             padding: 10px 20px;
@@ -121,11 +121,11 @@
             text-decoration: none;
             transition: background-color 0.3s ease;
         }
-        
+
         .dropdown-menu a:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
-        
+
         /* Show dropdown on hover */
         .dropdown:hover .dropdown-menu {
             display: block;
@@ -173,95 +173,103 @@
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="navbar-brand">SpotifyWrapper</div>
-        <ul class="navbar-links">
-            <li><a href="{% url 'dashboard' %}">Home</a></li>
-            <li class="dropdown">
-                <a href="#" class="dropdown-trigger">Games</a>
-                <ul class="dropdown-menu">
-                    <li><a href="{% url 'games' %}?game=0">Guess Top Track</a></li>
-                    <li><a href="{% url 'games' %}?game=1">Guess Top Album</a></li>
-                    <li><a href="{% url 'games' %}?game=2">Guess Artist</a>
-                </ul>
-            </li>
-            <li><a href="#">LLM Analysis</a></li>
-            <li><a href="{% url 'profile' %}">Profile</a></li>
-            <li><a href="{% url 'contact' %}">Contact</a></li>
-            <li><a href="{% url 'logout' %}">Logout</a></li>
-        </ul>
-    </nav>
-        
-    <div class="container">
-        <div class="card">
-            <h2 class="card-title">Your Music Personality Analysis</h2>
-            {% if error %}
-                <div>{{ error }}</div>
-            {% elif analysis %}
-                <div>{{ analysis|linebreaks }}</div>
-            {% else %}
-                <div>Generating analysis...</div>
-            {% endif %}
-        </div>
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <div class="navbar-brand">SpotifyWrapper</div>
+    <ul class="navbar-links">
+        <li><a href="{% url 'dashboard' %}">Home</a></li>
+        <li class="dropdown">
+            <a href="#" class="dropdown-trigger">Games</a>
+            <ul class="dropdown-menu">
+                <li><a href="{% url 'games' %}?game=0">Guess Top Track</a></li>
+                <li><a href="{% url 'games' %}?game=1">Guess Top Album</a></li>
+                <li><a href="{% url 'games' %}?game=2">Guess Artist</a>
+            </ul>
+        </li>
+        <<<<<<< HEAD
+        <li><a href="#">LLM Analysis</a></li>
+        <li><a href="{% url 'profile' %}">Profile</a></li>
+        <li><a href="{% url 'contact' %}">Contact</a></li>
+        <li><a href="{% url 'logout' %}">Logout</a></li>
+        =======
+        <li><a href="#">{% trans 'LLM Analysis' %}</a></li>
+        <li><a href="{% url 'wraps' %}">{% trans 'Past Wraps' %}</a></li>
+        <li><a href="{% url 'profile' %}">{% trans 'Profile' %}</a></li>
+        <li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>
+        <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
+        >>>>>>> ray-signin
+    </ul>
+</nav>
+
+<div class="container">
+    <div class="card">
+        <h2 class="card-title">Your Music Personality Analysis</h2>
+        {% if error %}
+            <div>{{ error }}</div>
+        {% elif analysis %}
+            <div>{{ analysis|linebreaks }}</div>
+        {% else %}
+            <div>Generating analysis...</div>
+        {% endif %}
     </div>
+</div>
 
-    <button class="theme-toggle" onclick="toggleTheme()">
-        Toggle Theme: Light Mode
-    </button>
+<button class="theme-toggle" onclick="toggleTheme()">
+    Toggle Theme: Light Mode
+</button>
 
-    <script>
-        // Function to toggle between light and dark mode
-        function toggleTheme() {
-            const body = document.body;
-            const btn = document.querySelector('.theme-toggle');
-            const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
-                                 body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
-        
-            // Switch between modes
-            if (currentTheme === 'light-mode') {
-                body.classList.remove('light-mode');
-                body.classList.add('dark-mode');
-                btn.textContent = 'Toggle Theme: Color Mode';
-                localStorage.setItem('theme', 'dark-mode');
-            } else if (currentTheme === 'dark-mode') {
-                body.classList.remove('dark-mode');
-                body.classList.add('color-mode');
-                btn.textContent = 'Toggle Theme: Light Mode';
-                localStorage.setItem('theme', 'color-mode');
-            } else {
-                body.classList.remove('color-mode');
-                body.classList.add('light-mode');
-                btn.textContent = 'Toggle Theme: Dark Mode';
-                localStorage.setItem('theme', 'light-mode');
-            }
+<script>
+    // Function to toggle between light and dark mode
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.querySelector('.theme-toggle');
+        const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
+            body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+
+        // Switch between modes
+        if (currentTheme === 'light-mode') {
+            body.classList.remove('light-mode');
+            body.classList.add('dark-mode');
+            btn.textContent = 'Toggle Theme: Color Mode';
+            localStorage.setItem('theme', 'dark-mode');
+        } else if (currentTheme === 'dark-mode') {
+            body.classList.remove('dark-mode');
+            body.classList.add('color-mode');
+            btn.textContent = 'Toggle Theme: Light Mode';
+            localStorage.setItem('theme', 'color-mode');
+        } else {
+            body.classList.remove('color-mode');
+            body.classList.add('light-mode');
+            btn.textContent = 'Toggle Theme: Dark Mode';
+            localStorage.setItem('theme', 'light-mode');
         }
-        
-        // Function to apply the saved theme from localStorage
-        function applySavedMode() {
-            const savedTheme = localStorage.getItem('theme');
-            const body = document.body;
-            const btn = document.querySelector('.theme-toggle');
-        
-            // Apply the saved theme if it exists
-            if (savedTheme === 'light-mode') {
-                body.classList.add('light-mode');
-                btn.textContent = 'Toggle Theme: Dark Mode';
-            } else if (savedTheme === 'dark-mode') {
-                body.classList.add('dark-mode');
-                btn.textContent = 'Toggle Theme: Color Mode';
-            } else if (savedTheme === 'color-mode') {
-                body.classList.add('color-mode');
-                btn.textContent = 'Toggle Theme: Light Mode';
-            } else {
-                // Default to light mode if no theme is saved
-                body.classList.add('light-mode');
-                btn.textContent = 'Toggle Theme: Dark Mode';
-            }
+    }
+
+    // Function to apply the saved theme from localStorage
+    function applySavedMode() {
+        const savedTheme = localStorage.getItem('theme');
+        const body = document.body;
+        const btn = document.querySelector('.theme-toggle');
+
+        // Apply the saved theme if it exists
+        if (savedTheme === 'light-mode') {
+            body.classList.add('light-mode');
+            btn.textContent = 'Toggle Theme: Dark Mode';
+        } else if (savedTheme === 'dark-mode') {
+            body.classList.add('dark-mode');
+            btn.textContent = 'Toggle Theme: Color Mode';
+        } else if (savedTheme === 'color-mode') {
+            body.classList.add('color-mode');
+            btn.textContent = 'Toggle Theme: Light Mode';
+        } else {
+            // Default to light mode if no theme is saved
+            body.classList.add('light-mode');
+            btn.textContent = 'Toggle Theme: Dark Mode';
         }
-    
-        // Call applySavedMode on page load to apply the correct theme
-        window.onload = applySavedMode;
-    </script>
+    }
+
+    // Call applySavedMode on page load to apply the correct theme
+    window.onload = applySavedMode;
+</script>
 </body>
 </html>

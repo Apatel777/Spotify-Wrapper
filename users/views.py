@@ -4,33 +4,39 @@ import logging
 import os
 import random
 import secrets
+import requests
+import json
 
 
 import spotipy
 import secrets
 
 
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.conf import settings
 from django.contrib.auth.hashers import make_password
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from urllib.parse import urlencode
-from .models import User
+from .models import *
+
+import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-import requests
+from datetime import datetime
 from django.utils import timezone
 from django.contrib import messages
 from django.db import IntegrityError
 from django.db import transaction  # Added for atomic transactions
 from django.core.exceptions import ValidationError  # Added for validation errors
-
-def home_view(request):
-    return render(request, 'home/home.html', {})
+from django.core.cache import cache
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.views.decorators.http import require_http_methods
 
 logger = logging.getLogger(__name__)
 
+def home_view(request):
+    return render(request, 'home/home.html', {})
 
 def signup(request):
     """
@@ -254,28 +260,6 @@ def spotify_callback(request):
         messages.error(request, "An error occurred. Please try again.")
         return redirect('signup')
 
-
-def refresh_spotify_token(user):
-    """Helper function to refresh expired Spotify token"""
-    sp_oauth = SpotifyOAuth(
-        client_id=settings.SPOTIFY_CLIENT_ID,
-        client_secret=settings.SPOTIFY_CLIENT_SECRET,
-        redirect_uri=settings.SPOTIFY_REDIRECT_URI,
-        scope="user-read-private user-read-email user-top-read user-read-recently-played"
-    )
-
-    try:
-        token_info = sp_oauth.refresh_access_token(user.spotify_refresh_token)
-        user.set_spotify_tokens(
-            token_info['access_token'],
-            token_info.get('refresh_token', user.spotify_refresh_token),
-            token_info['expires_in']
-        )
-        return token_info['access_token']
-    except Exception as e:
-        print(f"Error refreshing token: {e}")
-        return None
-
 @login_required
 def dashboard(request):
     user = request.user
@@ -321,6 +305,7 @@ def dashboard(request):
         request.session['top_artists'] = top_artists
 
         context = {
+            'lang': request.LANGUAGE_CODE,
             'user': user,
             'theme': request.session.get('theme', 'light'),
             'spotify_connected': True,
@@ -416,16 +401,42 @@ def logout_view(request):
     logout(request)
     return redirect('home')  # Redirect to home after logout
 
+
+@login_required
 def wraps_view(request):
-    theme = request.session.get('theme', 'light')  # Default to light mode
-    # Fetch wraps associated with the user
-    wraps = []  # Replace with actual query to fetch wraps
-    return render(request, 'users/wraps.html', {'wraps': wraps, 'theme': theme})
+    theme = request.session.get('theme', 'light')
+    user = request.user
+
+    # Retrieve all SpotifyData entries for the user, sorted by creation date
+    wraps = []
+    data_entries = SpotifyData.objects.filter(
+        user=user
+    ).prefetch_related('tracks', 'artists', 'albums').order_by('-created_at')
+
+    for entry in data_entries:
+        wrap_data = {
+            'type': dict(SpotifyData.WRAPPER_TYPES).get(entry.wrapper_type, entry.wrapper_type),
+            'created_at': entry.created_at,  # Add creation date
+        }
+
+        if entry.wrapper_type.startswith('TOP_TRACKS') or entry.wrapper_type == 'RECENTLY_PLAYED':
+            wrap_data['tracks'] = list(entry.tracks.all())
+
+        if entry.wrapper_type == 'TOP_ARTISTS':
+            wrap_data['artists'] = list(entry.artists.all())
+
+        if entry.wrapper_type == 'TOP_ALBUM':
+            wrap_data['albums'] = list(entry.albums.all())
+
+        wraps.append(wrap_data)
+
+    return render(request, 'users/wraps.html', {'wraps': wraps, 'theme': theme, 'lang': request.LANGUAGE_CODE})
 
 @login_required
 def delete_account_view(request):
     theme = request.session.get('theme', 'light')  # Default to light mode
     if request.method == 'POST':
+        SpotifyData.objects.filter(user=request.user).delete()
         request.user.delete()
         return redirect('home')
     return render(request, 'users/delete_account.html', {'theme': theme})
@@ -451,10 +462,6 @@ def set_language(request):
     else:
         print("No POST")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-
-from django.core.cache import cache
-from django.conf import settings
-
 
 def analyze_music_taste(request):
     theme = request.session.get('theme', 'light')
@@ -527,3 +534,95 @@ Keep it positive and playful, focusing on the overall vibe rather than specific 
             'top_tracks': top_tracks,
             'error': 'Unable to generate analysis at this time. Please try again later.'
         })
+
+def refresh_spotify_token(user):
+    """
+    Refresh the Spotify access token for a user.
+    Returns the new access token if successful, None if failed.
+    """
+    try:
+        sp_oauth = spotipy.SpotifyOAuth(
+            client_id=settings.SPOTIFY_CLIENT_ID,
+            client_secret=settings.SPOTIFY_CLIENT_SECRET,
+            redirect_uri=settings.SPOTIFY_REDIRECT_URI,
+            scope= "user-read-private user-read-email user-top-read user-read-recently-played"
+        )
+
+        token_info = sp_oauth.refresh_access_token(user.spotify_refresh_token)
+
+        # Update user's token information
+        success = user.set_spotify_tokens(
+            access_token=token_info['access_token'],
+            refresh_token=token_info.get('refresh_token', user.spotify_refresh_token),
+            expires_in=token_info['expires_in']
+        )
+
+        return token_info['access_token'] if success else None
+
+    except Exception as e:
+        logger.error(f"Error refreshing token for user {user.id}: {str(e)}")
+        return None
+
+@login_required
+@ensure_csrf_cookie
+@require_http_methods(["POST"])
+@csrf_protect
+def handle_spotify_data(request):
+    try:
+        data = json.loads(request.body)
+        wrapper_type = data.get('wrapper_type')
+        action = data.get('action')
+        logger.info(f"Received wrapper_type: {wrapper_type} with action {action}")
+        print(wrapper_type)
+
+        if not wrapper_type:
+            return JsonResponse({'error': 'Wrapper type is required'}, status=400)
+
+        user = request.user
+        logger.info(f"Received user: {user}")
+
+        # Check if token needs refresh, similar to dashboard view
+        if user.spotify_token_expires and timezone.now() >= user.spotify_token_expires:
+            access_token = refresh_spotify_token(user)
+            if not access_token:
+                return JsonResponse({'error': 'Failed to refresh Spotify token'}, status=401)
+        else:
+            access_token = user.spotify_access_token
+
+        if not access_token:
+            return JsonResponse({'error': 'No valid Spotify token found'}, status=401)
+
+        sp = spotipy.Spotify(auth=access_token)
+
+        if action == "saved":
+            # Save the data using the helper function from models.py
+            spotify_data = save_spotify_wrapper(
+                user=user,
+                sp=sp,
+                wrapper_type=wrapper_type
+            )
+        else:
+            created_at_str = data.get('created_at')
+            try:
+                created_at = datetime.fromisoformat(created_at_str)  # Convert the string to datetime
+            except ValueError:
+                return JsonResponse({'error': 'Invalid date format for created_at'}, status=400)
+
+            spotify_data = delete_spotify_wrapper(
+                user=user,
+                wrapper_type=wrapper_type,
+                created_at=created_at
+            )
+
+        logger.info(f"{action} Spotify data: {spotify_data.id}, Type: {wrapper_type}")
+
+        return JsonResponse({
+            'message': f'Successfully {action} {wrapper_type} data',
+            'data_id': spotify_data.id
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        logger.error(f"Error saving/deleting Spotify data: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500)
