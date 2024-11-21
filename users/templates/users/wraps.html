@@ -320,6 +320,7 @@
             return null;
         }
         
+        const lang = "{{ lang }}"
         async function deleteSpotifyData(wrapperType, created_at) {
             console.log("In Deletion Type: ", wrapperType)
             console.log("In Deletion Time: ", created_at)
@@ -332,7 +333,7 @@
             }
         
             try {
-                const response = await fetch('/en/handle-spotify-data/', {
+                const response = await fetch(`/{{ lang }}/handle-spotify-data/`, {
                     method: 'POST',
                     credentials: 'same-origin',
                     headers: {

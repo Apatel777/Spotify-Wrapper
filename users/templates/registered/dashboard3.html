@@ -762,6 +762,7 @@
             return null;
         }
         
+        const lang = "{{ lang }}"
         async function saveSpotifyData(wrapperType) {
             const csrfToken = getCookie('csrftoken');
             
@@ -772,7 +773,7 @@
             }
         
             try {
-                const response = await fetch('/en/handle-spotify-data/', {
+                const response = await fetch(`/{{ lang }}/handle-spotify-data/`, {
                     method: 'POST',
                     credentials: 'same-origin',
                     headers: {

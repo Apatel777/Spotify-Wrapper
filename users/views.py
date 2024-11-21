@@ -293,6 +293,7 @@ def dashboard(request):
         request.session['top_artists'] = top_artists
 
         context = {
+            'lang': request.LANGUAGE_CODE,
             'user': user,
             'theme': request.session.get('theme', 'light'),
             'spotify_connected': True,
@@ -441,7 +442,7 @@ def wraps_view(request):
 
         wraps.append(wrap_data)
 
-    return render(request, 'users/wraps.html', {'wraps': wraps, 'theme': theme})
+    return render(request, 'users/wraps.html', {'wraps': wraps, 'theme': theme, 'lang': request.LANGUAGE_CODE})
 
 @login_required
 def delete_account_view(request):
