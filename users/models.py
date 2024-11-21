@@ -3,6 +3,7 @@ from django.db import models, transaction
 from django.utils import timezone
 from django.db import IntegrityError
 import logging
+import requests
 
 # Setting up a logger
 logger = logging.getLogger(__name__)
@@ -218,17 +219,26 @@ class Album(models.Model):
 
 
 # Helper function to save Spotify data
-def save_spotify_wrapper(user, sp, wrapper_type):
+def save_spotify_wrapper(user, access_token, wrapper_type):
     """
     Save Spotify data based on wrapper type
     """
+    headers = {'Authorization': f'Bearer {access_token}'}
+    base_url = 'https://api.spotify.com/v1/me'
+
     spotify_data = SpotifyData.objects.create(
         user=user,
         wrapper_type=wrapper_type
     )
 
     if wrapper_type == 'RECENTLY_PLAYED':
-        recent_tracks = sp.current_user_recently_played(limit=10)['items']
+        recent_tracks_response = requests.get(
+            f'{base_url}/player/recently-played',
+            headers=headers,
+            params={'limit': 10}
+        )
+        recent_tracks = recent_tracks_response.json().get('items', [])
+
         for track in recent_tracks:
             Track.objects.create(
                 spotify_data=spotify_data,
@@ -248,7 +258,13 @@ def save_spotify_wrapper(user, sp, wrapper_type):
             'TOP_TRACKS_LONG': 'long_term'
         }[wrapper_type]
 
-        top_tracks = sp.current_user_top_tracks(limit=10, time_range=time_range)['items']
+        top_tracks_response = requests.get(
+            f'{base_url}/top/tracks',
+            headers=headers,
+            params={'limit': 10, 'time_range': time_range}
+        )
+        top_tracks = top_tracks_response.json().get('items', [])
+
         for track in top_tracks:
             Track.objects.create(
                 spotify_data=spotify_data,
@@ -262,7 +278,13 @@ def save_spotify_wrapper(user, sp, wrapper_type):
 
     elif wrapper_type == 'TOP_ARTISTS':
         for time_range in ['short_term', 'medium_term', 'long_term']:
-            top_artists = sp.current_user_top_artists(limit=10, time_range=time_range)['items']
+            top_artists_response = requests.get(
+                f'{base_url}/top/artists',
+                headers=headers,
+                params={'limit': 10, 'time_range': time_range}
+            )
+            top_artists = top_artists_response.json().get('items', [])
+
             for artist in top_artists:
                 Artist.objects.create(
                     spotify_data=spotify_data,
@@ -274,19 +296,27 @@ def save_spotify_wrapper(user, sp, wrapper_type):
                 )
 
     elif wrapper_type == 'TOP_ALBUM':
-        # Get all top tracks to find the most listened album
         all_tracks = []
         for time_range in ['short_term', 'medium_term', 'long_term']:
-            tracks = sp.current_user_top_tracks(limit=10, time_range=time_range)['items']
+            top_tracks_response = requests.get(
+                f'{base_url}/top/tracks',
+                headers=headers,
+                params={'limit': 10, 'time_range': time_range}
+            )
+            tracks = top_tracks_response.json().get('items', [])
             all_tracks.extend(tracks)
 
-        # Count albums
         from collections import Counter
         album_counts = Counter(track['album']['name'] for track in all_tracks)
         most_listened = album_counts.most_common(1)[0]
 
-        # Search for the album to get full details
-        album_search = sp.search(q='album:' + most_listened[0], type='album', limit=1)
+        album_search_response = requests.get(
+            'https://api.spotify.com/v1/search',
+            headers=headers,
+            params={'q': f'album:{most_listened[0]}', 'type': 'album', 'limit': 1}
+        )
+        album_search = album_search_response.json()
+
         if album_search['albums']['items']:
             album_info = album_search['albums']['items'][0]
             Album.objects.create(
@@ -301,7 +331,6 @@ def save_spotify_wrapper(user, sp, wrapper_type):
             )
 
     return spotify_data
-
 
 # Helper function to delete specific Spotify data based on timestamp
 def delete_spotify_wrapper(user, wrapper_type, created_at):
