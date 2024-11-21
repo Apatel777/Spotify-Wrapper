@@ -1,16 +1,412 @@
+{% load i18n %}
+{% load static %}
+{% csrf_token %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Spotify Wraps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Modern UI Variables */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #111827;
+            --card-bg-color: #ffffff;
+            --card-border-color: #e5e7eb;
+            --hover-bg-color: #f9fafb;
+            --tab-active-color: #6366f1;
+            --tab-hover-color: #4f46e5;
+        }
+
+        /* Dark mode variables */
+        .dark-mode {
+            --bg-color: #111827;
+            --text-color: #f9fafb;
+            --card-bg-color: #1f2937;
+            --card-border-color: #374151;
+            --hover-bg-color: #374151;
+            --tab-active-color: #818cf8;
+            --tab-hover-color: #6366f1;
+        }
+        
+        /* Color mode variables */
+        .color-mode {
+            --bg-color: #f0f4f8; /* Light, cheerful background */
+            --text-color: #333333; /* Darker text for contrast */
+            --card-bg-color: #ffebc5; /* Soft peach for cards */
+            --card-border-color: #f5a623; /* Bright orange border */
+            --hover-bg-color: #ffcd94; /* Lighter peach for hover */
+            --tab-active-color: #4cb1ff; /* Bright sky blue for active tabs */
+            --tab-hover-color: #ff914d; /* Vibrant orange for hover */
+        }
+
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 1.5rem 1.5rem 1.5rem 1.5rem;
+            line-height: 1.5;
+            align-items: center; 
+            display: flex; /* Enable flexbox layout */
+            flex-direction: column; /* Stack elements vertically */
+            overflow-y: scroll; /* Hides vertical scrollbars */
+        }
+        body::-webkit-scrollbar {
+            display: none; /* Hides the scrollbar */
+        }
+        
+        /* Navbar styling */
+        .navbar {
+            background-color: var(--tab-hover-color);
+            width: 95%;
+            position: fixed;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .navbar-links {
+            list-style: none;
+            display: flex;
+        }
+
+        .navbar-links li {
+            position: relative;
+            margin-right: 20px;
+        }
+
+        .navbar-links a {
+            color: var(--footer-text-color);
+            text-decoration: none;
+            font-size: 18px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar-links a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Dropdown menu styling */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%; /* Position it right below the "Games" link */
+            left: 0;
+            background-color: var(--tab-hover-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            list-style: none;
+            margin: 0;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .dropdown-menu li {
+            margin: 0;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: var(--footer-text-color);
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Show dropdown on hover */
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .container {
+            width: 85%;
+            margin: 100px auto 0 auto;
+        }
+        
+        /* Animated Gradient Background for Cards */
+        @keyframes gradient-animation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .wrap-card {
+            background: linear-gradient(
+                -45deg,
+                #ee7752,
+                #e73c7e,
+                #23a6d5,
+                #23d5ab
+            );
+            background-size: 400% 400%;
+            animation: gradient-animation 15s ease infinite;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            position: relative;
+            color: white;
+        }
+    
+        .wrap-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .wrap-card-header h1 {
+            margin: 10px;
+        }
+    
+        .wrap-card-details {
+            display: none;
+            padding: 15px;
+        }
+    
+        .wrap-card-details.active {
+            display: block;
+        }
+    
+        .tracks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            color: black;
+            gap: 10px;
+        }
+    
+        .track-item {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        /* Toggle Theme Button */
+        .theme-toggle {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--card-border-color);
+            color: var(--text-color);
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--hover-bg-color);
+        }
+    </style>
 </head>
 <body>
-    <h1>Your Spotify Wraps</h1>
-    <ul>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-brand">SpotifyWrapper</div>
+        <ul class="navbar-links">
+            <li><a href="{% url 'dashboard' %}">{% trans 'Home' %}</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-trigger">{% trans 'Games' %}</a>
+                <ul class="dropdown-menu">
+                    <li><a href="{% url 'games' %}?game=0">{% trans 'Guess Top Track' %}</a></li>
+                    <li><a href="{% url 'games' %}?game=1">{% trans 'Guess Top Album' %}</a></li>
+                    <li><a href="{% url 'games' %}?game=2">{% trans 'Guess Artist' %}</a>
+                </ul>
+            </li>
+            <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
+            <li><a href="#">{% trans 'Past Wraps' %}</a></li>
+            <li><a href="{% url 'profile' %}">{% trans 'Profile' %}</a></li>
+            <li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>
+            <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <h1>Your Past Spotify Wraps</h1>
         {% for wrap in wraps %}
-            <li>{{ wrap.name }} - <a href="{% url 'delete_wrap' wrap.id %}">Delete</a></li>
+        <div class="wrap-card" onclick="toggleWrapDetails(this)">
+            <div class="wrap-card-header">
+                <h1>{{ wrap.type }}</h1>
+                <h1>{{ wrap.created_at}}</h1>
+            </div>
+    
+            <div class="wrap-card-details">
+                {% if wrap.tracks %}
+                    <h4>Tracks</h4>
+                    <div class="tracks-grid">
+                        {% for track in wrap.tracks %}
+                        <div class="track-item">
+                            <strong>{{ track.name }}</strong>
+                            <p>{{ track.artist }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+    
+                {% if wrap.artists %}
+                    <h4>Artists</h4>
+                    <div class="tracks-grid">
+                        {% for artist in wrap.artists %}
+                        <div class="track-item">
+                            <strong>{{ artist.name }}</strong>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+    
+                {% if wrap.albums %}
+                    <h4>Albums</h4>
+                    <div class="tracks-grid">
+                        {% for album in wrap.albums %}
+                        <div class="track-item">
+                            <strong>{{ album.name }}</strong>
+                            <p>{{ album.artist }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <button onclick="deleteSpotifyData('{{ wrap.type }}', '{{ wrap.created_at|date:'c' }}')" class="delete-spotify-btn">Delete Wrapped</button>
+            </div>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
+    
+    <button class="theme-toggle" onclick="toggleTheme()">
+        {% trans 'Toggle Theme: Light Mode' %}
+    </button>
+    <script>
+        function toggleWrapDetails(card) {
+            const details = card.querySelector('.wrap-card-details');
+            details.classList.toggle('active');
+        }
+        
+        // Save Wrapper
+        function getCookie(name) {
+            console.log('All cookies:', document.cookie);
+            const cookies = document.cookie.split('; ');
+            const csrfCookie = cookies.find(row => row.startsWith('csrftoken='));
+            
+            if (csrfCookie) {
+                const token = csrfCookie.split('=')[1];
+                console.log('CSRF Token found:', token);
+                return token;
+            }
+            
+            console.error('No CSRF token found in cookies');
+            return null;
+        }
+        
+        async function deleteSpotifyData(wrapperType, created_at) {
+            console.log("In Deletion Type: ", wrapperType)
+            console.log("In Deletion Time: ", created_at)
+            const csrfToken = getCookie('csrftoken');
+            
+            // Validate CSRF token before sending
+            if (!csrfToken) {
+                alert('CSRF token missing');
+                return;
+            }
+        
+            try {
+                const response = await fetch('/en/handle-spotify-data/', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken  // Ensure correct header name
+                    },
+                    body: JSON.stringify({
+                        wrapper_type: wrapperType,
+                        action: "deleted",
+                        created_at: created_at
+                    })
+                });
+                
+                alert('It was deleted successfully');
+                window.location.reload();
+            } catch (error) {
+                console.error('Saving error:', error);
+                alert('An error occurred while deleting data');
+            }
+        }
+        
+        // Change Color Mode
+        const THEME_LABELS = {
+            light: '{% trans "Toggle Theme: Dark Mode"|escapejs %}',
+            dark: '{% trans "Toggle Theme: Color Mode"|escapejs %}',
+            color: '{% trans "Toggle Theme: Light Mode"|escapejs %}'
+        };
+        
+        // Function to toggle between light and dark mode
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.querySelector('.theme-toggle');
+            const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
+                                 body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+
+            if (currentTheme === 'light-mode') {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                btn.textContent = THEME_LABELS.color;
+                localStorage.setItem('theme', 'dark-mode');
+            } else if (currentTheme === 'dark-mode') {
+                body.classList.remove('dark-mode');
+                body.classList.add('color-mode');
+                btn.textContent = THEME_LABELS.light;
+                localStorage.setItem('theme', 'color-mode');
+            } else {
+                body.classList.remove('color-mode');
+                body.classList.add('light-mode');
+                btn.textContent = THEME_LABELS.dark;
+                localStorage.setItem('theme', 'light-mode');
+            }
+        }
+
+        function applySavedMode() {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            const btn = document.querySelector('.theme-toggle');
+
+            if (savedTheme === 'light-mode') {
+                body.classList.add('light-mode');
+                btn.textContent = THEME_LABELS.dark;
+            } else if (savedTheme === 'dark-mode') {
+                body.classList.add('dark-mode');
+                btn.textContent = THEME_LABELS.color;
+            } else if (savedTheme === 'color-mode') {
+                body.classList.add('color-mode');
+                btn.textContent = THEME_LABELS.light;
+            } else {
+                body.classList.add('light-mode');
+                btn.textContent = THEME_LABELS.dark;
+            }
+        }
+
+        window.onload = applySavedMode;
+    </script>
 </body>
 </html>

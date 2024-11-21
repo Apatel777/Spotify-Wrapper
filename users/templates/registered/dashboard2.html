@@ -1,4 +1,6 @@
 {% load i18n %}
+{% load static %}
+{% csrf_token %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -342,6 +344,7 @@
                 </ul>
             </li>
             <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
+            <li><a href="{% url 'wraps' %}">{% trans 'Past Wraps' %}</a></li>
             <li><a href="{% url 'profile' %}">{% trans 'Profile' %}</a></li>
             <li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>
             <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
@@ -526,6 +529,27 @@
         </div>
     </div>
     
+    <div>
+        <button onclick="saveSpotifyData('RECENTLY_PLAYED')" class="save-spotify-btn">
+            Save Recently Played
+        </button>
+        <!-- Add more buttons for other wrapper types -->
+        <button onclick="saveSpotifyData('TOP_TRACKS_SHORT')" class="save-spotify-btn">
+            Save Top Tracks (Short Term)
+        </button>
+        <button onclick="saveSpotifyData('TOP_TRACKS_MEDIUM')" class="save-spotify-btn">
+            Save Top Tracks (Medium Term)
+        </button>
+        <button onclick="saveSpotifyData('TOP_TRACKS_LONG')" class="save-spotify-btn">
+            Save Top Tracks (Long Term)
+        </button>
+        <button onclick="saveSpotifyData('TOP_ARTISTS')" class="save-spotify-btn">
+            Save Top Artists
+        </button>
+        <button onclick="saveSpotifyData('TOP_ALBUM')" class="save-spotify-btn">
+            Save Top Album
+        </button>
+    </div>
     <!-- Social Media Share Buttons -->
     <div class="social-buttons">
         <button onclick="shareOnX()" class="share-button share-x">
@@ -548,6 +572,51 @@
     </button>
 
     <script>
+        function getCookie(name) {
+            console.log('All cookies:', document.cookie);
+            const cookies = document.cookie.split('; ');
+            const csrfCookie = cookies.find(row => row.startsWith('csrftoken='));
+            
+            if (csrfCookie) {
+                const token = csrfCookie.split('=')[1];
+                console.log('CSRF Token found:', token);
+                return token;
+            }
+            
+            console.error('No CSRF token found in cookies');
+            return null;
+        }
+        
+        async function saveSpotifyData(wrapperType) {
+            const csrfToken = getCookie('csrftoken');
+            
+            // Validate CSRF token before sending
+            if (!csrfToken) {
+                alert('CSRF token missing');
+                return;
+            }
+        
+            try {
+                const response = await fetch('/en/save-spotify-data/', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken  // Ensure correct header name
+                    },
+                    body: JSON.stringify({
+                        wrapper_type: wrapperType,
+                        action: "saved"
+                    })
+                });
+                
+                // Rest of your existing code remains the same
+            } catch (error) {
+                console.error('Saving error:', error);
+                alert('An error occurred while saving data');
+            }
+        }
+
         let currentAudio = null;
         let currentButton = null;
 

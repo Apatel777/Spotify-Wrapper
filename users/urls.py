@@ -25,4 +25,5 @@ urlpatterns = [
     path('contact/', views.contact_view, name='contact'),
     path('games/', views.games_view, name='games'),
     path('analysis/', views.analyze_music_taste, name='analysis'),
+    path('handle-spotify-data/', views.handle_spotify_data, name='handle-spotify-data'),
 ]
