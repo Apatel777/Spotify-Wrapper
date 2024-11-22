@@ -159,7 +159,9 @@ class SpotifyData(models.Model):
         ('TOP_TRACKS_MEDIUM', 'Top Tracks Medium Term'),
         ('TOP_TRACKS_LONG', 'Top Tracks Long Term'),
         ('TOP_ARTISTS', 'Top Artists'),
-        ('TOP_ALBUM', 'Top Album'),
+        ('TOP_ALBUMS', 'Top Albums'),
+        ('TOP_GENRES', 'Top Genres'),
+        ('TOP_PLAYLISTS', 'Top Playlists'),
     ]
 
     WRAPPER_TYPE_MAP = {
@@ -168,7 +170,9 @@ class SpotifyData(models.Model):
         'Top Tracks Medium Term': 'TOP_TRACKS_MEDIUM',
         'Top Tracks Long Term': 'TOP_TRACKS_LONG',
         'Top Artists': 'TOP_ARTISTS',
-        'Top Album': 'TOP_ALBUM'
+        'Top Albums': 'TOP_ALBUMS',
+        'Top Genres': 'TOP_GENRES',
+        'Top Playlists': 'TOP_PLAYLISTS'
     }
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='spotify_data')
@@ -216,6 +220,21 @@ class Album(models.Model):
     release_date = models.DateField(null=True, blank=True)
     total_tracks = models.IntegerField(default=0)
     play_count = models.IntegerField(default=1)  # For tracking most listened album
+
+class Genre(models.Model):
+    spotify_data = models.ForeignKey(SpotifyData, on_delete=models.CASCADE, related_name='genres')
+    name = models.CharField(max_length=100)
+    count = models.IntegerField()
+    percentage = models.DecimalField(max_digits=5, decimal_places=2)
+
+class Playlist(models.Model):
+    spotify_data = models.ForeignKey(SpotifyData, on_delete=models.CASCADE, related_name='playlists')
+    playlist_id = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
+    description = models.TextField(null=True, blank=True)
+    image_url = models.URLField(null=True, blank=True)
+    total_duration_minutes = models.FloatField()
+    track_count = models.PositiveIntegerField()
 
 
 # Helper function to save Spotify data
@@ -277,25 +296,24 @@ def save_spotify_wrapper(user, access_token, wrapper_type):
             )
 
     elif wrapper_type == 'TOP_ARTISTS':
-        for time_range in ['short_term', 'medium_term', 'long_term']:
-            top_artists_response = requests.get(
-                f'{base_url}/top/artists',
-                headers=headers,
-                params={'limit': 10, 'time_range': time_range}
-            )
-            top_artists = top_artists_response.json().get('items', [])
+        top_artists_response = requests.get(
+            f'{base_url}/top/artists',
+            headers=headers,
+            params={'limit': 10, 'time_range': 'short_term'}
+        )
+        top_artists = top_artists_response.json().get('items', [])
 
-            for artist in top_artists:
-                Artist.objects.create(
-                    spotify_data=spotify_data,
-                    artist_id=artist['id'],
-                    name=artist['name'],
-                    image_url=artist['images'][0]['url'] if artist['images'] else None,
-                    genres=artist['genres'],
-                    popularity=artist['popularity']
+        for artist in top_artists:
+            Artist.objects.create(
+                spotify_data=spotify_data,
+                artist_id=artist['id'],
+                name=artist['name'],
+                image_url=artist['images'][0]['url'] if artist['images'] else None,
+                genres=artist['genres'],
+                popularity=artist['popularity']
                 )
 
-    elif wrapper_type == 'TOP_ALBUM':
+    elif wrapper_type == 'TOP_ALBUMS':
         all_tracks = []
         for time_range in ['short_term', 'medium_term', 'long_term']:
             top_tracks_response = requests.get(
@@ -328,6 +346,64 @@ def save_spotify_wrapper(user, access_token, wrapper_type):
                 release_date=album_info.get('release_date'),
                 total_tracks=album_info.get('total_tracks', 0),
                 play_count=most_listened[1]
+            )
+    elif wrapper_type == 'TOP_GENRES':
+        # Get top artists from all time ranges to get a comprehensive view
+        all_genres = []
+        for time_range in ['short_term', 'medium_term', 'long_term']:
+            top_artists_response = requests.get(
+                f'{base_url}/top/artists',
+                headers=headers,
+                params={'limit': 10, 'time_range': time_range}
+            )
+            artists = top_artists_response.json().get('items', [])
+            for artist in artists:
+                all_genres.extend(artist['genres'])
+
+        # Count genre occurrences and get top 10
+        from collections import Counter
+        genre_counts = Counter(all_genres)
+        top_genres = genre_counts.most_common(10)
+
+        # Save each top genre
+        for genre, count in top_genres:
+            Genre.objects.create(
+                spotify_data=spotify_data,
+                name=genre,
+                count=count,
+                # Calculate percentage based on total genre occurrences
+                percentage=round((count / len(all_genres)) * 100, 2)
+            )
+    elif wrapper_type == 'TOP_PLAYLISTS':
+        top_playlists_response = requests.get(
+            f'{base_url}/playlists',
+            headers=headers,
+            params={'limit': 10}
+        )
+        top_playlists = top_playlists_response.json().get('items', [])
+
+        for playlist in top_playlists:
+            playlist_id = playlist['id']
+            playlist_duration_response = requests.get(
+                f'{base_url}/playlists/{playlist_id}/tracks',
+                headers=headers,
+            )
+            tracks = playlist_duration_response.json().get('items', [])
+
+            track_durations = []
+            for item in tracks:
+                track_durations.append(item['track']['duration_ms'])  # Duration in milliseconds
+
+            total_duration_minutes = sum(track_durations) / 1000 / 60  # Convert from ms to minutes
+
+            Playlist.objects.create(
+                spotify_data=spotify_data,
+                playlist_id=playlist['id'],
+                name=playlist['name'],
+                description=playlist.get('description', 'No description available'),
+                image_url=playlist['images'][0]['url'] if playlist['images'] else None,
+                total_duration_minutes=total_duration_minutes,
+                track_count=len(tracks)
             )
 
     return spotify_data
@@ -362,6 +438,12 @@ def delete_spotify_wrapper(user, wrapper_type, created_at):
 
         # Delete related Album objects
         spotify_data.albums.all().delete()
+
+        # Delete related Genre objects
+        spotify_data.genres.all().delete()
+
+        # Delete related Playlist objects
+        spotify_data.playlists.all().delete()
 
         # Finally, delete the SpotifyData instance
         spotify_data.delete()

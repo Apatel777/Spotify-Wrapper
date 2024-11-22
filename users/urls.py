@@ -26,4 +26,6 @@ urlpatterns = [
     path('games/', views.games_view, name='games'),
     path('analysis/', views.analyze_music_taste, name='analysis'),
     path('handle-spotify-data/', views.handle_spotify_data, name='handle-spotify-data'),
+    path('prepare-share-content/', views.prepare_share_content, name='prepare_share_content'),
+
 ]

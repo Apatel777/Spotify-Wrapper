@@ -22,7 +22,7 @@ from django.db import IntegrityError
 from django.db import transaction  # Added for atomic transactions
 from django.core.exceptions import ValidationError  # Added for validation errors
 from django.core.cache import cache
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect, csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 logger = logging.getLogger(__name__)
@@ -291,15 +291,50 @@ def dashboard(request):
             'items', []
         ) if recent_tracks_response.status_code == 200 else []
 
+        # Fetch the user's playlists
+        playlist_response = requests.get(
+            f'{base_url}/playlists',
+            headers=headers,
+        )
+        top_playlists = playlist_response.json().get(
+            'items', []
+        ) if playlist_response.status_code == 200 else []
+
+        # Add duration to each playlist and retain other information
+        for playlist in top_playlists:
+            playlist_id = playlist['id']
+            # Fetch tracks for each playlist
+            playlist_duration_response = requests.get(
+                f'{base_url}/playlists/{playlist_id}/tracks',
+                headers=headers,
+            )
+
+            tracks = playlist_duration_response.json().get(
+                'items',[]
+            ) if playlist_duration_response.status_code == 200 else []
+
+            track_durations = []
+            for item in tracks:
+                track_durations.append(item['track']['duration_ms'])  # Duration in milliseconds
+
+            total_duration_minutes = sum(track_durations) / 1000 / 60  # Convert from ms to minutes
+            playlist['duration'] = total_duration_minutes  # Add the duration as a key in the playlist data
+
+        # Sort the playlists by total duration in descending order
+        ranked_playlists = sorted(top_playlists, key=lambda x: x['duration'], reverse=True)
+
+        # Display ranked playlists
+        for rank, playlist in enumerate(ranked_playlists, start=1):
+            print(f"Rank {rank}: {playlist['name']} - {playlist['duration']:.2f} minutes")
+
         # Fetch top tracks and artists for different time ranges
-        top_tracks, top_artists = {}, {}
+        top_tracks, top_artists, all_genres = {}, {}, []
         for time_range in ['short_term', 'medium_term', 'long_term']:
             top_tracks_response = requests.get(
                 f'{base_url}/top/tracks',
                 headers=headers,
                 params={'limit': 10, 'time_range': time_range}
             )
-
             top_artists_response = requests.get(
                 f'{base_url}/top/artists',
                 headers=headers,
@@ -314,13 +349,22 @@ def dashboard(request):
                 'items', []
             ) if top_artists_response.status_code == 200 else []
 
+            for artist in top_artists[time_range]:
+                all_genres.extend(artist.get('genres', []))
+
+        genre_counts = Counter(all_genres)
+        top_genres = genre_counts.most_common(10)
+
         # Combine all top tracks from different time ranges
         all_top_tracks = top_tracks['short_term'] + top_tracks['medium_term'] + top_tracks['long_term']
         album_counts = Counter(track['album']['name'] for track in all_top_tracks)
         most_listened_album = album_counts.most_common(1)
 
+        request.session['recent_tracks'] = recent_tracks
         request.session['top_tracks'] = top_tracks
-        request.session['top_artists'] = top_artists
+        request.session['top_artists'] = top_artists['short_term']
+        request.session['top_genres'] = top_genres
+        request.session['top_playlists'] = ranked_playlists
 
         context = {
             'lang': request.LANGUAGE_CODE,
@@ -329,7 +373,9 @@ def dashboard(request):
             'spotify_connected': True,
             'recent_tracks': recent_tracks,
             'top_tracks': top_tracks,
-            'top_artists': top_artists,
+            'top_artists': top_artists['short_term'],
+            'top_genres': top_genres,
+            'top_playlists': ranked_playlists
         }
 
         if most_listened_album:
@@ -381,7 +427,7 @@ def games_view(request):
         top_tracks_clip = []
 
     top_tracks = random.choice(request.session.get('top_tracks', {})['short_term'])
-    top_artists = random.choice(request.session.get('top_artists', {})['short_term'])
+    top_artists = random.choice(request.session.get('top_artists', {}))
     top_tracks_clip = random.choice(top_tracks_clip)
 
     context = {
@@ -443,7 +489,7 @@ def wraps_view(request):
     wraps = []
     data_entries = SpotifyData.objects.filter(
         user=user
-    ).prefetch_related('tracks', 'artists', 'albums').order_by('-created_at')
+    ).prefetch_related('tracks', 'artists', 'albums', 'genres', 'playlists').order_by('-created_at')
 
     for entry in data_entries:
         wrap_data = {
@@ -457,8 +503,14 @@ def wraps_view(request):
         if entry.wrapper_type == 'TOP_ARTISTS':
             wrap_data['artists'] = list(entry.artists.all())
 
-        if entry.wrapper_type == 'TOP_ALBUM':
+        if entry.wrapper_type == 'TOP_ALBUMS':
             wrap_data['albums'] = list(entry.albums.all())
+
+        if entry.wrapper_type == 'TOP_GENRES':
+            wrap_data['genres'] = list(entry.genres.all())
+
+        if entry.wrapper_type == 'TOP_PLAYLISTS':
+            wrap_data['playlists'] = list(entry.playlists.all())
 
         wraps.append(wrap_data)
 
@@ -662,3 +714,56 @@ def handle_spotify_data(request):
     except Exception as e:
         logger.error(f"Error saving/deleting Spotify data: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+def prepare_share_content(request):
+    print("hi")
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            social_type = data.get('socialType')
+            wrapper_type = data.get('wrapperType')
+            print(social_type)
+            print(wrapper_type)
+
+            # Fetch user data or context (example shown)
+            recent_tracks = request.session.get('recent_tracks', [])
+            top_tracks = request.session.get('top_tracks', {})
+            top_artists = request.session.get('top_artists', [])
+            top_albums = request.session.get('top_albums', {})
+            top_genres = request.session.get('top_genres', [])
+            top_playlists = request.session.get('top_playlists', [])
+
+            # Determine content based on wrapper type
+            if wrapper_type == 'Recently Played':
+                shared_content = ', '.join(track['track']['name'] for track in recent_tracks)
+            elif wrapper_type in ['Short Term', 'Medium Term', 'Long Term']:
+                term = wrapper_type.lower().replace(' ', '_')
+                shared_content = ', '.join(track['name'] for track in top_tracks.get(term, []))
+            elif wrapper_type == 'Top Artists':
+                shared_content = ', '.join(artist['name'] for artist in top_artists)
+            elif wrapper_type == 'Top Albums':
+                shared_content = top_albums['name']
+            elif wrapper_type == 'Top Genres':
+                shared_content = ', '.join(f'{genre} ({count})' for genre, count in top_genres)
+            elif wrapper_type == 'Top Playlists':
+                shared_content = ', '.join(f'{playlist['name']} ({playlist['duration']} ms)' for playlist in top_playlists)
+            else:
+                return JsonResponse({'error': 'Invalid wrapper type'}, status=400)
+
+            # Limit the content length
+            max_content_length = 500
+            if len(shared_content) > max_content_length:
+                shared_content = shared_content[:max_content_length - 3] + '...'
+
+            print("Shared Content:\n", shared_content)
+            # Return the prepared content
+            return JsonResponse({
+                'text': f'Check out my top tracks: {shared_content}',
+                'url': request.build_absolute_uri(),
+            })
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
