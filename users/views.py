@@ -1,16 +1,9 @@
-
-
 import logging
 import os
 import random
 import secrets
 import requests
 import json
-
-
-import spotipy
-import secrets
-
 
 from django.conf import settings
 from django.shortcuts import render, redirect
@@ -350,14 +343,38 @@ def games_view(request):
         game_type = "Guess Top Album"
     elif selected_game == "2":
         game_type = "Guess Artist"
+    elif selected_game == "3":
+        game_type = "Guess Clip"
     else:
         game_type = "Unknown Game"
 
+    top_tracks_clip = []
+    try:
+        # Get top tracks from session with fallback to empty dict
+        top_tracks = request.session.get('top_tracks', {})
+
+        # Get short term tracks with fallback to empty list
+        short_term_tracks = top_tracks.get('short_term', [])
+
+        # List comprehension is more efficient than appending in a loop
+        top_tracks_clip = [
+            track for track in short_term_tracks
+            if track and isinstance(track, dict) and track.get('preview_url')
+        ]
+    except Exception as e:
+        top_tracks_clip = []
+
+    top_tracks = random.choice(request.session.get('top_tracks', {})['short_term'])
+    top_artists = random.choice(request.session.get('top_artists', {})['short_term'])
+    top_tracks_clip = random.choice(top_tracks_clip)
+
+
     context = {
         'theme': theme,
-        'top_tracks': request.session.get('top_tracks', {}),
-        'top_artists': request.session.get('top_artists', {}),
+        'top_tracks': top_tracks,
+        'top_artists': top_artists,
         'top_albums': request.session.get('top_albums', {}),
+        'top_tracks_clip': top_tracks_clip,
         'game_type': game_type,
     }
     return render(request, 'users/games.html', context)
@@ -450,15 +467,12 @@ def set_theme(request, theme):
 from django.utils import translation
 def set_language(request):
     if request.method == 'POST':
-        print(request.POST.get('language', settings.LANGUAGE_CODE))
+        print('Language Code:', request.POST.get('language', settings.LANGUAGE_CODE))
         user_language = request.POST.get('language', settings.LANGUAGE_CODE)
         if user_language in dict(settings.LANGUAGES):
-            print("Good language")
             translation.activate(user_language)
             request.session['django_language'] = user_language
             return HttpResponseRedirect(f'/{user_language}/profile/')
-        else:
-            print("Bad language")
     else:
         print("No POST")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

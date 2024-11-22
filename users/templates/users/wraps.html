@@ -261,7 +261,9 @@
                         {% for track in wrap.tracks %}
                         <div class="track-item">
                             <strong>{{ track.name }}</strong>
-                            <p>{{ track.artist }}</p>
+                            <p>Artist: {{ track.artist }}</p>
+                            <p>Album: {{ track.album }}</p>
+                            <p>Popularity: {{ track.popularity }}</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -273,6 +275,8 @@
                         {% for artist in wrap.artists %}
                         <div class="track-item">
                             <strong>{{ artist.name }}</strong>
+                            <p>Genre: {{ artist.genres }}</p>
+                            <p>Popularity: {{ artist.popularity }}</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -284,11 +288,41 @@
                         {% for album in wrap.albums %}
                         <div class="track-item">
                             <strong>{{ album.name }}</strong>
-                            <p>{{ album.artist }}</p>
+                            <p>Artist: {{ album.artist }}</p>
+                            <p>Release Date: {{ album.release_date }}</p>
+                            <p>Number of Tracks: {{ album.total_tracks }}</p>
                         </div>
                         {% endfor %}
                     </div>
                 {% endif %}
+            
+                {% if wrap.genres %}
+                    <h4>Genres</h4>
+                    <div class="tracks-grid">
+                        {% for elem in wrap.genres %}
+                        <div class="track-item">
+                            <strong>{{ elem.name|title }}</strong>
+                            <p>Count: {{ elem.count }}</p>
+                            <p>Percentage: {{ elem.percentage }}%</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            
+                {% if wrap.playlists %}
+                    <h4>Playlists</h4>
+                    <div class="tracks-grid">
+                        {% for playlist in wrap.playlists %}
+                        <div class="track-item">
+                            <strong>{{ playlist.name|title }}</strong>
+                            <p>Description: {{ playlist.description }}</p>
+                            <p>Duration: {{ playlist.total_duration_minutes }} ms</p>
+                            <p>Number of Tracks: {{ playlist.track_count }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            
                 <button onclick="deleteSpotifyData('{{ wrap.type }}', '{{ wrap.created_at|date:'c' }}')" class="delete-spotify-btn">Delete Wrapped</button>
             </div>
         </div>
