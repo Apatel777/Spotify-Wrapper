@@ -385,7 +385,7 @@ def save_spotify_wrapper(user, access_token, wrapper_type):
         for playlist in top_playlists:
             playlist_id = playlist['id']
             playlist_duration_response = requests.get(
-                f'{base_url}/playlists/{playlist_id}/tracks',
+                f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks',
                 headers=headers,
             )
             tracks = playlist_duration_response.json().get('items', [])

@@ -280,10 +280,10 @@ def dashboard(request):
 
     try:
         headers = {'Authorization': f'Bearer {access_token}'}
-        base_url = 'https://api.spotify.com/v1/me'
+        base_url = 'https://api.spotify.com/v1'
         # Fetch recently played tracks
         recent_tracks_response = requests.get(
-            f'{base_url}/player/recently-played',
+            f'{base_url}/me/player/recently-played',
             headers=headers,
             params={'limit': 50}
         )
@@ -293,7 +293,7 @@ def dashboard(request):
 
         # Fetch the user's playlists
         playlist_response = requests.get(
-            f'{base_url}/playlists',
+            f'{base_url}/me/playlists',
             headers=headers,
         )
         top_playlists = playlist_response.json().get(
@@ -326,17 +326,18 @@ def dashboard(request):
         # Display ranked playlists
         for rank, playlist in enumerate(ranked_playlists, start=1):
             print(f"Rank {rank}: {playlist['name']} - {playlist['duration']:.2f} minutes")
+            print(playlist)
 
         # Fetch top tracks and artists for different time ranges
         top_tracks, top_artists, all_genres = {}, {}, []
         for time_range in ['short_term', 'medium_term', 'long_term']:
             top_tracks_response = requests.get(
-                f'{base_url}/top/tracks',
+                f'{base_url}/me/top/tracks',
                 headers=headers,
                 params={'limit': 10, 'time_range': time_range}
             )
             top_artists_response = requests.get(
-                f'{base_url}/top/artists',
+                f'{base_url}/me/top/artists',
                 headers=headers,
                 params={'limit': 10, 'time_range': time_range}
             )

@@ -439,7 +439,7 @@
                     <h2 class="text-xl font-bold">Top Album</h2>
                 </div>
             </div>
-            
+
             <div class="card p-6 rounded-xl cursor-pointer" onclick="expandCard('top-genres')">
                 <div class="flex items-center mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
@@ -453,7 +453,7 @@
                     <h2 class="text-xl font-bold">Top Genres</h2>
                 </div>
             </div>
-            
+
             <div class="card p-6 rounded-xl cursor-pointer" onclick="expandCard('top-playlists')">
                 <div class="flex items-center mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
@@ -499,7 +499,7 @@
                     </div>
                 </div>
             `;
-            
+
         }
 
         function closeExpanded() {
@@ -741,7 +741,7 @@
                 </div>
             `;
         }
-        
+
         function generateExpandedContentPlaylist() {
             return `
                 <div class="card">
@@ -750,27 +750,16 @@
                     <div class="top-item">
                         <!-- Playlist Rank -->
                         <span class="top-item-number"># {{ forloop.counter }}</span>
-        
+
                         <!-- Playlist Image -->
                         <img class="top-item-image" src="{{ playlist.images.0.url }}" alt="Playlist artwork">
-        
+
                         <!-- Playlist Info -->
                         <div class="top-item-info">
                             <p class="top-item-name">{{ playlist.name }}</p>
                             <p class="top-item-description">{{ playlist.description }}</p>
                             <p class="top-item-duration">Duration: {{ playlist.duration|floatformat:2 }} minutes</p>
                         </div>
-        
-                        <!-- Optional: Add Play Button if applicable -->
-                        {% if playlist.tracks %}
-                        <button class="play-button" onclick="playPlaylist('{{ playlist.id }}')">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <polygon points="5 3 19 12 5 21" />
-                            </svg>
-                        </button>
-                        {% else %}
-                        <span class="preview-unavailable">{% trans 'Tracks unavailable' %}</span>
-                        {% endif %}
                     </div>
                     {% endfor %}
                     <button onclick="saveSpotifyData('TOP_PLAYLISTS')" class="save-spotify-btn">Save</button>
@@ -800,12 +789,12 @@
         function socialMediaShare(socialType, wrapperType) {
             console.log("Social", socialType);
             console.log("Wrapper", wrapperType);
-        
+
             if (!socialType || !wrapperType) {
                 alert('Please select both a social media platform and content type');
                 return;
             }
-        
+
             // Send data to the backend to handle sharing content preparation
             fetch(`/{{ lang }}/prepare-share-content/`, {
                 method: 'POST',
@@ -824,27 +813,27 @@
                 .then(data => {
                     const { text, url } = data;
                     let shareUrl;
-        
+
                     switch (socialType) {
                         case 'Twitter':
                             // Twitter has a 280-character limit
                             const twitterText = text.length > 250 ? text.substring(0, 247) + '...' : text;
                             shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(twitterText)}`;
                             break;
-        
+
                         case 'LinkedIn':
                             shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent('My Top Tracks')}&summary=${encodeURIComponent(text)}`;
                             break;
-        
+
                         case 'Instagram':
                             alert('Instagram sharing is not supported via web browser. Please use the Instagram mobile app.');
                             return;
-        
+
                         default:
                             alert('Unsupported social media platform');
                             return;
                     }
-        
+
                     // Open in new window with proper dimensions
                     window.open(shareUrl, '_blank', 'width=600,height=400');
                     console.log("Done with social media sharing");
@@ -935,7 +924,7 @@
             console.error('No CSRF token found in cookies');
             return null;
         }
-        
+
         async function saveSpotifyData(wrapperType) {
             const csrfToken = getCookie('csrftoken');
             

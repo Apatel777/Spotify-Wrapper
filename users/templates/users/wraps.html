@@ -193,7 +193,7 @@
     
         .tracks-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             color: black;
             gap: 10px;
         }
@@ -295,7 +295,7 @@
                         {% endfor %}
                     </div>
                 {% endif %}
-            
+
                 {% if wrap.genres %}
                     <h4>Genres</h4>
                     <div class="tracks-grid">
@@ -308,7 +308,7 @@
                         {% endfor %}
                     </div>
                 {% endif %}
-            
+
                 {% if wrap.playlists %}
                     <h4>Playlists</h4>
                     <div class="tracks-grid">
@@ -316,13 +316,13 @@
                         <div class="track-item">
                             <strong>{{ playlist.name|title }}</strong>
                             <p>Description: {{ playlist.description }}</p>
-                            <p>Duration: {{ playlist.total_duration_minutes }} ms</p>
+                            <p>Duration: {{ playlist.total_duration_minutes|floatformat:2 }} minutes</p>
                             <p>Number of Tracks: {{ playlist.track_count }}</p>
                         </div>
                         {% endfor %}
                     </div>
                 {% endif %}
-            
+
                 <button onclick="deleteSpotifyData('{{ wrap.type }}', '{{ wrap.created_at|date:'c' }}')" class="delete-spotify-btn">Delete Wrapped</button>
             </div>
         </div>
@@ -353,7 +353,7 @@
             console.error('No CSRF token found in cookies');
             return null;
         }
-        
+
         const lang = "{{ lang }}"
         async function deleteSpotifyData(wrapperType, created_at) {
             console.log("In Deletion Type: ", wrapperType)
