@@ -480,21 +480,13 @@ def logout_view(request):
     return redirect('home')  # Redirect to home after logout
 
 
-@login_required
-def wraps_view(request):
-    theme = request.session.get('theme', 'light')
-    user = request.user
-
-    # Retrieve all SpotifyData entries for the user, sorted by creation date
+def fetch_wraps(data_entries):
     wraps = []
-    data_entries = SpotifyData.objects.filter(
-        user=user
-    ).prefetch_related('tracks', 'artists', 'albums', 'genres', 'playlists').order_by('-created_at')
-
     for entry in data_entries:
         wrap_data = {
             'type': dict(SpotifyData.WRAPPER_TYPES).get(entry.wrapper_type, entry.wrapper_type),
             'created_at': entry.created_at,  # Add creation date
+            'username': entry.user.username,
         }
 
         if entry.wrapper_type.startswith('TOP_TRACKS') or entry.wrapper_type == 'RECENTLY_PLAYED':
@@ -514,7 +506,34 @@ def wraps_view(request):
 
         wraps.append(wrap_data)
 
+    return wraps
+
+@login_required
+def wraps_view(request):
+    theme = request.session.get('theme', 'light')
+    user = request.user
+
+    # Retrieve all SpotifyData entries for the user, sorted by creation date
+    wraps = []
+    data_entries = SpotifyData.objects.filter(
+        user=user
+    ).prefetch_related('tracks', 'artists', 'albums', 'genres', 'playlists').order_by('-created_at')
+
+    wraps = fetch_wraps(data_entries)
     return render(request, 'users/wraps.html', {'wraps': wraps, 'theme': theme, 'lang': request.LANGUAGE_CODE})
+
+@login_required
+def public_wraps_view(request):
+    theme = request.session.get('theme', 'light')
+
+    # Retrieve all public SpotifyData entries, sorted by creation date
+    data_entries = SpotifyData.objects.filter(
+        is_public=True  # Only fetch public entries
+    ).prefetch_related('tracks', 'artists', 'albums', 'genres', 'playlists').order_by('-created_at')
+
+    wraps = fetch_wraps(data_entries)
+    return render(request, 'users/public_wraps.html', {'wraps': wraps, 'theme': theme, 'lang': request.LANGUAGE_CODE})
+
 
 @login_required
 def delete_account_view(request):
@@ -689,7 +708,7 @@ def handle_spotify_data(request):
                 access_token=access_token,
                 wrapper_type=wrapper_type
             )
-        else:
+        elif action == "deleted":
             created_at_str = data.get('created_at')
             try:
                 created_at = datetime.fromisoformat(created_at_str)  # Convert the string to datetime
@@ -697,6 +716,19 @@ def handle_spotify_data(request):
                 return JsonResponse({'error': 'Invalid date format for created_at'}, status=400)
 
             spotify_data = delete_spotify_wrapper(
+                user=user,
+                wrapper_type=wrapper_type,
+                created_at=created_at
+            )
+        else:
+            # For protecting it and making it public
+            created_at_str = data.get('created_at')
+            try:
+                created_at = datetime.fromisoformat(created_at_str)  # Convert the string to datetime
+            except ValueError:
+                return JsonResponse({'error': 'Invalid date format for created_at'}, status=400)
+
+            spotify_data = make_spotify_data_public(
                 user=user,
                 wrapper_type=wrapper_type,
                 created_at=created_at
