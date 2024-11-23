@@ -1,0 +1,1018 @@
+{% load i18n %}
+{% load static %}
+{% csrf_token %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Wrapped Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Modern UI Variables */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #111827;
+            --card-bg-color: #ffffff;
+            --card-border-color: #e5e7eb;
+            --hover-bg-color: #f9fafb;
+            --tab-active-color: #6366f1;
+            --tab-hover-color: #4f46e5;
+        }
+
+        /* Dark mode variables */
+        .dark-mode {
+            --bg-color: #111827;
+            --text-color: #f9fafb;
+            --card-bg-color: #1f2937;
+            --card-border-color: #374151;
+            --hover-bg-color: #374151;
+            --tab-active-color: #818cf8;
+            --tab-hover-color: #6366f1;
+        }
+        
+        /* Color mode variables */
+        .color-mode {
+            --bg-color: #f0f4f8; /* Light, cheerful background */
+            --text-color: #333333; /* Darker text for contrast */
+            --card-bg-color: #ffebc5; /* Soft peach for cards */
+            --card-border-color: #f5a623; /* Bright orange border */
+            --hover-bg-color: #ffcd94; /* Lighter peach for hover */
+            --tab-active-color: #4cb1ff; /* Bright sky blue for active tabs */
+            --tab-hover-color: #ff914d; /* Vibrant orange for hover */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 1.5rem 1.5rem 1.5rem 1.5rem;
+            line-height: 1.5;
+            align-items: center; 
+            display: flex; /* Enable flexbox layout */
+            flex-direction: column; /* Stack elements vertically */
+            overflow-y: scroll; /* Hides vertical scrollbars */
+        }
+        body::-webkit-scrollbar {
+            display: none; /* Hides the scrollbar */
+        }
+        
+        /* Navbar styling */
+        .navbar {
+            background-color: var(--tab-hover-color);
+            width: 95%;
+            position: fixed;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .navbar-links {
+            list-style: none;
+            display: flex;
+        }
+
+        .navbar-links li {
+            position: relative;
+            margin-right: 20px;
+        }
+
+        .navbar-links a {
+            color: var(--footer-text-color);
+            text-decoration: none;
+            font-size: 18px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar-links a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Dropdown menu styling */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%; /* Position it right below the "Games" link */
+            left: 0;
+            background-color: var(--tab-hover-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            list-style: none;
+            margin: 0;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .dropdown-menu li {
+            margin: 0;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: var(--footer-text-color);
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Show dropdown on hover */
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dashboard {
+            width: 85%;
+            margin: 100px auto 0 auto;
+        }
+        
+        /* Animated Gradient Background for Cards */
+        @keyframes gradient-animation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Animated Card Styles */
+        .card {
+            background: linear-gradient(
+                -45deg,
+                #ee7752,
+                #e73c7e,
+                #23a6d5,
+                #23d5ab
+            );
+            background-size: 400% 400%;
+            animation: gradient-animation 15s ease infinite;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            position: relative;
+            color: white;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 10;
+        }
+        
+        #dashboard, #expanded-view {
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .centered {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--card-border-color);
+            color: var(--text-color);
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--hover-bg-color);
+        }
+
+        /* Recently Played Grid */
+        .track-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .track-item {
+            text-align: center;
+        }
+
+        .track-image {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .track-name {
+            font-weight: 500;
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .track-artist {
+            font-size: 0.875rem;
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Top Items List */
+        .top-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            gap: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .top-item:hover {
+            background-color: var(--hover-bg-color);
+        }
+
+        .top-item-number {
+            font-size: 1.125rem;
+            font-weight: 600;
+            width: 2rem;
+            text-align: center;
+        }
+
+        .top-item-image {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.25rem;
+        }
+
+        .top-item-info {
+            flex: 1;
+        }
+
+        .top-item-name {
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .top-item-artist {
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        .play-button {
+            background: #1DB954;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 15px;
+        }
+
+        .play-button:hover {
+            background: #1ed760;
+        }
+
+        .play-button.playing {
+            background: #ff5252;
+        }
+
+        .preview-unavailable {
+            color: white;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+
+        /* Toggle Theme Button */
+        .theme-toggle {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--card-border-color);
+            color: var(--text-color);
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--hover-bg-color);
+        }
+    </style>
+</head>
+<body class="p-8">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-brand">SpotifyWrapper</div>
+        <ul class="navbar-links">
+            <li><a href="#">{% trans 'Home' %}</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-trigger">{% trans 'Games' %}</a>
+                <ul class="dropdown-menu">
+                    <li><a href="{% url 'games' %}?game=0">{% trans 'Guess Top Track' %}</a></li>
+                    <li><a href="{% url 'games' %}?game=1">{% trans 'Guess Top Album' %}</a></li>
+                    <li><a href="{% url 'games' %}?game=2">{% trans 'Guess Artist' %}</a>
+                </ul>
+            </li>
+            <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
+            <li><a href="{% url 'wraps' %}">{% trans 'Past Wraps' %}</a></li>
+            <li><a href="{% url 'profile' %}">{% trans 'Profile' %}</a></li>
+            <li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>
+            <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
+        </ul>
+    </nav>
+    <div class = dashboard>
+        <div id="dashboard" class="container grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="card p-6 rounded-xl cursor-pointer" onclick="expandCard('recently-played')">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polygon points="10 8 16 12 10 16 10 8"></polygon>
+                    </svg>
+                    <h2 class="text-xl font-bold">Recently Played</h2>
+                </div>
+            </div>
+    
+            <div class="card p-6 rounded-xl cursor-pointer" onclick="expandCard('short-term')">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <path d="M9 18V5l12-2v13"></path>
+                        <circle cx="6" cy="18" r="3"></circle>
+                        <circle cx="18" cy="16" r="3"></circle>
+                    </svg>
+                    <h2 class="text-xl font-bold">Short Term Top Tracks</h2>
+                </div>
+            </div>
+    
+            <div class="card p-6 rounded-xl cursor-pointer" onclick="expandCard('medium-term')">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <path d="M9 18V5l12-2v13"></path>
+                        <circle cx="6" cy="18" r="3"></circle>
+                        <circle cx="18" cy="16" r="3"></circle>
+                    </svg>
+                    <h2 class="text-xl font-bold">Medium Term Top Tracks</h2>
+                </div>
+            </div>
+    
+            <div class="card p-6 rounded-xl cursor-pointer" onclick="expandCard('long-term')">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <path d="M9 18V5l12-2v13"></path>
+                        <circle cx="6" cy="18" r="3"></circle>
+                        <circle cx="18" cy="16" r="3"></circle>
+                    </svg>
+                    <h2 class="text-xl font-bold">Long Term Top Tracks</h2>
+                </div>
+            </div>
+    
+            <div class="card p-6 rounded-xl cursor-pointer" onclick="expandCard('top-artists')">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <h2 class="text-xl font-bold">Top Artists</h2>
+                </div>
+            </div>
+    
+            <div class="card p-6 rounded-xl cursor-pointer" onclick="expandCard('top-albums')">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                        <rect x="9" y="9" width="6" height="6"></rect>
+                        <line x1="9" y1="1" x2="9" y2="4"></line>
+                        <line x1="15" y1="1" x2="15" y2="4"></line>
+                        <line x1="9" y1="20" x2="9" y2="23"></line>
+                        <line x1="15" y1="20" x2="15" y2="23"></line>
+                    </svg>
+                    <h2 class="text-xl font-bold">Top Album</h2>
+                </div>
+            </div>
+
+            <div class="card p-6 rounded-xl cursor-pointer" onclick="expandCard('top-genres')">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                        <rect x="9" y="9" width="6" height="6"></rect>
+                        <line x1="9" y1="1" x2="9" y2="4"></line>
+                        <line x1="15" y1="1" x2="15" y2="4"></line>
+                        <line x1="9" y1="20" x2="9" y2="23"></line>
+                        <line x1="15" y1="20" x2="15" y2="23"></line>
+                    </svg>
+                    <h2 class="text-xl font-bold">Top Genres</h2>
+                </div>
+            </div>
+
+            <div class="card p-6 rounded-xl cursor-pointer" onclick="expandCard('top-playlists')">
+                <div class="flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                        <rect x="9" y="9" width="6" height="6"></rect>
+                        <line x1="9" y1="1" x2="9" y2="4"></line>
+                        <line x1="15" y1="1" x2="15" y2="4"></line>
+                        <line x1="9" y1="20" x2="9" y2="23"></line>
+                        <line x1="15" y1="20" x2="15" y2="23"></line>
+                    </svg>
+                    <h2 class="text-xl font-bold">Top Playlists</h2>
+                </div>
+            </div>
+        </div>
+    
+        <div id="expanded-view" class="hidden centered"></div>
+        
+        <button class="theme-toggle" onclick="toggleTheme()">
+            {% trans 'Toggle Theme: Light Mode' %}
+        </button>
+    </div>
+    
+    <script>
+        //Card Expansion
+        function expandCard(cardType) {
+            const dashboard = document.getElementById('dashboard');
+            const expandedView = document.getElementById('expanded-view');
+            
+            // Hide dashboard
+            dashboard.classList.add('hidden');
+            
+            // Show expanded view
+            expandedView.classList.remove('hidden');
+            console.log("Done Here")
+            expandedView.innerHTML = `
+                <div class="p-8">
+                    <button onclick="closeExpanded()" class="mb-4 text-white bg-gray-800 p-2 rounded">
+                        Back to Dashboard
+                    </button>
+                    <h1 class="text-3xl font-bold mb-6">${getCardTitle(cardType)}</h1>
+                    <div id="expanded-content">
+                        ${generateExpandedContent(cardType)}
+                    </div>
+                </div>
+            `;
+
+        }
+
+        function closeExpanded() {
+            const dashboard = document.getElementById('dashboard');
+            const expandedView = document.getElementById('expanded-view');
+            
+            // Show dashboard
+            dashboard.classList.remove('hidden');
+            
+            // Hide expanded view
+            expandedView.classList.add('hidden');
+            expandedView.innerHTML = '';
+        }
+
+        function getCardTitle(cardType) {
+            const titles = {
+                'recently-played': 'Recently Played Tracks',
+                'short-term': 'Short Term Top Tracks',
+                'medium-term': 'Medium Term Top Tracks',
+                'long-term': 'Long Term Top Tracks',
+                'top-artists': 'Top Artists',
+                'top-albums': 'Top Albums',
+                'top-genres' : 'Top Genres',
+                'top-playlists': 'Top Playlists'
+            };
+            return titles[cardType] || 'Spotify Wrapped';
+        }
+
+        function generateExpandedContent(cardType) {
+            console.log("Card: ", cardType);
+            // In a real app, this would fetch data dynamically
+            switch (cardType) {
+                case "recently-played":
+                    return generateExpandedContentRecentlyPlayed();
+                case "short-term":
+                    return generateExpandedContentTrackShort();
+                case "medium-term":
+                    return generateExpandedContentTrackMedium();
+                case "long-term":
+                    return generateExpandedContentTrackLong();
+                case "top-artists":
+                    return generateExpandedContentArtist();
+                case "top-albums":
+                    return generateExpandedContentAlbum();
+                case "top-genres":
+                    return generateExpandedContentGenre();
+                case "top-playlists":
+                    return generateExpandedContentPlaylist();
+                default:
+                    return '';
+            }
+        }
+        function generateExpandedContentRecentlyPlayed() {
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <h2 class="card-title">{% trans 'Recently Played' %}</h2>
+                    </div>
+                    <div class="track-grid">
+                        {% for item in recent_tracks|slice:":15" %}
+                        <div class="track-item">
+                            <img class="track-image" src="{{ item.track.album.images.0.url }}" alt="Track artwork">
+                            <p class="track-name">{{ item.track.name }}</p>
+                            <p class="track-artist">
+                                {% for artist in item.track.artists %}
+                                    {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button onclick="saveSpotifyData('RECENTLY_PLAYED')" class="save-spotify-btn">Save</button>
+                    ` + shareHTML('Recently Played') + `
+                </div>
+            `;
+        }
+        
+        function generateExpandedContentTrackShort() {
+            return `
+                <div class="card">
+                    {% if top_tracks %}
+                    {% for track in top_tracks.short_term|slice:":5" %}
+                    <div class="top-item" data-track-uri="{{ track.uri }}" data-preview-url="{{ track.preview_url }}">
+                        <span class="top-item-number"># {{ forloop.counter }}</span>
+                        <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
+                        <div class="top-item-info">
+                            <p class="top-item-name">{{ track.name }}</p>
+                            <p class="top-item-artist">
+                                {% for artist in track.artists %}
+                                    {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                        </div>
+                        {% if track.preview_url %}
+                            <button class="play-button" onclick="togglePlay(this, '{{ track.preview_url }}')">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <polygon points="5 3 19 12 5 21" />
+                                </svg>
+                            </button>
+                        {% else %}
+                            <span class="preview-unavailable">{% trans 'Preview unavailable' %}</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <button onclick="saveSpotifyData('TOP_TRACKS_SHORT')" class="save-spotify-btn">Save</button>
+                    {% endif %}
+                    ` + shareHTML('Short Term') + `
+                </div>
+            `;
+        }
+        
+        function generateExpandedContentTrackMedium() {
+            return `
+                <div class="card">
+                    {% if top_tracks %}
+                    {% for track in top_tracks.medium_term|slice:":5" %}
+                    <div class="top-item" data-track-uri="{{ track.uri }}" data-preview-url="{{ track.preview_url }}">
+                        <span class="top-item-number"># {{ forloop.counter }}</span>
+                        <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
+                        <div class="top-item-info">
+                            <p class="top-item-name">{{ track.name }}</p>
+                            <p class="top-item-artist">
+                                {% for artist in track.artists %}
+                                    {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                        </div>
+                        {% if track.preview_url %}
+                            <button class="play-button" onclick="togglePlay(this, '{{ track.preview_url }}')">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <polygon points="5 3 19 12 5 21" />
+                                </svg>
+                            </button>
+                        {% else %}
+                            <span class="preview-unavailable">{% trans 'Preview unavailable' %}</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <button onclick="saveSpotifyData('TOP_TRACKS_MEDIUM')" class="save-spotify-btn">Save</button>
+                    {% endif %}
+                    ` + shareHTML('Medium Term') + `
+                </div>
+            `;
+        }
+        
+        function generateExpandedContentTrackLong() {
+            return `
+                <div class="card">
+                    {% if top_tracks %}
+                    {% for track in top_tracks.long_term|slice:":5" %}
+                    <div class="top-item" data-track-uri="{{ track.uri }}" data-preview-url="{{ track.preview_url }}">
+                        <span class="top-item-number"># {{ forloop.counter }}</span>
+                        <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
+                        <div class="top-item-info">
+                            <p class="top-item-name">{{ track.name }}</p>
+                            <p class="top-item-artist">
+                                {% for artist in track.artists %}
+                                    {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                        </div>
+                        {% if track.preview_url %}
+                            <button class="play-button" onclick="togglePlay(this, '{{ track.preview_url }}')">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <polygon points="5 3 19 12 5 21" />
+                                </svg>
+                            </button>
+                        {% else %}
+                            <span class="preview-unavailable">{% trans 'Preview unavailable' %}</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <button onclick="saveSpotifyData('TOP_TRACKS_LONG')" class="save-spotify-btn">Save</button>
+                    {% endif %}
+                    ` + shareHTML('Long Term') + `
+                </div>
+            `;
+        }
+        
+        function generateExpandedContentArtist() {
+            return `
+                <!-- Top Artists Content -->
+                <div class="card">
+                    {% if top_artists %}
+                    <div class="track-grid">
+                        {% for artist in top_artists|slice:":5" %}
+                        <div class="track-item">
+                            <img class="track-image" src="{{ artist.images.0.url }}" alt="{{ artist.name }}" style="border-radius: 50%;">
+                            <p class="track-name" style="overflow: visible">{{ artist.name }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <button onclick="saveSpotifyData('TOP_ARTISTS')" class="save-spotify-btn">Save</button>
+                    ` + shareHTML('Top Artists') + `
+                </div>
+            `;
+        }
+        function generateExpandedContentAlbum() {
+            return `
+                <!-- Top Album Content -->
+                <div class="card">
+                    <div class="card-header">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <h2 class="card-title">{% trans 'Most Listened Album' %}</h2>
+                    </div>
+                    <div style="display: flex; gap: 1.5rem; align-items: center;">
+                        <img src="{{ most_listened_album_details.image_url }}" alt="Album artwork" style="width: 8rem; height: 8rem; border-radius: 0.5rem;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.25rem;">{{ most_listened_album_details.name }}</h3>
+                            <p style="margin: 0.25rem 0 0 0; color: #6b7280;">{{ most_listened_album_details.artist }}</p>
+                        </div>
+                    </div>
+                    <button onclick="saveSpotifyData('TOP_ALBUMS')" class="save-spotify-btn">Save</button>
+                    ` + shareHTML('Top Albums') + `
+                </div>
+                `;
+        }
+        function generateExpandedContentGenre() {
+            return `
+                <div class="card">
+                    {% for genre, count in top_genres %}
+                    <div class="top-item" data-track-uri="{{ track.uri }}" data-preview-url="{{ track.preview_url }}">
+                        <span class="top-item-number"># {{ forloop.counter }}</span>
+                        <div class="top-item-info">
+                            <p class="top-item-name">{{ genre|title }} - {{ count }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <button onclick="saveSpotifyData('TOP_GENRES')" class="save-spotify-btn">Save</button>
+                    ` + shareHTML('Top Genres') + `
+                </div>
+            `;
+        }
+
+        function generateExpandedContentPlaylist() {
+            return `
+                <div class="card">
+                    {% if top_playlists %}
+                    {% for playlist in top_playlists %}
+                    <div class="top-item">
+                        <!-- Playlist Rank -->
+                        <span class="top-item-number"># {{ forloop.counter }}</span>
+
+                        <!-- Playlist Image -->
+                        <img class="top-item-image" src="{{ playlist.images.0.url }}" alt="Playlist artwork">
+
+                        <!-- Playlist Info -->
+                        <div class="top-item-info">
+                            <p class="top-item-name">{{ playlist.name }}</p>
+                            <p class="top-item-description">{{ playlist.description }}</p>
+                            <p class="top-item-duration">Duration: {{ playlist.duration|floatformat:2 }} minutes</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <button onclick="saveSpotifyData('TOP_PLAYLISTS')" class="save-spotify-btn">Save</button>
+                    {% endif %}
+                    ` + shareHTML('Top Playlists') + `
+                </div>
+            `;
+        }
+        
+        function shareHTML(wrapperType) {
+            return `
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <select id="subject" name="subject" required>
+                        <option value="">{% trans 'Select a Social Media' %}</option>
+                        <option value="Twitter">{% trans 'Twitter(X)' %}</option>
+                        <option value="Facebook">{% trans 'Facebook' %}</option>
+                        <option value="WhatsApp">{% trans 'WhatsApp' %}</option>
+                        <option value="Reddit">{% trans 'Reddit' %}</option>
+                    </select>
+                    <button onclick="socialMediaShare(document.getElementById('subject').value, '${wrapperType}')" class="share-button">{% trans 'Social Media Share' %}</button>
+                </div>
+            `;
+        }
+        
+        const lang = '{{ lang|safe }}';
+        function socialMediaShare(socialType, wrapperType) {
+            console.log("Social", socialType);
+            console.log("Wrapper", wrapperType);
+
+            if (!socialType || !wrapperType) {
+                alert('Please select both a social media platform and content type');
+                return;
+            }
+
+            // Send data to the backend to handle sharing content preparation
+            fetch(`/{{ lang }}/prepare-share-content/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'), // Fetch the CSRF token if required
+                },
+                body: JSON.stringify({ socialType, wrapperType }),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const { text, url } = data;
+                    let shareUrl;
+
+                    switch (socialType) {
+                        case 'Twitter':
+                            // Twitter has a 280-character limit
+                            const twitterText = text.length > 250 ? text.substring(0, 247) + '...' : text;
+                            shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(twitterText)}`;
+                            break;
+                            
+                        case 'Facebook':
+                            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
+                            break;
+                            
+                        case 'WhatsApp':
+                            shareUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
+                            break;
+                            
+                        case 'Reddit':
+                            const redditText = text.length > 280 ? text.substring(0, 279) + '...' : text;
+                            shareUrl = `https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(redditText)}`;
+                            break;
+
+                        default:
+                            alert('Unsupported social media platform');
+                            return;
+                    }
+
+                    // Open in new window with proper dimensions
+                    window.open(shareUrl, '_blank', 'width=600,height=400');
+                    console.log("Done with social media sharing");
+                })
+                .catch(error => {
+                    console.error('Error sharing to social media:', error);
+                    alert('An error occurred while trying to share. Please try again.');
+                });
+        }
+        
+        //Clip Playback
+        let currentAudio = null;
+        let currentButton = null;
+
+        function togglePlay(button, previewUrl) {
+            // If there's already a track playing
+            if (currentAudio && currentButton) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                updateButtonIcon(currentButton, false);
+
+                // If we're clicking the same button, just stop playback
+                if (currentButton === button) {
+                    currentAudio = null;
+                    currentButton = null;
+                    return;
+                }
+            }
+
+            // Play the new track
+            const audio = new Audio(previewUrl);
+            currentAudio = audio;
+            currentButton = button;
+
+            audio.play();
+            updateButtonIcon(button, true);
+
+            // When the preview ends
+            audio.onended = function() {
+                updateButtonIcon(button, false);
+                currentAudio = null;
+                currentButton = null;
+            };
+        }
+
+        function updateButtonIcon(button, isPlaying) {
+            if (isPlaying) {
+                button.innerHTML = `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="6" y="4" width="4" height="16"/>
+                        <rect x="14" y="4" width="4" height="16"/>
+                    </svg>
+                `;
+                button.classList.add('playing');
+            } else {
+                button.innerHTML = `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polygon points="5 3 19 12 5 21" />
+                    </svg>
+                `;
+                button.classList.remove('playing');
+            }
+        }
+
+        // Stop playback when switching tabs/closing window
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                updateButtonIcon(currentButton, false);
+                currentAudio = null;
+                currentButton = null;
+            }
+        });
+        
+        // Save Wrapper
+        function getCookie(name) {
+            console.log('All cookies:', document.cookie);
+            const cookies = document.cookie.split('; ');
+            const csrfCookie = cookies.find(row => row.startsWith('csrftoken='));
+            
+            if (csrfCookie) {
+                const token = csrfCookie.split('=')[1];
+                console.log('CSRF Token found:', token);
+                return token;
+            }
+            
+            console.error('No CSRF token found in cookies');
+            return null;
+        }
+
+        async function saveSpotifyData(wrapperType) {
+            const csrfToken = getCookie('csrftoken');
+            
+            // Validate CSRF token before sending
+            if (!csrfToken) {
+                alert('CSRF token missing');
+                return;
+            }
+        
+            try {
+                const response = await fetch(`/{{ lang }}/handle-spotify-data/`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken  // Ensure correct header name
+                    },
+                    body: JSON.stringify({
+                        wrapper_type: wrapperType,
+                        action: "saved"
+                    })
+                });
+                
+                alert('It was saved successfully');
+            } catch (error) {
+                console.error('Saving error:', error);
+                alert('An error occurred while saving data');
+            }
+        }
+        
+        // Change Color Mode
+        const THEME_LABELS = {
+            light: '{% trans "Toggle Theme: Dark Mode"|escapejs %}',
+            dark: '{% trans "Toggle Theme: Color Mode"|escapejs %}',
+            color: '{% trans "Toggle Theme: Light Mode"|escapejs %}'
+        };
+        
+        // Function to toggle between light and dark mode
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.querySelector('.theme-toggle');
+            const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
+                                 body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+
+            if (currentTheme === 'light-mode') {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                btn.textContent = THEME_LABELS.color;
+                localStorage.setItem('theme', 'dark-mode');
+            } else if (currentTheme === 'dark-mode') {
+                body.classList.remove('dark-mode');
+                body.classList.add('color-mode');
+                btn.textContent = THEME_LABELS.light;
+                localStorage.setItem('theme', 'color-mode');
+            } else {
+                body.classList.remove('color-mode');
+                body.classList.add('light-mode');
+                btn.textContent = THEME_LABELS.dark;
+                localStorage.setItem('theme', 'light-mode');
+            }
+        }
+
+        function applySavedMode() {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            const btn = document.querySelector('.theme-toggle');
+
+            if (savedTheme === 'light-mode') {
+                body.classList.add('light-mode');
+                btn.textContent = THEME_LABELS.dark;
+            } else if (savedTheme === 'dark-mode') {
+                body.classList.add('dark-mode');
+                btn.textContent = THEME_LABELS.color;
+            } else if (savedTheme === 'color-mode') {
+                body.classList.add('color-mode');
+                btn.textContent = THEME_LABELS.light;
+            } else {
+                body.classList.add('light-mode');
+                btn.textContent = THEME_LABELS.dark;
+            }
+        }
+
+        window.onload = applySavedMode;
+    </script>
+</body>
+</html>

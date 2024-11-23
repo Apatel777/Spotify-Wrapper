@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-06 17:32+0000\n"
+"POT-Creation-Date: 2024-11-16 23:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,18 +17,213 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-#: SpotifyWrapper/settings.py:165
+
+#: SpotifyWrapper/settings.py users/templates/users/profile2.html
 msgid "English"
 msgstr "Anglais"
 
-#: SpotifyWrapper/settings.py:166
+#: SpotifyWrapper/settings.py users/templates/users/profile2.html
 msgid "Spanish"
 msgstr "Espagnol"
 
-#: SpotifyWrapper/settings.py:167
+#: SpotifyWrapper/settings.py users/templates/users/profile2.html
 msgid "French"
 msgstr "Français"
 
-#: users/templates/users/profile.html:54
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Home"
+msgstr "Maison"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Games"
+msgstr "Jeux"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Guess Top Track"
+msgstr "Devinez la meilleure piste"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Guess Top Album"
+msgstr "Devinez le meilleur album"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Guess Artist"
+msgstr "Devinez l&#39;artiste"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "LLM Analysis"
+msgstr "Analyse LLM"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Profile"
+msgstr "Profil"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Contact"
+msgstr "Contact"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Logout"
+msgstr "Déconnexion"
+
+#: users/templates/users/analysis.html
+msgid "Your Music Personality Analysis"
+msgstr "Votre analyse de personnalité musicale"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/profile2.html
+msgid "Toggle Theme: Light Mode"
+msgstr "Thème à bascule : Mode clair"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/profile2.html
+msgid "Toggle Theme: Dark Mode"
+msgstr "Thème à bascule : Mode sombre"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/profile2.html
+msgid "Toggle Theme: Color Mode"
+msgstr "Thème à bascule : Mode couleur"
+
+#: users/templates/users/contact.html
+msgid "Contact Us"
+msgstr "Contactez-nous"
+
+#: users/templates/users/contact.html
+msgid "Have a question or feedback? We'd love to hear from you."
+msgstr ""
+"Vous avez une question ou un commentaire ? Nous serons ravis de vous "
+"répondre."
+
+#: users/templates/users/contact.html
+msgid "Name"
+msgstr "Nom"
+
+#: users/templates/users/contact.html
+msgid "Select a subject"
+msgstr "Sélectionnez un sujet"
+
+#: users/templates/users/contact.html
+msgid "General Inquiry"
+msgstr "Demande d&#39;information générale"
+
+#: users/templates/users/contact.html
+msgid "Technical Support"
+msgstr "Assistance technique"
+
+#: users/templates/users/contact.html
+msgid "Feedback"
+msgstr "Retour"
+
+#: users/templates/users/contact.html
+msgid "Report a Bug"
+msgstr "Signaler un bug"
+
+#: users/templates/users/contact.html
+msgid "Feature Request"
+msgstr "Demande de fonctionnalité"
+
+#: users/templates/users/contact.html
+msgid "Message"
+msgstr "Message"
+
+#: users/templates/users/contact.html
+msgid "Send Message"
+msgstr "Envoyer un message"
+
+#: users/templates/users/contact.html
+msgid "Additional Ways to Reach Us"
+msgstr "Autres moyens de nous joindre"
+
+#: users/templates/users/contact.html
+msgid "Email:"
+msgstr "E-mail:"
+
+#: users/templates/users/contact.html
+msgid "Response Time:"
+msgstr "Temps de réponse :"
+
+#: users/templates/users/contact.html
+msgid "We typically respond within 24-48 hours"
+msgstr "Nous répondons généralement dans les 24 à 48 heures"
+
+#: users/templates/users/contact.html
+msgid "Hours:"
+msgstr "Heures:"
+
+#: users/templates/users/contact.html
+msgid "Monday - Friday:"
+msgstr "Lundi - Vendredi:"
+
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Guess Clip"
+msgstr "Devinez le clip"
+
+#: users/templates/users/games.html
+msgid "Selected Game:"
+msgstr "Jeu sélectionné :"
+
+#: users/templates/users/games.html
+msgid "Can you guess your #1 most played track?"
+msgstr "Pouvez-vous deviner quel est votre morceau le plus joué ?"
+
+#: users/templates/users/games.html
+msgid "Can you guess your #1 most played album?"
+msgstr "Pouvez-vous deviner quel est votre album le plus écouté ?"
+
+#: users/templates/users/games.html
+msgid "Can you guess your #1 most played artist?"
+msgstr "Pouvez-vous deviner quel est votre artiste le plus joué ?"
+
+#: users/templates/users/games.html
+msgid "Can you guess based on the clip?"
+msgstr "Pouvez-vous deviner en vous basant sur le clip ?"
+
+#: users/templates/users/games.html
+msgid "Enter your guess"
+msgstr "Entrez votre estimation"
+
+#: users/templates/users/games.html
+msgid "Make a Guess"
+msgstr "Faites une supposition"
+
+#: users/templates/users/games.html
+msgid "Attempts remaining:"
+msgstr "Tentatives restantes :"
+
+#: users/templates/users/profile.html users/templates/users/profile2.html
 msgid "Your Profile"
-msgstr "Votre Profil"
+msgstr "Votre profil"
+
+#: users/templates/users/profile2.html
+msgid "Username:"
+msgstr "Nom d&#39;utilisateur:"
+
+#: users/templates/users/profile2.html
+msgid "App Settings"
+msgstr "Paramètres de l&#39;application"
+
+#: users/templates/users/profile2.html
+msgid "Language:"
+msgstr "Langue:"
+
+#: users/templates/users/profile2.html
+msgid "Update Settings"
+msgstr "Mettre à jour les paramètres"
+
+#: users/templates/users/profile2.html
+msgid "Account Management"
+msgstr "Gestion de compte"
+
+#: users/templates/users/profile2.html
+msgid "Delete Account"
+msgstr "Supprimer le compte"

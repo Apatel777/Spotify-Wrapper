@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'django_social_share',
     'SiteSpotify.apps.SitespotifyConfig',
     'users'
 ]
@@ -62,7 +63,7 @@ ROOT_URLCONF = "SpotifyWrapper.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ['users/templates', 'users/'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -143,7 +144,9 @@ CSRF_COOKIE_SECURE = True
 
 # Use secure, HTTP-only cookies
 SESSION_COOKIE_HTTPONLY = True
-CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_SAMESITE = 'Lax'
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -155,6 +158,7 @@ load_dotenv()
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 SPOTIFY_REDIRECT_URI = 'http://localhost:8000/spotify/callback/'  # Adjust as necessary
+CLOUD_API_KEY = os.getenv("CLOUD_API_KEY")
 
 
 LOGIN_URL = 'login'
@@ -172,5 +176,5 @@ USE_L10N = True
 
 LANGUAGE_CODE = 'en'
 LOCALE_PATHS = [
-    os.path.join(settings.BASE_DIR, 'locale'),  # Path to the locale directory
+    os.path.join(BASE_DIR, 'locale'),  # Path to the locale directory
 ]

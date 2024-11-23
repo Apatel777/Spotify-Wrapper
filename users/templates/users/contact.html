@@ -1,0 +1,357 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - SpotifyWrapper</title>
+    <style>
+        /* Root variables for dark mode */
+        :root {
+            --bg-color: #2c013b;
+            --profile-bg-color: #533485;
+            --text-color: #ece4ff;
+            --btn-bg-color: #9b88e8;
+            --btn-delete-color: #ff4d4d;
+            --btn-hover-color: #7350c3;
+            --footer-bg-color: #533485;
+            --footer-text-color: #ece4ff;
+            --input-bg-color: rgba(255, 255, 255, 0.1);
+            --input-border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Light mode variables */
+        .light-mode {
+            --bg-color: #ffffff;
+            --profile-bg-color: #e6dbff;
+            --text-color: #29004b;
+            --btn-bg-color: #9a4dff;
+            --btn-delete-color: #ff4d4d;
+            --btn-hover-color: #7e38cc;
+            --footer-bg-color: #e6dbff;
+            --footer-text-color: #29004b;
+            --input-bg-color: rgba(0, 0, 0, 0.05);
+            --input-border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Color mode variables */
+        .color-mode {
+            --bg-color: #5e5ed2;
+            --profile-bg-color: #f7f7fc;
+            --text-color: blue;
+            --btn-bg-color: #7777cc;
+            --btn-delete-color: #ff4d4d;
+            --btn-hover-color: #3b5bba;
+            --footer-bg-color: #454597;
+            --footer-text-color: white;
+            --input-bg-color: rgba(255, 255, 255, 0.1);
+            --input-border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--footer-text-color);
+            margin: 0;
+            padding: 1.5rem 1.5rem 1.5rem 1.5rem;
+            line-height: 1.5;
+            align-items: center;
+            display: flex; /* Enable flexbox layout */
+            flex-direction: column; /* Stack elements vertically */
+            min-height: 100vh;
+            overflow-y: scroll; /* Hides vertical scrollbars */
+        }
+        body::-webkit-scrollbar {
+            display: none; /* Hides the scrollbar */
+        }
+
+        .navbar {
+            background-color: var(--footer-bg-color);
+            width: 95%;
+            position: fixed;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--footer-text-color);
+        }
+
+        .navbar-links {
+            list-style: none;
+            display: flex;
+        }
+
+        .navbar-links li {
+            position: relative; /* Required for dropdown positioning */
+            margin-right: 20px;
+        }
+
+        .navbar-links a {
+            color: var(--footer-text-color);
+            text-decoration: none;
+            font-size: 18px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar-links a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Dropdown menu styling */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%; /* Position it right below the "Games" link */
+            left: 0;
+            background-color: var(--footer-bg-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            list-style: none;
+            margin: 0;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .dropdown-menu li {
+            margin: 0;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: var(--footer-text-color);
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Show dropdown on hover */
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .contact-container {
+            background-color: var(--profile-bg-color);
+            color: var(--text-color);
+            width: 50%;
+            margin: 100px auto 0 auto;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--input-border-color);
+            background-color: var(--input-bg-color);
+            color: var(--text-color);
+            font-size: 16px;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: var(--btn-bg-color);
+            color: var(--footer-text-color);
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: var(--btn-hover-color);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            background-color: var(--footer-bg-color);
+            border: 1px solid;
+            color: var(--footer-text-color);
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .contact-info {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--input-border-color);
+        }
+
+        .contact-info h3 {
+            margin-bottom: 15px;
+        }
+
+        .contact-info p {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-brand">SpotifyWrapper</div>
+        <ul class="navbar-links">
+            <li><a href="{% url 'dashboard' %}">{% trans 'Home' %}</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-trigger">{% trans 'Games' %}</a>
+                <ul class="dropdown-menu">
+                    <li><a href="{% url 'games' %}?game=0">{% trans 'Guess Top Track' %}</a></li>
+                    <li><a href="{% url 'games' %}?game=1">{% trans 'Guess Top Album' %}</a></li>
+                    <li><a href="{% url 'games' %}?game=2">{% trans 'Guess Artist' %}</a>
+                </ul>
+            </li>
+            <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
+            <li><a href="{% url 'wraps' %}">{% trans 'Past Wraps' %}</a></li>
+            <li><a href="{% url 'profile' %}">{% trans 'Profile' %}</a></li>
+            <li><a href="#">{% trans 'Contact' %}</a></li>
+            <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
+        </ul>
+    </nav>
+
+    <div class="contact-container">
+        <h1>{% trans 'Contact Us' %}</h1>
+        <p>{% trans "Have a question or feedback? We'd love to hear from you." %}</p>
+
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <p class="message {{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form action="{{ google_form_url }}" method="POST" target="_blank">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name">{% trans 'Name' %}</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="subject">Subject</label>
+                <select id="subject" name="subject" required>
+                    <option value="">{% trans 'Select a subject' %}</option>
+                    <option value="General">{% trans 'General Inquiry' %}</option>
+                    <option value="Technical">{% trans 'Technical Support' %}</option>
+                    <option value="Feedback">{% trans 'Feedback' %}</option>
+                    <option value="Bug">{% trans 'Report a Bug' %}</option>
+                    <option value="Feature">{% trans 'Feature Request' %}</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="message">{% trans 'Message' %}</label>
+                <textarea id="message" name="message" required></textarea>
+            </div>
+
+            <button type="submit">{% trans 'Send Message' %}</button>
+        </form>
+
+
+        <div class="contact-info">
+            <h3>{% trans 'Additional Ways to Reach Us' %}</h3>
+            <p><strong>{% trans 'Email:' %}</strong> support@spotifywrapper.com</p>
+            <p><strong>{% trans 'Response Time:' %}</strong> {% trans 'We typically respond within 24-48 hours' %}</p>
+            <p><strong>{% trans 'Hours:' %}</strong> {% trans 'Monday - Friday:' %}, 9:00 AM - 5:00 PM EST</p>
+        </div>
+    </div>
+
+    <button class="theme-toggle" onclick="toggleTheme()">
+        Toggle Theme: Light Mode
+    </button>
+
+    <script>
+        // Define translations
+        const THEME_LABELS = {
+            light: '{% trans "Toggle Theme: Dark Mode"|escapejs %}',
+            dark: '{% trans "Toggle Theme: Color Mode"|escapejs %}',
+            color: '{% trans "Toggle Theme: Light Mode"|escapejs %}'
+        };
+        
+        // Function to toggle between light and dark mode
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.querySelector('.theme-toggle');
+            const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
+                                 body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+
+            if (currentTheme === 'light-mode') {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                btn.textContent = THEME_LABELS.color;
+                localStorage.setItem('theme', 'dark-mode');
+            } else if (currentTheme === 'dark-mode') {
+                body.classList.remove('dark-mode');
+                body.classList.add('color-mode');
+                btn.textContent = THEME_LABELS.light;
+                localStorage.setItem('theme', 'color-mode');
+            } else {
+                body.classList.remove('color-mode');
+                body.classList.add('light-mode');
+                btn.textContent = THEME_LABELS.dark;
+                localStorage.setItem('theme', 'light-mode');
+            }
+        }
+
+        function applySavedMode() {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            const btn = document.querySelector('.theme-toggle');
+
+            if (savedTheme === 'light-mode') {
+                body.classList.add('light-mode');
+                btn.textContent = THEME_LABELS.dark;
+            } else if (savedTheme === 'dark-mode') {
+                body.classList.add('dark-mode');
+                btn.textContent = THEME_LABELS.color;
+            } else if (savedTheme === 'color-mode') {
+                body.classList.add('color-mode');
+                btn.textContent = THEME_LABELS.light;
+            } else {
+                body.classList.add('light-mode');
+                btn.textContent = THEME_LABELS.dark;
+            }
+        }
+
+        window.onload = applySavedMode;
+    </script>
+</body>
+</html>

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-06 17:32+0000\n"
+"POT-Creation-Date: 2024-11-16 23:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,20 +16,212 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
-"1 : 2;\n"
-#: SpotifyWrapper/settings.py:165
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
+
+#: SpotifyWrapper/settings.py users/templates/users/profile2.html
 msgid "English"
 msgstr "Inglés"
 
-#: SpotifyWrapper/settings.py:166
+#: SpotifyWrapper/settings.py users/templates/users/profile2.html
 msgid "Spanish"
 msgstr "Español"
 
-#: SpotifyWrapper/settings.py:167
+#: SpotifyWrapper/settings.py users/templates/users/profile2.html
 msgid "French"
 msgstr "Francés"
 
-#: users/templates/users/profile.html:54
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Home"
+msgstr "Hogar"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Games"
+msgstr "Juegos"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Guess Top Track"
+msgstr "Adivina la pista superior"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Guess Top Album"
+msgstr "Adivina el mejor álbum"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Guess Artist"
+msgstr "Adivina el artista"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "LLM Analysis"
+msgstr "Análisis de LLM"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Profile"
+msgstr "Perfil"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Contact"
+msgstr "Contacto"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Logout"
+msgstr "Cerrar sesión"
+
+#: users/templates/users/analysis.html
+msgid "Your Music Personality Analysis"
+msgstr "Análisis de tu personalidad musical"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/profile2.html
+msgid "Toggle Theme: Light Mode"
+msgstr "Cambiar tema: Modo claro"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/profile2.html
+msgid "Toggle Theme: Dark Mode"
+msgstr "Cambiar tema: Modo oscuro"
+
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/profile2.html
+msgid "Toggle Theme: Color Mode"
+msgstr "Cambiar tema: Modo de color"
+
+#: users/templates/users/contact.html
+msgid "Contact Us"
+msgstr "Contáctenos"
+
+#: users/templates/users/contact.html
+msgid "Have a question or feedback? We'd love to hear from you."
+msgstr "¿Tiene alguna pregunta o comentario? Nos encantaría saberlo."
+
+#: users/templates/users/contact.html
+msgid "Name"
+msgstr "Nombre"
+
+#: users/templates/users/contact.html
+msgid "Select a subject"
+msgstr "Seleccione un tema"
+
+#: users/templates/users/contact.html
+msgid "General Inquiry"
+msgstr "Consulta general"
+
+#: users/templates/users/contact.html
+msgid "Technical Support"
+msgstr "Apoyo técnico"
+
+#: users/templates/users/contact.html
+msgid "Feedback"
+msgstr "Comentario"
+
+#: users/templates/users/contact.html
+msgid "Report a Bug"
+msgstr "Reportar un error"
+
+#: users/templates/users/contact.html
+msgid "Feature Request"
+msgstr "Solicitud de función"
+
+#: users/templates/users/contact.html
+msgid "Message"
+msgstr "Mensaje"
+
+#: users/templates/users/contact.html
+msgid "Send Message"
+msgstr "Enviar mensaje"
+
+#: users/templates/users/contact.html
+msgid "Additional Ways to Reach Us"
+msgstr "Otras formas de comunicarse con nosotros"
+
+#: users/templates/users/contact.html
+msgid "Email:"
+msgstr "Correo electrónico:"
+
+#: users/templates/users/contact.html
+msgid "Response Time:"
+msgstr "Tiempo de respuesta:"
+
+#: users/templates/users/contact.html
+msgid "We typically respond within 24-48 hours"
+msgstr "Normalmente respondemos en un plazo de 24 a 48 horas."
+
+#: users/templates/users/contact.html
+msgid "Hours:"
+msgstr "Horas:"
+
+#: users/templates/users/contact.html
+msgid "Monday - Friday:"
+msgstr "Lunes - Viernes:"
+
+#: users/templates/users/games.html users/templates/users/profile2.html
+msgid "Guess Clip"
+msgstr "Adivina el clip"
+
+#: users/templates/users/games.html
+msgid "Selected Game:"
+msgstr "Juego seleccionado:"
+
+#: users/templates/users/games.html
+msgid "Can you guess your #1 most played track?"
+msgstr "¿Puedes adivinar cuál es tu canción número 1 más reproducida?"
+
+#: users/templates/users/games.html
+msgid "Can you guess your #1 most played album?"
+msgstr "¿Puedes adivinar cuál es tu álbum más reproducido?"
+
+#: users/templates/users/games.html
+msgid "Can you guess your #1 most played artist?"
+msgstr "¿Puedes adivinar cuál es tu artista más escuchado #1?"
+
+#: users/templates/users/games.html
+msgid "Can you guess based on the clip?"
+msgstr "¿Puedes adivinarlo basándose en el clip?"
+
+#: users/templates/users/games.html
+msgid "Enter your guess"
+msgstr "Introduce tu conjetura"
+
+#: users/templates/users/games.html
+msgid "Make a Guess"
+msgstr "Haz una suposición"
+
+#: users/templates/users/games.html
+msgid "Attempts remaining:"
+msgstr "Intentos restantes:"
+
+#: users/templates/users/profile.html users/templates/users/profile2.html
 msgid "Your Profile"
-msgstr "Tu Perfil"
+msgstr "Tu perfil"
+
+#: users/templates/users/profile2.html
+msgid "Username:"
+msgstr "Nombre de usuario:"
+
+#: users/templates/users/profile2.html
+msgid "App Settings"
+msgstr "Configuración de la aplicación"
+
+#: users/templates/users/profile2.html
+msgid "Language:"
+msgstr "Idioma:"
+
+#: users/templates/users/profile2.html
+msgid "Update Settings"
+msgstr "Actualizar configuración"
+
+#: users/templates/users/profile2.html
+msgid "Account Management"
+msgstr "Gestión de cuentas"
+
+#: users/templates/users/profile2.html
+msgid "Delete Account"
+msgstr "Eliminar cuenta"
