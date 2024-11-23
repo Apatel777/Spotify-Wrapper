@@ -326,7 +326,6 @@ def dashboard(request):
         # Display ranked playlists
         for rank, playlist in enumerate(ranked_playlists, start=1):
             print(f"Rank {rank}: {playlist['name']} - {playlist['duration']:.2f} minutes")
-            print(playlist)
 
         # Fetch top tracks and artists for different time ranges
         top_tracks, top_artists, all_genres = {}, {}, []
@@ -748,7 +747,7 @@ def prepare_share_content(request):
             elif wrapper_type == 'Top Genres':
                 shared_content = ', '.join(f'{genre} ({count})' for genre, count in top_genres)
             elif wrapper_type == 'Top Playlists':
-                shared_content = ', '.join(f'{playlist['name']} ({playlist['duration']} ms)' for playlist in top_playlists)
+                shared_content = ', '.join(f'{playlist['name']} ({playlist['duration']} minutes)' for playlist in top_playlists)
             else:
                 return JsonResponse({'error': 'Invalid wrapper type'}, status=400)
 

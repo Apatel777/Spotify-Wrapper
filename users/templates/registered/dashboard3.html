@@ -770,15 +770,15 @@
         }
         
         function shareHTML(wrapperType) {
-            console.log("Into hHareHTML");
             return `
                 <div class="form-group">
                     <label for="subject">Subject</label>
                     <select id="subject" name="subject" required>
                         <option value="">{% trans 'Select a Social Media' %}</option>
                         <option value="Twitter">{% trans 'Twitter(X)' %}</option>
-                        <option value="Instagram">{% trans 'Instagram' %}</option>
-                        <option value="LinkedIn">{% trans 'LinkedIn' %}</option>
+                        <option value="Facebook">{% trans 'Facebook' %}</option>
+                        <option value="WhatsApp">{% trans 'WhatsApp' %}</option>
+                        <option value="Reddit">{% trans 'Reddit' %}</option>
                     </select>
                     <button onclick="socialMediaShare(document.getElementById('subject').value, '${wrapperType}')" class="share-button">{% trans 'Social Media Share' %}</button>
                 </div>
@@ -820,14 +820,19 @@
                             const twitterText = text.length > 250 ? text.substring(0, 247) + '...' : text;
                             shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(twitterText)}`;
                             break;
-
-                        case 'LinkedIn':
-                            shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent('My Top Tracks')}&summary=${encodeURIComponent(text)}`;
+                            
+                        case 'Facebook':
+                            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
                             break;
-
-                        case 'Instagram':
-                            alert('Instagram sharing is not supported via web browser. Please use the Instagram mobile app.');
-                            return;
+                            
+                        case 'WhatsApp':
+                            shareUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
+                            break;
+                            
+                        case 'Reddit':
+                            const redditText = text.length > 280 ? text.substring(0, 279) + '...' : text;
+                            shareUrl = `https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(redditText)}`;
+                            break;
 
                         default:
                             alert('Unsupported social media platform');
