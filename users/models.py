@@ -178,6 +178,7 @@ class SpotifyData(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='spotify_data')
     wrapper_type = models.CharField(max_length=20, choices=WRAPPER_TYPES)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_public = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-created_at']
@@ -385,7 +386,7 @@ def save_spotify_wrapper(user, access_token, wrapper_type):
         for playlist in top_playlists:
             playlist_id = playlist['id']
             playlist_duration_response = requests.get(
-                f'{base_url}/playlists/{playlist_id}/tracks',
+                f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks',
                 headers=headers,
             )
             tracks = playlist_duration_response.json().get('items', [])
@@ -408,19 +409,15 @@ def save_spotify_wrapper(user, access_token, wrapper_type):
 
     return spotify_data
 
-# Helper function to delete specific Spotify data based on timestamp
 def delete_spotify_wrapper(user, wrapper_type, created_at):
     """
     Delete specific Spotify data based on wrapper type and created_at timestamp.
     """
     try:
-        # Map the human-readable wrapper_type to the internal code using the model's method
         wrapper_type_code = SpotifyData.get_internal_wrapper_type(wrapper_type)
-
         if not wrapper_type_code:
             return None  # Invalid wrapper_type provided
 
-        # Find the SpotifyData instance for the given user, wrapper_type, and created_at
         spotify_data = SpotifyData.objects.filter(
             user=user,
             wrapper_type=wrapper_type_code,
@@ -430,26 +427,44 @@ def delete_spotify_wrapper(user, wrapper_type, created_at):
         if not spotify_data:
             return None  # No data found to delete
 
-        # Delete related Track objects
+        # Delete related data
         spotify_data.tracks.all().delete()
-
-        # Delete related Artist objects
         spotify_data.artists.all().delete()
-
-        # Delete related Album objects
         spotify_data.albums.all().delete()
-
-        # Delete related Genre objects
         spotify_data.genres.all().delete()
-
-        # Delete related Playlist objects
         spotify_data.playlists.all().delete()
 
-        # Finally, delete the SpotifyData instance
+        # Delete the SpotifyData instance
         spotify_data.delete()
-
         return spotify_data
 
     except Exception as e:
         logger.error(f"Error deleting Spotify data: {str(e)}")
+        return None
+
+def make_spotify_data_public(user, wrapper_type, created_at):
+    """
+    Prevent Spotify data from being deleted by marking it as protected.
+    """
+    try:
+        wrapper_type_code = SpotifyData.get_internal_wrapper_type(wrapper_type)
+        if not wrapper_type_code:
+            return None  # Invalid wrapper_type provided
+
+        spotify_data = SpotifyData.objects.filter(
+            user=user,
+            wrapper_type=wrapper_type_code,
+            created_at=created_at
+        ).first()
+
+        if not spotify_data:
+            return None  # No data found to update
+
+        # Make the data public
+        spotify_data.is_public = True
+        spotify_data.save()
+        return spotify_data
+
+    except Exception as e:
+        logger.error(f"Error making Spotify data public: {str(e)}")
         return None

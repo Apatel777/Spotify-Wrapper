@@ -13,7 +13,7 @@
             margin: 0;
             padding: 1.5rem 1.5rem 1.5rem 1.5rem;
             line-height: 1.5;
-            align-items: center;
+            align-items: center; 
             display: flex; /* Enable flexbox layout */
             flex-direction: column; /* Stack elements vertically */
         }
@@ -30,23 +30,23 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-
+        
         .navbar-brand {
             font-size: 24px;
             font-weight: 600;
             color: var(--footer-text-color);
         }
-
+        
         .navbar-links {
             list-style: none;
             display: flex;
         }
-
+        
         .navbar-links li {
             position: relative; /* Required for dropdown positioning */
             margin-right: 20px;
         }
-
+        
         .navbar-links a {
             color: var(--footer-text-color);
             text-decoration: none;
@@ -55,11 +55,11 @@
             border-radius: 4px;
             transition: background-color 0.3s ease;
         }
-
+        
         .navbar-links a:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
-
+        
         /* Dropdown menu styling */
         .dropdown-menu {
             display: none;
@@ -74,11 +74,11 @@
             padding: 10px 0;
             z-index: 1000;
         }
-
+        
         .dropdown-menu li {
             margin: 0;
         }
-
+        
         .dropdown-menu a {
             display: block;
             padding: 10px 20px;
@@ -87,11 +87,11 @@
             text-decoration: none;
             transition: background-color 0.3s ease;
         }
-
+        
         .dropdown-menu a:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
-
+        
         /* Show dropdown on hover */
         .dropdown:hover .dropdown-menu {
             display: block;
@@ -147,122 +147,231 @@
             margin-top: 10px;
             font-style: italic;
         }
+        
+        .play-button {
+            background: #1DB954;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            padding-left: 10px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            align-items: center;
+        }
+
+        .play-button:hover {
+            background: #1ed760;
+        }
+
+        .play-button.playing {
+            background: #ff5252;
+        }
+
+        .preview-unavailable {
+            color: #999;
+            font-style: italic;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
-<!-- Navigation Bar -->
-<nav class="navbar">
-    <div class="navbar-brand">SpotifyWrapper</div>
-    <ul class="navbar-links">
-        <li><a href="{% url 'dashboard' %}">{% trans 'Home' %}</a></li>
-        <li class="dropdown">
-            <a href="#" class="dropdown-trigger">{% trans 'Games' %}</a>
-            <ul class="dropdown-menu">
-                <li>{% if game_type == 'Guess Top Track' %} <a href="#">{% trans 'Guess Top Track' %}</a>
-                {% else %} <a href="{% url 'games' %}?game=0">{% trans 'Guess Top Track' %}</a>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-brand">SpotifyWrapper</div>
+        <ul class="navbar-links">
+            <li><a href="{% url 'dashboard' %}">{% trans 'Home' %}</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-trigger">{% trans 'Games' %}</a>
+                <ul class="dropdown-menu">
+                    <li>{% if game_type == 'Guess Top Track' %} <a href="#">{% trans 'Guess Top Track' %}</a>
+                        {% else %} <a href="{% url 'games' %}?game=0">{% trans 'Guess Top Track' %}</a>
+                        {% endif %}
+                    </li>
+                    <li>{% if game_type == 'Guess Top Album' %} <a href="#">{% trans 'Guess Top Album' %}</a>
+                        {% else %} <a href="{% url 'games' %}?game=1">{% trans 'Guess Top Album' %}</a>
+                        {% endif %}
+                    </li>
+                    <li>{% if game_type == 'Guess Artist' %} <a href="#">{% trans 'Guess Artist' %}</a>
+                        {% else %} <a href="{% url 'games' %}?game=2">{% trans 'Guess Artist' %}</a>
+                        {% endif %}
+                    </li>
+                    <li>{% if game_type == 'Guess Clip' %} <a href="#">{% trans 'Guess Clip' %}</a>
+                        {% else %} <a href="{% url 'games' %}?game=3">{% trans 'Guess Clip' %}</a>
+                        {% endif %}
+                    </li>
+                </ul>
+            </li>
+            <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
+            <li><a href="{% url 'wraps' %}">{% trans 'Past Wraps' %}</a></li>
+            <li><a href="{% url 'profile' %}">{% trans 'Profile' %}</a></li>
+            <li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>
+            <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <h1>{% trans 'Selected Game:' %} {{ game_type }}</h1>
+        
+        <div class="guess-box">
+            <h2>
+                {% if game_type == 'Guess Top Track' %}
+                    {% trans 'Can you guess your #1 most played track?' %}
+                {% elif game_type == 'Guess Top Album' %}
+                    {% trans 'Can you guess your #1 most played album?' %}
+                {% elif game_type == 'Guess Artist' %}
+                    {% trans 'Can you guess your #1 most played artist?' %}
+                {% else %}
+                    {% trans 'Can you guess based on the clip?' %}
                 {% endif %}
-                </li>
-                <li>{% if game_type == 'Guess Top Album' %} <a href="#">{% trans 'Guess Top Album' %}</a>
-                {% else %} <a href="{% url 'games' %}?game=1">{% trans 'Guess Top Album' %}</a>
+            </h2>
+        
+            {% if game_type == 'Guess Clip' %}
+                {% if top_tracks_clip.preview_url %}
+                    <div>
+                        <button class="play-button" onclick="togglePlay(this, '{{ top_tracks_clip.preview_url }}')">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <polygon points="5 3 19 12 5 21" />
+                            </svg>
+                        </button>
+                    </div>
+                {% else %}
+                    <span class="preview-unavailable">Preview unavailable</span>
                 {% endif %}
-                </li>
-                <li>{% if game_type == 'Guess Artist' %} <a href="#">{% trans 'Guess Artist' %}</a>
-                {% else %} <a href="{% url 'games' %}?game=2">{% trans 'Guess Artist' %}</a>
-                {% endif %}
-                </li>
-            </ul>
-        </li>
-        <<<<<<< HEAD
-        =======
-        <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
-        <li><a href="{% url 'wraps' %}">{% trans 'Past Wraps' %}</a></li>
-        >>>>>>> ray-signin
-        <li><a href="{% url 'profile' %}">{% trans 'Profile' %}</a></li>
-        <li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>
-        <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
-    </ul>
-</nav>
-<div class="container">
-    <h1>{% trans 'Selected Game:' %} {{ game_type }}</h1>
-
-    <div class="guess-box">
-        <h2>
-            {% if game_type == 'Guess Top Track' %}
-                {% trans 'Can you guess your #1 most played track?' %}
-            {% elif game_type == 'Guess Top Album' %}
-                {% trans 'Can you guess your #1 most played album?' %}
-            {% else %}
-                {% trans 'Can you guess your #1 most played artist?' %}
             {% endif %}
-        </h2>
 
-        <div class="input-group">
-            <input type="text" id="guessInput" placeholder="{% trans 'Enter your guess' %}...">
-            <button class="btn-guess" id="submitGuess">{% trans 'Make a Guess' %}</button>
+            <div class="input-group">
+                <input type="text" id="guessInput" placeholder="{% trans 'Enter your guess' %}...">
+                <button class="btn-guess" id="submitGuess">{% trans 'Make a Guess' %}</button>
+            </div>
+            
+            <div id="feedbackMessage" class="feedback"></div>
+            <div id="attemptsLeft" class="attempts"></div>
+
+            <!-- Hidden correct answer -->
+            {% if game_type == 'Guess Top Track' %}
+                <input type="hidden" id="correctAnswer" value="{{ top_tracks.name }}">
+            {% elif game_type == 'Guess Top Album' %}
+                <input type="hidden" id="correctAnswer" value="{{ top_albums.name }}">
+            {% elif game_type == 'Guess Artist' %}
+                <input type="hidden" id="correctAnswer" value="{{ top_artists.name }}">
+            {% else %}
+                <input type="hidden" id="correctAnswer" value="{{ top_tracks_clip.name }}">
+            {% endif %}
         </div>
-
-        <div id="feedbackMessage" class="feedback"></div>
-        <div id="attemptsLeft" class="attempts"></div>
-
-        <!-- Hidden correct answer -->
-        {% if game_type == 'Guess Top Track' %}
-            <input type="hidden" id="correctAnswer" value="{{ top_tracks.short_term.0.name }}">
-        {% elif game_type == 'Guess Top Album' %}
-            <input type="hidden" id="correctAnswer" value="{{ top_albums.name }}">
-        {% else %}
-            <input type="hidden" id="correctAnswer" value="{{ top_artists.short_term.0.name }}">
-        {% endif %}
     </div>
-</div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const guessInput = document.getElementById('guessInput');
-        const submitButton = document.getElementById('submitGuess');
-        const feedbackMessage = document.getElementById('feedbackMessage');
-        const attemptsLeft = document.getElementById('attemptsLeft');
-        const correctAnswer = document.getElementById('correctAnswer').value;
-        console.log(correctAnswer)
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const guessInput = document.getElementById('guessInput');
+            const submitButton = document.getElementById('submitGuess');
+            const feedbackMessage = document.getElementById('feedbackMessage');
+            const attemptsLeft = document.getElementById('attemptsLeft');
+            const correctAnswer = document.getElementById('correctAnswer').value;
+            console.log(correctAnswer)
+            
+            let attempts = 3;
+            updateAttemptsDisplay();
 
-        let attempts = 3;
-        updateAttemptsDisplay();
+            function updateAttemptsDisplay() {
+                attemptsLeft.textContent = `{% trans 'Attempts remaining:'|escapejs %} ${attempts}`;
+            }
 
-        function updateAttemptsDisplay() {
-            attemptsLeft.textContent = `Attempts remaining: ${attempts}`;
-        }
+            function checkGuess() {
+                const guess = guessInput.value.trim().toLowerCase();
+                const correct = correctAnswer.toLowerCase();
 
-        function checkGuess() {
-            const guess = guessInput.value.trim().toLowerCase();
-            const correct = correctAnswer.toLowerCase();
-
-            if (guess === correct) {
-                feedbackMessage.className = 'feedback success';
-                feedbackMessage.textContent = 'Congratulations! That\'s correct! 🎉';
-                submitButton.disabled = true;
-                guessInput.disabled = true;
-            } else {
-                attempts--;
-                updateAttemptsDisplay();
-
-                if (attempts > 0) {
-                    feedbackMessage.className = 'feedback error';
-                    feedbackMessage.textContent = 'Try again!';
-                } else {
-                    feedbackMessage.className = 'feedback error';
-                    feedbackMessage.textContent = `Game Over! The correct answer was: ${correctAnswer}`;
+                if (guess === correct) {
+                    feedbackMessage.className = 'feedback success';
+                    feedbackMessage.textContent = "{% trans "Congratulations! That's correct!:"|escapejs %} 🎉";
                     submitButton.disabled = true;
                     guessInput.disabled = true;
+                } else {
+                    attempts--;
+                    updateAttemptsDisplay();
+                    
+                    if (attempts > 0) {
+                        feedbackMessage.className = 'feedback error';
+                        feedbackMessage.textContent = "{% trans 'Try again!'|escapejs %}";
+                    } else {
+                        feedbackMessage.className = 'feedback error';
+                        feedbackMessage.textContent = `{% trans 'Game Over! The correct answer was:'|escapejs %} ${correctAnswer}`;
+                        submitButton.disabled = true;
+                        guessInput.disabled = true;
+                    }
                 }
+            }
+
+            submitButton.addEventListener('click', checkGuess);
+            guessInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkGuess();
+                }
+            });
+        });
+        
+        let currentAudio = null;
+        let currentButton = null;
+
+        function togglePlay(button, previewUrl) {
+            // If there's already a track playing
+            if (currentAudio && currentButton) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                updateButtonIcon(currentButton, false);
+
+                // If we're clicking the same button, just stop playback
+                if (currentButton === button) {
+                    currentAudio = null;
+                    currentButton = null;
+                    return;
+                }
+            }
+
+            // Play the new track
+            const audio = new Audio(previewUrl);
+            currentAudio = audio;
+            currentButton = button;
+
+            audio.play();
+            updateButtonIcon(button, true);
+
+            // When the preview ends
+            audio.onended = function() {
+                updateButtonIcon(button, false);
+                currentAudio = null;
+                currentButton = null;
+            };
+        }
+
+        function updateButtonIcon(button, isPlaying) {
+            if (isPlaying) {
+                button.innerHTML = `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="6" y="4" width="4" height="16"/>
+                        <rect x="14" y="4" width="4" height="16"/>
+                    </svg>
+                `;
+                button.classList.add('playing');
+            } else {
+                button.innerHTML = `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polygon points="5 3 19 12 5 21" />
+                    </svg>
+                `;
+                button.classList.remove('playing');
             }
         }
 
-        submitButton.addEventListener('click', checkGuess);
-        guessInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                checkGuess();
+        // Stop playback when switching tabs/closing window
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                updateButtonIcon(currentButton, false);
+                currentAudio = null;
+                currentButton = null;
             }
         });
-    });
-</script>
+    </script>
 </body>
 </html>

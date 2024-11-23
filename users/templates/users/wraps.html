@@ -193,7 +193,7 @@
     
         .tracks-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             color: black;
             gap: 10px;
         }
@@ -240,6 +240,7 @@
             </li>
             <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
             <li><a href="#">{% trans 'Past Wraps' %}</a></li>
+            <li><a href="{% url 'public_wraps' %}">{% trans 'Public Wraps' %}</a></li>
             <li><a href="{% url 'profile' %}">{% trans 'Profile' %}</a></li>
             <li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>
             <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
@@ -295,7 +296,7 @@
                         {% endfor %}
                     </div>
                 {% endif %}
-            
+
                 {% if wrap.genres %}
                     <h4>Genres</h4>
                     <div class="tracks-grid">
@@ -308,7 +309,7 @@
                         {% endfor %}
                     </div>
                 {% endif %}
-            
+
                 {% if wrap.playlists %}
                     <h4>Playlists</h4>
                     <div class="tracks-grid">
@@ -316,14 +317,15 @@
                         <div class="track-item">
                             <strong>{{ playlist.name|title }}</strong>
                             <p>Description: {{ playlist.description }}</p>
-                            <p>Duration: {{ playlist.total_duration_minutes }} ms</p>
+                            <p>Duration: {{ playlist.total_duration_minutes|floatformat:2 }} minutes</p>
                             <p>Number of Tracks: {{ playlist.track_count }}</p>
                         </div>
                         {% endfor %}
                     </div>
                 {% endif %}
-            
+
                 <button onclick="deleteSpotifyData('{{ wrap.type }}', '{{ wrap.created_at|date:'c' }}')" class="delete-spotify-btn">Delete Wrapped</button>
+                <button onclick="publicSpotifyData('{{ wrap.type }}', '{{ wrap.created_at|date:'c' }}')" class="public-spotify-btn">Make Wrapped Public</button>
             </div>
         </div>
         {% endfor %}
@@ -353,7 +355,7 @@
             console.error('No CSRF token found in cookies');
             return null;
         }
-        
+
         const lang = "{{ lang }}"
         async function deleteSpotifyData(wrapperType, created_at) {
             console.log("In Deletion Type: ", wrapperType)
@@ -384,8 +386,42 @@
                 alert('It was deleted successfully');
                 window.location.reload();
             } catch (error) {
-                console.error('Saving error:', error);
+                console.error('Delete error:', error);
                 alert('An error occurred while deleting data');
+            }
+        }
+        
+        async function publicSpotifyData(wrapperType, created_at) {
+            console.log("In Public Type: ", wrapperType)
+            console.log("In Public Time: ", created_at)
+            const csrfToken = getCookie('csrftoken');
+            
+            // Validate CSRF token before sending
+            if (!csrfToken) {
+                alert('CSRF token missing');
+                return;
+            }
+        
+            try {
+                const response = await fetch(`/{{ lang }}/handle-spotify-data/`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken  // Ensure correct header name
+                    },
+                    body: JSON.stringify({
+                        wrapper_type: wrapperType,
+                        action: "publiced",
+                        created_at: created_at
+                    })
+                });
+                
+                alert('It was made public successfully');
+                window.location.reload();
+            } catch (error) {
+                console.error('Public error:', error);
+                alert('An error occurred while making public');
             }
         }
         
