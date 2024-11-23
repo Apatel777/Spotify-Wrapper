@@ -13,9 +13,8 @@ from django.contrib.auth.hashers import make_password
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from urllib.parse import urlencode
 from .models import *
+from collections import Counter
 
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
 from datetime import datetime
 from django.utils import timezone
 from django.contrib import messages
@@ -23,7 +22,7 @@ from django.db import IntegrityError
 from django.db import transaction  # Added for atomic transactions
 from django.core.exceptions import ValidationError  # Added for validation errors
 from django.core.cache import cache
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect, csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 logger = logging.getLogger(__name__)
@@ -166,40 +165,53 @@ def spotify_callback(request):
         return redirect('signup')
 
     try:
-        # Initialize Spotify OAuth
-        sp_oauth = SpotifyOAuth(
-            client_id=settings.SPOTIFY_CLIENT_ID,
-            client_secret=settings.SPOTIFY_CLIENT_SECRET,
-            redirect_uri=settings.SPOTIFY_REDIRECT_URI,
-            scope="user-read-private user-read-email user-top-read user-read-recently-played",
-            show_dialog = True
+        # Exchange authorization code for access token
+        token_response = requests.post(
+            'https://accounts.spotify.com/api/token',
+            data={
+                'grant_type': 'authorization_code',
+                'code': code,
+                'redirect_uri': settings.SPOTIFY_REDIRECT_URI,
+                'client_id': settings.SPOTIFY_CLIENT_ID,
+                'client_secret': settings.SPOTIFY_CLIENT_SECRET
+            },
+            headers={'Content-Type': 'application/x-www-form-urlencoded'}
         )
 
-        # Clear any cached tokens
-        cache_path = sp_oauth.cache_handler.cache_path
-        if os.path.exists(cache_path):
-            os.remove(cache_path)
-
-        # Get token info
-        token_info = sp_oauth.get_access_token(code)
-        if not token_info:
+        if token_response.status_code != 200:
             logger.error("Failed to get Spotify access token")
             messages.error(request, "Failed to connect with Spotify. Please try again.")
             return redirect('signup')
 
+        token_data = token_response.json()
+        access_token = token_data['access_token']
+
         # Get Spotify user info
-        sp = spotipy.Spotify(auth=token_info['access_token'])
-        spotify_user = sp.current_user()
+        user_response = requests.get(
+            'https://api.spotify.com/v1/me',
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+
+        if user_response.status_code != 200:
+            logger.error("Failed to retrieve Spotify user info")
+            messages.error(request, "Failed to retrieve user information. Please try again.")
+            return redirect('signup')
+
+        spotify_user = user_response.json()
         spotify_id = spotify_user['id']
 
-        print("Full user object:")
-        import json
-        print(json.dumps(spotify_user, indent=2))
+        # Optional: Get playlists for verification
+        playlists_response = requests.get(
+            'https://api.spotify.com/v1/me/playlists',
+            headers={'Authorization': f'Bearer {access_token}'}
+        )
+        playlists = playlists_response.json() if playlists_response.status_code == 200 else []
 
-        # Also try getting playlists to verify the account
-        playlists = sp.current_user_playlists()
+        # Debugging/logging
+        print("Full user object:")
+        print(json.dumps(spotify_user, indent=2))
         print("\nPlaylists:")
-        for playlist in playlists['items']:
+        for playlist in playlists.get('items', []):
             print(f"- {playlist['name']}")
 
         # Check if Spotify account is already linked
@@ -225,9 +237,9 @@ def spotify_callback(request):
 
                 # Set Spotify tokens
                 success = user.set_spotify_tokens(
-                    token_info['access_token'],
-                    token_info['refresh_token'],
-                    token_info['expires_in']
+                    access_token,
+                    token_data.get('refresh_token'),
+                    token_data.get('expires_in', 3600)
                 )
                 if not success:
                     raise ValidationError("Failed to store Spotify tokens")
@@ -259,43 +271,100 @@ def dashboard(request):
 
     # Check if token needs refresh
     if user.spotify_token_expires and timezone.now() >= user.spotify_token_expires:
-        new_token = refresh_spotify_token(user)
-        if not new_token:
-            messages.error(request, "Error refreshing Spotify connection. Please try logging in again.")
+        access_token = refresh_spotify_token(user)
+        if not access_token:
+            messages.error(request, "Error refreshing Spotify connection. Please log in again.")
             return redirect('logout')
-        access_token = new_token
     else:
         access_token = user.spotify_access_token
 
     try:
-        sp = spotipy.Spotify(auth=access_token)
-        recent_tracks = sp.current_user_recently_played(limit=50)['items']
-        top_tracks = {
-            'short_term': sp.current_user_top_tracks(limit=10, time_range='short_term')['items'],
-            'medium_term': sp.current_user_top_tracks(limit=10, time_range='medium_term')['items'],
-            'long_term': sp.current_user_top_tracks(limit=10, time_range='long_term')['items'],
-        }
-        top_artists = {
-            'short_term': sp.current_user_top_artists(limit=10, time_range='short_term')['items'],
-            'medium_term': sp.current_user_top_artists(limit=10, time_range='medium_term')['items'],
-            'long_term': sp.current_user_top_artists(limit=10, time_range='long_term')['items'],
-        }
+        headers = {'Authorization': f'Bearer {access_token}'}
+        base_url = 'https://api.spotify.com/v1'
+        # Fetch recently played tracks
+        recent_tracks_response = requests.get(
+            f'{base_url}/me/player/recently-played',
+            headers=headers,
+            params={'limit': 50}
+        )
+        recent_tracks = recent_tracks_response.json().get(
+            'items', []
+        ) if recent_tracks_response.status_code == 200 else []
+
+        # Fetch the user's playlists
+        playlist_response = requests.get(
+            f'{base_url}/me/playlists',
+            headers=headers,
+        )
+        top_playlists = playlist_response.json().get(
+            'items', []
+        ) if playlist_response.status_code == 200 else []
+
+        # Add duration to each playlist and retain other information
+        for playlist in top_playlists:
+            playlist_id = playlist['id']
+            # Fetch tracks for each playlist
+            playlist_duration_response = requests.get(
+                f'{base_url}/playlists/{playlist_id}/tracks',
+                headers=headers,
+            )
+
+            tracks = playlist_duration_response.json().get(
+                'items',[]
+            ) if playlist_duration_response.status_code == 200 else []
+
+            track_durations = []
+            for item in tracks:
+                track_durations.append(item['track']['duration_ms'])  # Duration in milliseconds
+
+            total_duration_minutes = sum(track_durations) / 1000 / 60  # Convert from ms to minutes
+            playlist['duration'] = total_duration_minutes  # Add the duration as a key in the playlist data
+
+        # Sort the playlists by total duration in descending order
+        ranked_playlists = sorted(top_playlists, key=lambda x: x['duration'], reverse=True)
+
+        # Display ranked playlists
+        for rank, playlist in enumerate(ranked_playlists, start=1):
+            print(f"Rank {rank}: {playlist['name']} - {playlist['duration']:.2f} minutes")
+
+        # Fetch top tracks and artists for different time ranges
+        top_tracks, top_artists, all_genres = {}, {}, []
+        for time_range in ['short_term', 'medium_term', 'long_term']:
+            top_tracks_response = requests.get(
+                f'{base_url}/me/top/tracks',
+                headers=headers,
+                params={'limit': 10, 'time_range': time_range}
+            )
+            top_artists_response = requests.get(
+                f'{base_url}/me/top/artists',
+                headers=headers,
+                params={'limit': 10, 'time_range': time_range}
+            )
+
+            top_tracks[time_range] = top_tracks_response.json().get(
+                'items', []
+            ) if top_tracks_response.status_code == 200 else []
+
+            top_artists[time_range] = top_artists_response.json().get(
+                'items', []
+            ) if top_artists_response.status_code == 200 else []
+
+            for artist in top_artists[time_range]:
+                all_genres.extend(artist.get('genres', []))
+
+        genre_counts = Counter(all_genres)
+        top_genres = genre_counts.most_common(10)
 
         # Combine all top tracks from different time ranges
         all_top_tracks = top_tracks['short_term'] + top_tracks['medium_term'] + top_tracks['long_term']
-
-        # Extract album names from top tracks
-        top_albums = [track['album']['name'] for track in all_top_tracks]
-
-        # Count the most frequent albums
-        from collections import Counter
-        album_counts = Counter(top_albums)
-
-        # Get the most listened-to album
+        album_counts = Counter(track['album']['name'] for track in all_top_tracks)
         most_listened_album = album_counts.most_common(1)
 
+        request.session['recent_tracks'] = recent_tracks
         request.session['top_tracks'] = top_tracks
-        request.session['top_artists'] = top_artists
+        request.session['top_artists'] = top_artists['short_term']
+        request.session['top_genres'] = top_genres
+        request.session['top_playlists'] = ranked_playlists
 
         context = {
             'lang': request.LANGUAGE_CODE,
@@ -304,30 +373,36 @@ def dashboard(request):
             'spotify_connected': True,
             'recent_tracks': recent_tracks,
             'top_tracks': top_tracks,
-            'top_artists': top_artists,
-            'most_listened_album': most_listened_album[0][0] if most_listened_album else None
-            # Pass most listened album
+            'top_artists': top_artists['short_term'],
+            'top_genres': top_genres,
+            'top_playlists': ranked_playlists
         }
-        # Optionally, if you want to pass album details (name, artist, cover image)
+
         if most_listened_album:
             # You can fetch the album details from Spotify using the album ID
-            album_name = most_listened_album[0][0]
-            album = sp.search(q='album:' + album_name, type='album', limit=1)
-            if album['albums']['items']:
-                album_info = album['albums']['items'][0]
-                album_details = {
-                    'name': album_info['name'],
-                    'artist': album_info['artists'][0]['name'],
-                    'image_url': album_info['images'][0]['url'] if album_info['images'] else None,
-                }
-                context['most_listened_album_details'] = album_details
-                request.session['top_albums'] = album_details
+            album_response = requests.get(
+                'https://api.spotify.com/v1/search',
+                headers={'Authorization': f'Bearer {access_token}'},
+                params={'q': f'album:{most_listened_album[0][0]}', 'type': 'album', 'limit': 1}
+            )
 
-        return render(request, 'registered/dashboard2.html', context)
+            if album_response.status_code == 200:
+                album_items = album_response.json().get('albums', {}).get('items', [])
+                if album_items:
+                    album_info = album_items[0]
+                    album_details = {
+                        'name': album_info['name'],
+                        'artist': album_info['artists'][0]['name'] if album_info['artists'] else None,
+                        'image_url': album_info['images'][0]['url'] if album_info['images'] else None,
+                    }
+                    context['most_listened_album_details'] = album_details
+                    request.session['top_albums'] = album_details
+
+        return render(request, 'registered/dashboard3.html', context)
 
     except Exception as e:
         messages.error(request, f"Error fetching Spotify data: {str(e)}")
-        return render(request, 'registered/dashboard2.html', {
+        return render(request, 'registered/dashboard3.html', {
             'user': user,
             'theme': request.session.get('theme', 'light'),
             'spotify_connected': False
@@ -335,25 +410,12 @@ def dashboard(request):
 
 def games_view(request):
     theme = request.session.get('theme', 'light')  # Default to light mode
-    selected_game = request.GET.get('game')  # Retrieve the selected game
+    selected_game = int(request.GET.get('game', '0'))  # Retrieve the selected game
+    game_type = ["Guess Top Track", "Guess Top Album", "Guess Artist", "Guess Clip"][selected_game]
 
-    if selected_game == "0":
-        game_type = "Guess Top Track"
-    elif selected_game == "1":
-        game_type = "Guess Top Album"
-    elif selected_game == "2":
-        game_type = "Guess Artist"
-    elif selected_game == "3":
-        game_type = "Guess Clip"
-    else:
-        game_type = "Unknown Game"
-
-    top_tracks_clip = []
     try:
         # Get top tracks from session with fallback to empty dict
         top_tracks = request.session.get('top_tracks', {})
-
-        # Get short term tracks with fallback to empty list
         short_term_tracks = top_tracks.get('short_term', [])
 
         # List comprehension is more efficient than appending in a loop
@@ -365,9 +427,8 @@ def games_view(request):
         top_tracks_clip = []
 
     top_tracks = random.choice(request.session.get('top_tracks', {})['short_term'])
-    top_artists = random.choice(request.session.get('top_artists', {})['short_term'])
+    top_artists = random.choice(request.session.get('top_artists', {}))
     top_tracks_clip = random.choice(top_tracks_clip)
-
 
     context = {
         'theme': theme,
@@ -428,7 +489,7 @@ def wraps_view(request):
     wraps = []
     data_entries = SpotifyData.objects.filter(
         user=user
-    ).prefetch_related('tracks', 'artists', 'albums').order_by('-created_at')
+    ).prefetch_related('tracks', 'artists', 'albums', 'genres', 'playlists').order_by('-created_at')
 
     for entry in data_entries:
         wrap_data = {
@@ -442,8 +503,14 @@ def wraps_view(request):
         if entry.wrapper_type == 'TOP_ARTISTS':
             wrap_data['artists'] = list(entry.artists.all())
 
-        if entry.wrapper_type == 'TOP_ALBUM':
+        if entry.wrapper_type == 'TOP_ALBUMS':
             wrap_data['albums'] = list(entry.albums.all())
+
+        if entry.wrapper_type == 'TOP_GENRES':
+            wrap_data['genres'] = list(entry.genres.all())
+
+        if entry.wrapper_type == 'TOP_PLAYLISTS':
+            wrap_data['playlists'] = list(entry.playlists.all())
 
         wraps.append(wrap_data)
 
@@ -555,27 +622,36 @@ def refresh_spotify_token(user):
     Returns the new access token if successful, None if failed.
     """
     try:
-        sp_oauth = spotipy.SpotifyOAuth(
-            client_id=settings.SPOTIFY_CLIENT_ID,
-            client_secret=settings.SPOTIFY_CLIENT_SECRET,
-            redirect_uri=settings.SPOTIFY_REDIRECT_URI,
-            scope= "user-read-private user-read-email user-top-read user-read-recently-played"
+        token_response = requests.post(
+            'https://accounts.spotify.com/api/token',
+            data={
+                'grant_type': 'refresh_token',
+                'refresh_token': user.spotify_refresh_token,
+                'client_id': settings.SPOTIFY_CLIENT_ID,
+                'client_secret': settings.SPOTIFY_CLIENT_SECRET
+            },
+            headers={'Content-Type': 'application/x-www-form-urlencoded'}
         )
 
-        token_info = sp_oauth.refresh_access_token(user.spotify_refresh_token)
+        if token_response.status_code != 200:
+            logger.error(f"Failed to refresh token for user {user.id}")
+            return None
+
+        token_data = token_response.json()
 
         # Update user's token information
         success = user.set_spotify_tokens(
-            access_token=token_info['access_token'],
-            refresh_token=token_info.get('refresh_token', user.spotify_refresh_token),
-            expires_in=token_info['expires_in']
+            access_token=token_data['access_token'],
+            refresh_token=token_data.get('refresh_token', user.spotify_refresh_token),
+            expires_in=token_data['expires_in']
         )
 
-        return token_info['access_token'] if success else None
+        return token_data['access_token'] if success else None
 
     except Exception as e:
         logger.error(f"Error refreshing token for user {user.id}: {str(e)}")
         return None
+
 
 @login_required
 @ensure_csrf_cookie
@@ -606,13 +682,11 @@ def handle_spotify_data(request):
         if not access_token:
             return JsonResponse({'error': 'No valid Spotify token found'}, status=401)
 
-        sp = spotipy.Spotify(auth=access_token)
-
         if action == "saved":
             # Save the data using the helper function from models.py
             spotify_data = save_spotify_wrapper(
                 user=user,
-                sp=sp,
+                access_token=access_token,
                 wrapper_type=wrapper_type
             )
         else:
@@ -640,3 +714,56 @@ def handle_spotify_data(request):
     except Exception as e:
         logger.error(f"Error saving/deleting Spotify data: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+def prepare_share_content(request):
+    print("hi")
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            social_type = data.get('socialType')
+            wrapper_type = data.get('wrapperType')
+            print(social_type)
+            print(wrapper_type)
+
+            # Fetch user data or context (example shown)
+            recent_tracks = request.session.get('recent_tracks', [])
+            top_tracks = request.session.get('top_tracks', {})
+            top_artists = request.session.get('top_artists', [])
+            top_albums = request.session.get('top_albums', {})
+            top_genres = request.session.get('top_genres', [])
+            top_playlists = request.session.get('top_playlists', [])
+
+            # Determine content based on wrapper type
+            if wrapper_type == 'Recently Played':
+                shared_content = ', '.join(track['track']['name'] for track in recent_tracks)
+            elif wrapper_type in ['Short Term', 'Medium Term', 'Long Term']:
+                term = wrapper_type.lower().replace(' ', '_')
+                shared_content = ', '.join(track['name'] for track in top_tracks.get(term, []))
+            elif wrapper_type == 'Top Artists':
+                shared_content = ', '.join(artist['name'] for artist in top_artists)
+            elif wrapper_type == 'Top Albums':
+                shared_content = top_albums['name']
+            elif wrapper_type == 'Top Genres':
+                shared_content = ', '.join(f'{genre} ({count})' for genre, count in top_genres)
+            elif wrapper_type == 'Top Playlists':
+                shared_content = ', '.join(f'{playlist['name']} ({playlist['duration']} minutes)' for playlist in top_playlists)
+            else:
+                return JsonResponse({'error': 'Invalid wrapper type'}, status=400)
+
+            # Limit the content length
+            max_content_length = 500
+            if len(shared_content) > max_content_length:
+                shared_content = shared_content[:max_content_length - 3] + '...'
+
+            print("Shared Content:\n", shared_content)
+            # Return the prepared content
+            return JsonResponse({
+                'text': f'Check out my top tracks: {shared_content}',
+                'url': request.build_absolute_uri(),
+            })
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
