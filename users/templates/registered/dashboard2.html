@@ -40,6 +40,24 @@
             --tab-active-color: #4cb1ff; /* Bright sky blue for active tabs */
             --tab-hover-color: #ff914d; /* Vibrant orange for hover */
         }
+        .halloween-mode {
+            --bg-color: #000000;
+            --text-color: white;
+            --btn-bg-color: #ff6600;
+            --btn-hover-color: #cc5200;
+            --footer-bg-color: #1a0f00;
+            --overlay-color: rgba(255, 102, 0, 0.7);
+            --glow-color: #ff6600;
+        }  /* Christmas theme */
+        .christmas-mode {
+            --bg-color: #023020;
+            --text-color: #ffffff;
+            --btn-bg-color: #c41e3a;
+            --btn-hover-color: #a01830;
+            --footer-bg-color: #1a472a;
+            --overlay-color: rgba(196, 30, 58, 0.7);
+            --glow-color: #c41e3a;
+        }
 
 
         body {
@@ -327,9 +345,34 @@
         .theme-toggle:hover {
             background-color: var(--hover-bg-color);
         }
+        .holiday-btn {
+            position: fixed; /* Fix it to the viewport */
+            bottom: 20px; /* Distance from the bottom */
+            left: 20px; /* Distance from the left */
+            padding: 10px 15px;
+            background-color: #f44336; /* Bright red for visibility */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            opacity: 0.8; /* Slight transparency */
+            transition: transform 0.3s, opacity 0.3s; /* Smooth transition */
+            z-index: 1000; /* Ensure it appears on top of other elements */
+        }
+
+        .holiday-btn:hover {
+            transform: scale(1.1); /* Enlarge slightly on hover */
+            opacity: 1; /* Fully opaque on hover */
+        }
     </style>
 </head>
+
 <body>
+<button class="holiday-btn" onclick="toggleHolidayTheme()">Holiday Theme</button>
+<button class="theme-toggle" onclick="toggleTheme()">
+    {% trans 'Toggle Theme: Light Mode' %}
+</button>
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="navbar-brand">SpotifyWrapper</div>
@@ -886,51 +929,108 @@
         };
         
         // Function to toggle between light and dark mode
-        function toggleTheme() {
+        function toggleRegularTheme() {
             const body = document.body;
-            const btn = document.querySelector('.theme-toggle');
-            const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
-                                 body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+            const btn = document.querySelector('.toggle-btn');
 
-            if (currentTheme === 'light-mode') {
+            // Remove any holiday themes first
+            body.classList.remove('halloween-mode', 'christmas-mode');
+
+            // Switch between regular themes
+            if (body.classList.contains('light-mode')) {
                 body.classList.remove('light-mode');
                 body.classList.add('dark-mode');
-                btn.textContent = THEME_LABELS.color;
-                localStorage.setItem('theme', 'dark-mode');
-            } else if (currentTheme === 'dark-mode') {
+                btn.textContent = 'Color Mode'; // Update button text for dark mode
+            } else if (body.classList.contains('dark-mode')) {
                 body.classList.remove('dark-mode');
                 body.classList.add('color-mode');
-                btn.textContent = THEME_LABELS.light;
-                localStorage.setItem('theme', 'color-mode');
+                btn.textContent = 'Light Mode'; // Update button text for color mode
             } else {
                 body.classList.remove('color-mode');
                 body.classList.add('light-mode');
-                btn.textContent = THEME_LABELS.dark;
-                localStorage.setItem('theme', 'light-mode');
+                btn.textContent = 'Dark Mode'; // Update button text for light mode
             }
+
+            // Save the theme
+            localStorage.setItem('theme', body.classList[0]);
+            localStorage.setItem('holidayMode', 'off');
         }
 
-        function applySavedMode() {
-            const savedTheme = localStorage.getItem('theme');
+        // Function to toggle between holiday themes
+        function toggleHolidayTheme() {
             const body = document.body;
-            const btn = document.querySelector('.theme-toggle');
+            const holidayBtn = document.querySelector('.holiday-btn');
+            const currentTheme = body.classList.contains('halloween-mode') ? 'halloween-mode' :
+                body.classList.contains('christmas-mode') ? 'christmas-mode' : 'none';
 
-            if (savedTheme === 'light-mode') {
-                body.classList.add('light-mode');
-                btn.textContent = THEME_LABELS.dark;
-            } else if (savedTheme === 'dark-mode') {
-                body.classList.add('dark-mode');
-                btn.textContent = THEME_LABELS.color;
-            } else if (savedTheme === 'color-mode') {
-                body.classList.add('color-mode');
-                btn.textContent = THEME_LABELS.light;
+            // Remove all regular themes first
+            body.classList.remove('light-mode', 'dark-mode', 'color-mode');
+
+            // Switch between holiday modes
+            if (currentTheme === 'none') {
+                body.classList.add('halloween-mode');
+                holidayBtn.textContent = 'Halloween Mode';
+            } else if (currentTheme === 'halloween-mode') {
+                body.classList.remove('halloween-mode');
+                body.classList.add('christmas-mode');
+                holidayBtn.textContent = 'Christmas Mode';
             } else {
-                body.classList.add('light-mode');
-                btn.textContent = THEME_LABELS.dark;
+                body.classList.remove('christmas-mode');
+                body.classList.add('light-mode'); // Return to default theme
+                holidayBtn.textContent = 'Holiday Theme';
+            }
+
+            // Save the theme
+            localStorage.setItem('theme', body.classList[0]);
+            localStorage.setItem('holidayMode', 'on');
+        }
+
+        // Function to apply the saved theme
+        function applySavedTheme() {
+            const body = document.body;
+            const regularBtn = document.querySelector('.toggle-btn');
+            const holidayBtn = document.querySelector('.holiday-btn');
+
+            // Check the current date and set the theme for specific holidays
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth(); // 0-11 (0 is January, 11 is December)
+            const currentDay = currentDate.getDate(); // 1-31
+
+            // Automatically switch to Halloween on October 31st and Christmas on December 25th
+            if (currentMonth === 9 && currentDay === 31) { // October 31st
+                body.classList.add('halloween-mode');
+                holidayBtn.textContent = 'Halloween Mode';
+            } else if (currentMonth === 11 && currentDay === 25) { // December 25th
+                body.classList.add('christmas-mode');
+                holidayBtn.textContent = 'Christmas Mode';
+            } else {
+                // Apply saved theme if it's not a holiday
+                const savedTheme = localStorage.getItem('theme') || 'light-mode';
+                const holidayMode = localStorage.getItem('holidayMode') || 'off';
+
+                body.classList.add(savedTheme);
+
+                // Update button text based on current theme
+                if (holidayMode === 'on') {
+                    if (savedTheme === 'halloween-mode') {
+                        holidayBtn.textContent = 'Halloween Mode';
+                    } else if (savedTheme === 'christmas-mode') {
+                        holidayBtn.textContent = 'Christmas Mode';
+                    }
+                } else {
+                    if (savedTheme === 'light-mode') {
+                        regularBtn.textContent = 'Dark Mode';
+                    } else if (savedTheme === 'dark-mode') {
+                        regularBtn.textContent = 'Color Mode';
+                    } else {
+                        regularBtn.textContent = 'Light Mode';
+                    }
+                }
             }
         }
 
-        window.onload = applySavedMode;
+        // Apply the saved theme when the page loads
+        window.onload = applySavedTheme;
     </script>
 </body>
 </html>
