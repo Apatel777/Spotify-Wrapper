@@ -34,6 +34,7 @@
             --footer-bg-color: #4a4ad4; /* Slightly darker footer background */
             --overlay-color: rgba(255, 255, 255, 0.7); /* Light overlay */
         }
+
         .halloween-mode {
             --bg-color: #000000;
             --text-color: white;
@@ -42,7 +43,9 @@
             --footer-bg-color: #1a0f00;
             --overlay-color: rgba(255, 102, 0, 0.7);
             --glow-color: #ff6600;
-        }  /* Christmas theme */
+        }
+
+        /* Christmas theme */
         .christmas-mode {
             --bg-color: #023020;
             --text-color: #ffffff;
@@ -52,8 +55,8 @@
             --overlay-color: rgba(196, 30, 58, 0.7);
             --glow-color: #c41e3a;
         }
-        
 
+        /* Base styles for body and html */
         body, html {
             margin: 0;
             padding: 0;
@@ -64,10 +67,10 @@
             overflow: hidden;
         }
 
-        /* Animated background for dark mode */
+        /* .hero styling for background gradient and animation */
         .hero {
             height: 100vh;
-            background: linear-gradient(135deg, #39005e, #1d0033);
+            background: linear-gradient(135deg, #39005e, #1d0033); /* Default background */
             background-size: 200% 200%;
             display: flex;
             flex-direction: column;
@@ -78,20 +81,155 @@
             overflow: hidden;
             animation: gradient-animation 12s ease infinite;
         }
+
+        /* Halloween Mode Hero Background */
         .halloween-mode .hero {
             background: linear-gradient(135deg, #000000, #ff6600, #663300);
             background-size: 200% 200%;
             animation: gradient-animation 12s ease infinite;
         }
 
+        /* Christmas Mode Hero Background */
         .christmas-mode .hero {
             background: linear-gradient(135deg, #023020, #c41e3a, #ffffff);
             background-size: 200% 200%;
             animation: gradient-animation 12s ease infinite;
         }
 
-      
-        .theme-select:hover {
+        /* Keyframes for gradient animation */
+        @keyframes gradient-animation {
+            0% { background-position: 200% 0%; }
+            100% { background-position: 0% 100%; }
+        }
+
+        /* Button styling */
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background-color: var(--btn-bg-color);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            text-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color);
+        }
+
+        .btn:hover {
+            background-color: var(--btn-hover-color);
+            animation: pulse 0.6s infinite;
+        }
+
+        /* Button pulse effect */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Footer styling */
+        footer {
+            background-color: var(--footer-bg-color);
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        /* Snowflake animation for Christmas */
+        .snowflake {
+            position: absolute;
+            top: -10%;
+            font-size: 2em;
+            color: #fff;
+            animation: snowflakes 10s linear infinite;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .snowflake:nth-child(odd) {
+            animation-duration: 12s;
+        }
+
+        .snowflake:before {
+            content: "❄";
+        }
+
+        @keyframes snowflakes {
+            0% { top: -10%; }
+            100% { top: 100%; }
+        }
+
+        /* Christmas Lights */
+        .lights {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .light-bulb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: red;
+            animation: twinkle 1s infinite alternate;
+        }
+
+        .light-bulb:nth-child(odd) {
+            background-color: green;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        /* Content Styling */
+        .content {
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1, h2, p {
+            text-shadow: 0 0 15px var(--glow-color), 0 0 30px var(--glow-color);
+        }
+</head>
+<body class="christmas-mode">
+
+<!-- Hero Section with Background -->
+<div class="hero">
+    <h1>Welcome to the Christmas Wonderland!</h1>
+    <p>Enjoy the festive atmosphere with snowfall and glowing decorations!</p>
+    <button class="btn">Get into the Christmas Spirit</button>
+</div>
+
+<!-- Snowflakes -->
+<div class="snowflake" style="left: 10%; animation-duration: 15s;"></div>
+<div class="snowflake" style="left: 30%; animation-duration: 13s;"></div>
+<div class="snowflake" style="left: 50%; animation-duration: 20s;"></div>
+<div class="snowflake" style="left: 70%; animation-duration: 18s;"></div>
+<div class="snowflake" style="left: 90%; animation-duration: 16s;"></div>
+
+<!-- Christmas Lights -->
+<div class="lights">
+    <div class="light-bulb"></div>
+    <div class="light-bulb"></div>
+    <div class="light-bulb"></div>
+    <div class="light-bulb"></div>
+    <div class="light-bulb"></div>
+</div>
+
+<!-- Footer -->
+<footer>
+    <p>Happy Holidays from All of Us!</p>
+</footer>
+
+</body>
+
+.theme-select:hover {
             background-color: var(--btn-hover-color);
         }
 
@@ -263,7 +401,7 @@
 
         .toggle-btn:hover {
             background-color: var(--btn-hover-color);
-        
+
         }
         .holiday-btn {
             background-color: transparent; /* No background color */
@@ -282,9 +420,9 @@
         }
 
         .holiday-btn:hover {
-           
+
             transform: scale(1.1); /* Make the emoji slightly bigger */
-         
+
             opacity: 1; /* Make it fully visible on hover */
         }
 
@@ -390,43 +528,50 @@
         const regularBtn = document.querySelector('.toggle-btn');
         const holidayBtn = document.querySelector('.holiday-btn');
 
-        // Check the current date and set the theme for specific holidays
+        // Check the current date for automatic holiday themes
         const currentDate = new Date();
-        const currentMonth = currentDate.getMonth(); // 0-11 (0 is January, 11 is December)
-        const currentDay = currentDate.getDate(); // 1-31
+        const currentMonth = currentDate.getMonth();
+        const currentDay = currentDate.getDate();
 
-        // Automatically switch to Halloween on October 31st and Christmas on December 25th
-        if (currentMonth === 9 && currentDay === 31) { // October 31st
+        if (currentMonth === 9 && currentDay === 31) { // Halloween
             body.classList.add('halloween-mode');
             holidayBtn.textContent = 'Halloween Mode';
-        } else if (currentMonth === 11 && currentDay === 25) { // December 25th
+            localStorage.setItem('theme', 'halloween-mode');
+            localStorage.setItem('holidayMode', 'on');
+            return;
+        } else if (currentMonth === 11 && currentDay === 25) { // Christmas
             body.classList.add('christmas-mode');
             holidayBtn.textContent = 'Christmas Mode';
+            localStorage.setItem('theme', 'christmas-mode');
+            localStorage.setItem('holidayMode', 'on');
+            return;
+        }
+
+        // Apply saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light-mode';
+        const holidayMode = localStorage.getItem('holidayMode') || 'off';
+
+        body.classList.remove('light-mode', 'dark-mode', 'color-mode', 'halloween-mode', 'christmas-mode');
+        body.classList.add(savedTheme);
+
+        // Update button text
+        if (holidayMode === 'on') {
+            if (savedTheme === 'halloween-mode') {
+                holidayBtn.textContent = 'Halloween Mode';
+            } else if (savedTheme === 'christmas-mode') {
+                holidayBtn.textContent = 'Christmas Mode';
+            }
         } else {
-            // Apply saved theme if it's not a holiday
-            const savedTheme = localStorage.getItem('theme') || 'light-mode';
-            const holidayMode = localStorage.getItem('holidayMode') || 'off';
-
-            body.classList.add(savedTheme);
-
-            // Update button text based on current theme
-            if (holidayMode === 'on') {
-                if (savedTheme === 'halloween-mode') {
-                    holidayBtn.textContent = 'Halloween Mode';
-                } else if (savedTheme === 'christmas-mode') {
-                    holidayBtn.textContent = 'Christmas Mode';
-                }
+            if (savedTheme === 'light-mode') {
+                regularBtn.textContent = 'Dark Mode';
+            } else if (savedTheme === 'dark-mode') {
+                regularBtn.textContent = 'Color Mode';
             } else {
-                if (savedTheme === 'light-mode') {
-                    regularBtn.textContent = 'Dark Mode';
-                } else if (savedTheme === 'dark-mode') {
-                    regularBtn.textContent = 'Color Mode';
-                } else {
-                    regularBtn.textContent = 'Light Mode';
-                }
+                regularBtn.textContent = 'Light Mode';
             }
         }
     }
+
 
     // Apply the saved theme when the page loads
     window.onload = applySavedTheme;

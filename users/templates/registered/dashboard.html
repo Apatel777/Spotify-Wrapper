@@ -217,7 +217,7 @@
         }
 
         /* Toggle Button */
-        .toggle-btn, .holiday-btn {
+        .toggle-btn {
             background-color: var(--btn-bg-color);
             color: white;
             border: none;
@@ -228,8 +228,30 @@
             transition: background-color 0.3s;
         }
 
-        .toggle-btn:hover, .holiday-btn:hover {
+        .toggle-btn:hover {
             background-color: var(--btn-hover-color);
+        }
+        .holiday-btn {
+            background-color: transparent; /* No background color */
+            color: green;
+            border: none;
+            padding: 5px 10px; /* Smaller padding */
+            cursor: pointer;
+            font-size: 5.5em; /* Make the emoji a reasonable size */
+            border-radius: 50%; /* Make it round */
+            position: absolute;
+            top: 20px;
+            left: 20px; /* Position on the left side */
+            z-index: 2;
+            transition: background-color 0.3s, transform 0.3s, opacity 0.3s;
+            opacity: 0.8; /* Slightly transparent */
+        }
+
+        .holiday-btn:hover {
+
+            transform: scale(1.1); /* Make the emoji slightly bigger */
+
+            opacity: 1; /* Make it fully visible on hover */
         }
     </style>
     
@@ -237,10 +259,9 @@
 </head>
 <body>
 
-<div style="display: flex; gap: 10px; margin: 10px;">
-    <button class="toggle-btn" onclick="toggleRegularTheme()">Light Mode</button>
-    <button class="holiday-btn" onclick="toggleHolidayTheme()">Holiday Theme</button>
-</div>
+<button class="toggle-btn" onclick="toggleRegularTheme()">Light Mode</button>
+<!-- Holiday Theme Button on the left -->
+<button class="holiday-btn" onclick="toggleHolidayTheme()">Holiday Theme</button>
 
     <!-- Navigation Bar -->
 
@@ -612,25 +633,32 @@
         function toggleHolidayTheme() {
             const body = document.body;
             const holidayBtn = document.querySelector('.holiday-btn');
+            const currentTheme = body.classList.contains('halloween-mode') ? 'halloween-mode' :
+                body.classList.contains('christmas-mode') ? 'christmas-mode' : 'none';
 
-            if (body.classList.contains('halloween-mode')) {
+            // Remove all regular themes first
+            body.classList.remove('light-mode', 'dark-mode', 'color-mode');
+
+            // Switch between holiday modes
+            if (currentTheme === 'none') {
+                body.classList.add('halloween-mode');
+                holidayBtn.textContent = 'Halloween Mode';
+            } else if (currentTheme === 'halloween-mode') {
                 body.classList.remove('halloween-mode');
                 body.classList.add('christmas-mode');
                 holidayBtn.textContent = 'Christmas Mode';
-            } else if (body.classList.contains('christmas-mode')) {
-                body.classList.remove('christmas-mode');
-                holidayBtn.textContent = 'Holiday Theme';
             } else {
-                body.classList.add('halloween-mode');
-                holidayBtn.textContent = 'Halloween Mode';
+                body.classList.remove('christmas-mode');
+                body.classList.add('light-mode'); // Return to default theme
+                holidayBtn.textContent = 'Holiday Theme';
             }
 
+            // Save the theme
             localStorage.setItem('theme', body.classList[0]);
             localStorage.setItem('holidayMode', 'on');
         }
 
-
-        // Function to apply the saved theme from localStorage
+        // Function to apply the saved theme
         function applySavedTheme() {
             const body = document.body;
             const regularBtn = document.querySelector('.toggle-btn');

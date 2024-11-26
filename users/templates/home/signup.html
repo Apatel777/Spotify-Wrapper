@@ -183,12 +183,17 @@
         }
 
         .holiday-btn:hover {
+
             transform: scale(1.1); /* Make the emoji slightly bigger */
+
             opacity: 1; /* Make it fully visible on hover */
         }
+
+
     </style>
 </head>
 <body>
+
 
 <!-- Dark/Light Mode Toggle -->
 <button class="toggle-btn" onclick="toggleRegularTheme()">Light Mode</button>
@@ -244,6 +249,8 @@
             localStorage.setItem('theme', body.classList[0]);
             localStorage.setItem('holidayMode', 'off');
         }
+
+        // Function to toggle between holiday themes
         function toggleHolidayTheme() {
             const body = document.body;
             const holidayBtn = document.querySelector('.holiday-btn');
@@ -271,50 +278,60 @@
             localStorage.setItem('theme', body.classList[0]);
             localStorage.setItem('holidayMode', 'on');
         }
-        
-        // Function to apply the saved theme from localStorage
+
+        // Function to apply the saved theme
         function applySavedTheme() {
             const body = document.body;
             const regularBtn = document.querySelector('.toggle-btn');
             const holidayBtn = document.querySelector('.holiday-btn');
 
-            // Check the current date and set the theme for specific holidays
+            // Check the current date for automatic holiday themes
             const currentDate = new Date();
-            const currentMonth = currentDate.getMonth(); // 0-11 (0 is January, 11 is December)
-            const currentDay = currentDate.getDate(); // 1-31
+            const currentMonth = currentDate.getMonth();
+            const currentDay = currentDate.getDate();
 
-            // Automatically switch to Halloween on October 31st and Christmas on December 25th
-            if (currentMonth === 9 && currentDay === 31) { // October 31st
+            if (currentMonth === 9 && currentDay === 31) { // Halloween
                 body.classList.add('halloween-mode');
                 holidayBtn.textContent = 'Halloween Mode';
-            } else if (currentMonth === 11 && currentDay === 25) { // December 25th
+                localStorage.setItem('theme', 'halloween-mode');
+                localStorage.setItem('holidayMode', 'on');
+                return;
+            } else if (currentMonth === 11 && currentDay === 25) { // Christmas
                 body.classList.add('christmas-mode');
                 holidayBtn.textContent = 'Christmas Mode';
+                localStorage.setItem('theme', 'christmas-mode');
+                localStorage.setItem('holidayMode', 'on');
+                return;
+            }
+
+            // Apply saved theme
+            const savedTheme = localStorage.getItem('theme') || 'light-mode';
+            const holidayMode = localStorage.getItem('holidayMode') || 'off';
+
+            body.classList.remove('light-mode', 'dark-mode', 'color-mode', 'halloween-mode', 'christmas-mode');
+            body.classList.add(savedTheme);
+
+            // Update button text
+            if (holidayMode === 'on') {
+                if (savedTheme === 'halloween-mode') {
+                    holidayBtn.textContent = 'Halloween Mode';
+                } else if (savedTheme === 'christmas-mode') {
+                    holidayBtn.textContent = 'Christmas Mode';
+                }
             } else {
-                // Apply saved theme if it's not a holiday
-                const savedTheme = localStorage.getItem('theme') || 'light-mode';
-                const holidayMode = localStorage.getItem('holidayMode') || 'off';
-
-                body.classList.add(savedTheme);
-
-                // Update button text based on current theme
-                if (holidayMode === 'on') {
-                    if (savedTheme === 'halloween-mode') {
-                        holidayBtn.textContent = 'Halloween Mode';
-                    } else if (savedTheme === 'christmas-mode') {
-                        holidayBtn.textContent = 'Christmas Mode';
-                    }
+                if (savedTheme === 'light-mode') {
+                    regularBtn.textContent = 'Dark Mode';
+                } else if (savedTheme === 'dark-mode') {
+                    regularBtn.textContent = 'Color Mode';
                 } else {
-                    if (savedTheme === 'light-mode') {
-                        regularBtn.textContent = 'Dark Mode';
-                    } else if (savedTheme === 'dark-mode') {
-                        regularBtn.textContent = 'Color Mode';
-                    } else {
-                        regularBtn.textContent = 'Light Mode';
-                    }
+                    regularBtn.textContent = 'Light Mode';
                 }
             }
         }
+
+
+
+
         // Apply the saved theme when the page loads
         window.onload = applySavedTheme;
     </script>
