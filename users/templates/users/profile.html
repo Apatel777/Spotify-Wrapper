@@ -28,7 +28,7 @@
             --footer-bg-color: #e6dbff; /* Dark purple for footer */
             --footer-text-color: #29004b; /* Dark purple for footer */
         }
-        
+
         .color-mode {
             --bg-color: #5e5ed2; /* Deep purple for dark mode background */
             --profile-bg-color: #f7f7fc; /* Deep purple for dark mode background */
@@ -39,14 +39,14 @@
             --footer-bg-color: #454597; /* Dark purple for footer */
             --footer-text-color: white; /* Dark purple for footer */
         }
-        
+
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
             background-color: var(--bg-color);
             color: var(--text-color);
         }
-        
+
         /* Toggle Button */
         .toggle-btn {
             background-color: var(--btn-bg-color);
@@ -57,11 +57,11 @@
             border-radius: 5px;
             margin-top: 10px;
         }
-        
+
         button:hover {
             background-color: var(--btn-hover-color);
         }
-        
+
         /* Navbar styling */
         .navbar {
             background-color: var(--footer-bg-color);
@@ -93,7 +93,7 @@
             text-decoration: none;
             font-size: 18px;
         }
-        
+
         .profile-container {
             background-color: var(--profile-bg-color);
             color: var(--text-color);
@@ -103,7 +103,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         .profile-container button {
             padding: 10px 20px;
             margin-top: 5px;
@@ -115,7 +115,7 @@
             font-weight: 600;
             cursor: pointer;
         }
-        
+
         h1 {
             font-size: 24px;
             margin-bottom: 20px;
@@ -138,16 +138,16 @@
         .settings button:hover {
             background-color: var(--btn-hover-color);
         }
-        
+
         .delete-account {
             text-align: center;
             margin-top: 20px;
         }
-        
+
         .delete-account button {
             background-color: var(--btn-delete-color);
         }
-        
+
     </style>
 </head>
 <body>
@@ -181,7 +181,7 @@
                 <button type="submit">Update Settings</button>
             </div>
         </form>
-        
+
         <form method="POST" action="{% url 'delete_account' %}">
             {% csrf_token %}
             <div class="delete-account">
@@ -198,7 +198,7 @@
             const btn = document.querySelector('.toggle-btn');
             const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
                                  body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
-        
+
             // Switch between modes
             if (currentTheme === 'light-mode') {
                 body.classList.remove('light-mode');
@@ -217,13 +217,13 @@
                 localStorage.setItem('theme', 'light-mode');
             }
         }
-        
+
         // Function to apply the saved theme from localStorage
         function applySavedMode() {
             const savedTheme = localStorage.getItem('theme');
             const body = document.body;
             const btn = document.querySelector('.toggle-btn');
-        
+
             // Apply the saved theme if it exists
             if (savedTheme === 'light-mode') {
                 body.classList.add('light-mode');
@@ -240,7 +240,7 @@
                 btn.textContent = 'Dark Mode';
             }
         }
-    
+
         // Call applySavedMode on page load to apply the correct theme
         window.onload = applySavedMode;
     </script>

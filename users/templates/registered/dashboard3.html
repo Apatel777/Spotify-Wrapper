@@ -16,7 +16,6 @@
             --card-bg-color: #ffffff;
             --card-border-color: #e5e7eb;
             --hover-bg-color: #f9fafb;
-            --tab-active-color: #6366f1;
             --tab-hover-color: #4f46e5;
         }
 
@@ -27,7 +26,6 @@
             --card-bg-color: #1f2937;
             --card-border-color: #374151;
             --hover-bg-color: #374151;
-            --tab-active-color: #818cf8;
             --tab-hover-color: #6366f1;
         }
         
@@ -38,8 +36,29 @@
             --card-bg-color: #ffebc5; /* Soft peach for cards */
             --card-border-color: #f5a623; /* Bright orange border */
             --hover-bg-color: #ffcd94; /* Lighter peach for hover */
-            --tab-active-color: #4cb1ff; /* Bright sky blue for active tabs */
             --tab-hover-color: #ff914d; /* Vibrant orange for hover */
+        }
+        
+        .halloween-mode {
+            --bg-color: #000000;
+            --text-color: black;
+            --btn-bg-color: #ff6600;
+            --btn-hover-color: #cc5200;
+            --footer-bg-color: #1a0f00;
+            --overlay-color: rgba(255, 102, 0, 0.7);
+            --glow-color: #ff6600;
+            --theme-text-color: black;
+        }  /* Christmas theme */
+        
+        .christmas-mode {
+            --bg-color: #023020;
+            --text-color: black;
+            --btn-bg-color: #c41e3a;
+            --btn-hover-color: #a01830;
+            --footer-bg-color: #1a472a;
+            --overlay-color: rgba(196, 30, 58, 0.7);
+            --glow-color: #c41e3a;
+            --theme-text-color: black;
         }
 
         body {
@@ -69,6 +88,7 @@
             align-items: center;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 999;
         }
 
         .navbar-brand {
@@ -97,6 +117,10 @@
 
         .navbar-links a:hover {
             background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .dropdown {
+            position: relative;
         }
 
         /* Dropdown menu styling */
@@ -134,11 +158,13 @@
         /* Show dropdown on hover */
         .dropdown:hover .dropdown-menu {
             display: block;
+            z-index: 1000;
         }
 
         .dashboard {
             width: 85%;
             margin: 100px auto 0 auto;
+            color: white;
         }
         
         /* Animated Gradient Background for Cards */
@@ -171,7 +197,6 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             cursor: pointer;
             position: relative;
-            color: white;
         }
 
         .card-header {
@@ -216,7 +241,6 @@
             border-radius: 9999px;
             background-color: var(--card-bg-color);
             border: 1px solid var(--card-border-color);
-            color: var(--text-color);
             font-weight: 500;
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -348,9 +372,33 @@
         .theme-toggle:hover {
             background-color: var(--hover-bg-color);
         }
+        .holiday-btn {
+            background-color: transparent; /* No background color */
+            color: var(--text-color);
+            border: none;
+            padding: 5px 10px; /* Smaller padding */
+            cursor: pointer;
+            font-size: .5em; /* Make the emoji a reasonable size */
+            border-radius: 50%; /* Make it round */
+            position: absolute;
+            top: 800px;
+            left: 8px; /* Position on the left side */
+            z-index: 2;
+            transition: background-color 0.3s, transform 0.3s, opacity 0.3s;
+            opacity: 0.8; /* Slightly transparent */
+        }
+
+        .holiday-btn:hover {
+
+            transform: scale(1.1); /* Make the emoji slightly bigger */
+
+            opacity: 1; /* Make it fully visible on hover */
+        }
     </style>
 </head>
 <body class="p-8">
+    <button class="holiday-btn" onclick="toggleHolidayTheme()">Holiday Theme</button>
+
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="navbar-brand">SpotifyWrapper</div>
@@ -372,7 +420,7 @@
             <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
         </ul>
     </nav>
-    <div class = dashboard>
+    <div class="dashboard">
         <div id="dashboard" class="container grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="card p-6 rounded-xl cursor-pointer" onclick="expandCard('recently-played')">
                 <div class="flex items-center mb-4">
@@ -472,7 +520,7 @@
     
         <div id="expanded-view" class="hidden centered"></div>
         
-        <button class="theme-toggle" onclick="toggleTheme()">
+        <button class="theme-toggle" onclick="toggleRegularTheme()">
             {% trans 'Toggle Theme: Light Mode' %}
         </button>
     </div>
@@ -969,51 +1017,115 @@
         };
         
         // Function to toggle between light and dark mode
-        function toggleTheme() {
+        function toggleRegularTheme() {
             const body = document.body;
-            const btn = document.querySelector('.theme-toggle');
-            const currentTheme = body.classList.contains('light-mode') ? 'light-mode' :
-                                 body.classList.contains('dark-mode') ? 'dark-mode' : 'color-mode';
+            const btn = document.querySelector('.toggle-btn');
 
-            if (currentTheme === 'light-mode') {
+            // Remove any holiday themes first
+            body.classList.remove('halloween-mode', 'christmas-mode');
+
+            // Switch between regular themes
+            if (body.classList.contains('light-mode')) {
                 body.classList.remove('light-mode');
                 body.classList.add('dark-mode');
-                btn.textContent = THEME_LABELS.color;
-                localStorage.setItem('theme', 'dark-mode');
-            } else if (currentTheme === 'dark-mode') {
+                btn.textContent = 'Color Mode'; // Update button text for dark mode
+            } else if (body.classList.contains('dark-mode')) {
                 body.classList.remove('dark-mode');
                 body.classList.add('color-mode');
-                btn.textContent = THEME_LABELS.light;
-                localStorage.setItem('theme', 'color-mode');
+                btn.textContent = 'Light Mode'; // Update button text for color mode
             } else {
                 body.classList.remove('color-mode');
                 body.classList.add('light-mode');
-                btn.textContent = THEME_LABELS.dark;
-                localStorage.setItem('theme', 'light-mode');
+                btn.textContent = 'Dark Mode'; // Update button text for light mode
             }
+
+            // Save the theme
+            localStorage.setItem('theme', body.classList[0]);
+            localStorage.setItem('holidayMode', 'off');
         }
 
-        function applySavedMode() {
-            const savedTheme = localStorage.getItem('theme');
+        // Function to toggle between holiday themes
+        function toggleHolidayTheme() {
             const body = document.body;
-            const btn = document.querySelector('.theme-toggle');
+            const holidayBtn = document.querySelector('.holiday-btn');
+            const currentTheme = body.classList.contains('halloween-mode') ? 'halloween-mode' :
+                body.classList.contains('christmas-mode') ? 'christmas-mode' : 'none';
 
-            if (savedTheme === 'light-mode') {
-                body.classList.add('light-mode');
-                btn.textContent = THEME_LABELS.dark;
-            } else if (savedTheme === 'dark-mode') {
-                body.classList.add('dark-mode');
-                btn.textContent = THEME_LABELS.color;
-            } else if (savedTheme === 'color-mode') {
-                body.classList.add('color-mode');
-                btn.textContent = THEME_LABELS.light;
+            // Remove all regular themes first
+            body.classList.remove('light-mode', 'dark-mode', 'color-mode');
+
+            // Switch between holiday modes
+            if (currentTheme === 'none') {
+                body.classList.add('halloween-mode');
+                holidayBtn.textContent = 'Halloween Mode';
+            } else if (currentTheme === 'halloween-mode') {
+                body.classList.remove('halloween-mode');
+                body.classList.add('christmas-mode');
+                holidayBtn.textContent = 'Christmas Mode';
             } else {
-                body.classList.add('light-mode');
-                btn.textContent = THEME_LABELS.dark;
+                body.classList.remove('christmas-mode');
+                body.classList.add('light-mode'); // Return to default theme
+                holidayBtn.textContent = 'Holiday Theme';
+            }
+
+            // Save the theme
+            localStorage.setItem('theme', body.classList[0]);
+            localStorage.setItem('holidayMode', 'on');
+        }
+
+        // Function to apply the saved theme
+        function applySavedTheme() {
+            const body = document.body;
+            const regularBtn = document.querySelector('.toggle-btn');
+            const holidayBtn = document.querySelector('.holiday-btn');
+
+            // Check the current date for automatic holiday themes
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth();
+            const currentDay = currentDate.getDate();
+
+            if (currentMonth === 9 && currentDay === 31) { // Halloween
+                body.classList.add('halloween-mode');
+                holidayBtn.textContent = 'Halloween Mode';
+                localStorage.setItem('theme', 'halloween-mode');
+                localStorage.setItem('holidayMode', 'on');
+                return;
+            } else if (currentMonth === 11 && currentDay === 25) { // Christmas
+                body.classList.add('christmas-mode');
+                holidayBtn.textContent = 'Christmas Mode';
+                localStorage.setItem('theme', 'christmas-mode');
+                localStorage.setItem('holidayMode', 'on');
+                return;
+            }
+
+            // Apply saved theme
+            const savedTheme = localStorage.getItem('theme') || 'light-mode';
+            const holidayMode = localStorage.getItem('holidayMode') || 'off';
+
+            body.classList.remove('light-mode', 'dark-mode', 'color-mode', 'halloween-mode', 'christmas-mode');
+            body.classList.add(savedTheme);
+
+            // Update button text
+            if (holidayMode === 'on') {
+                if (savedTheme === 'halloween-mode') {
+                    holidayBtn.textContent = 'Halloween Mode';
+                } else if (savedTheme === 'christmas-mode') {
+                    holidayBtn.textContent = 'Christmas Mode';
+                }
+            } else {
+                if (savedTheme === 'light-mode') {
+                    regularBtn.textContent = 'Dark Mode';
+                } else if (savedTheme === 'dark-mode') {
+                    regularBtn.textContent = 'Color Mode';
+                } else {
+                    regularBtn.textContent = 'Light Mode';
+                }
             }
         }
 
-        window.onload = applySavedMode;
+
+        // Apply the saved theme when the page loads
+        window.onload = applySavedTheme;
     </script>
 </body>
 </html>
