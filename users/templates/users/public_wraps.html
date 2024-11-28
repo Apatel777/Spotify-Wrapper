@@ -59,8 +59,7 @@
             --overlay-color: rgba(196, 30, 58, 0.7);
             --glow-color: #c41e3a;
         }
-
-
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
@@ -88,6 +87,7 @@
             align-items: center;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 999;
         }
 
         .navbar-brand {
@@ -116,6 +116,10 @@
 
         .navbar-links a:hover {
             background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .dropdown {
+            position: relative;
         }
 
         /* Dropdown menu styling */
@@ -153,6 +157,7 @@
         /* Show dropdown on hover */
         .dropdown:hover .dropdown-menu {
             display: block;
+            z-index: 1000;
         }
 
         .container {
@@ -251,9 +256,9 @@
             cursor: pointer;
             font-size: .5em; /* Make the emoji a reasonable size */
             border-radius: 50%; /* Make it round */
-            position: absolute;
-            top: 800px;
-            left: 8px; /* Position on the left side */
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
             z-index: 2;
             transition: background-color 0.3s, transform 0.3s, opacity 0.3s;
             opacity: 0.8; /* Slightly transparent */
@@ -267,8 +272,8 @@
         }
     </style>
 </head>
-<body>
-<button class="holiday-btn" onclick="toggleHolidayTheme()">Holiday Theme</button>
+<body class="p-8">
+    <button class="holiday-btn" onclick="toggleHolidayTheme()">Holiday Theme</button>
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="navbar-brand">SpotifyWrapper</div>
@@ -381,13 +386,6 @@
             const details = card.querySelector('.wrap-card-details');
             details.classList.toggle('active');
         }
-        
-        // Change Color Mode
-        const THEME_LABELS = {
-            light: '{% trans "Toggle Theme: Dark Mode"|escapejs %}',
-            dark: '{% trans "Toggle Theme: Color Mode"|escapejs %}',
-            color: '{% trans "Toggle Theme: Light Mode"|escapejs %}'
-        };
         
         // Function to toggle between light and dark mode
         function toggleRegularTheme() {

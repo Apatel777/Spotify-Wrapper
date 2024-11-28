@@ -232,24 +232,6 @@
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
 
-        /* Theme Toggle Button */
-        .theme-toggle {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            padding: 0.75rem 1.5rem;
-            border-radius: 9999px;
-            background-color: var(--card-bg-color);
-            border: 1px solid var(--card-border-color);
-            font-weight: 500;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .theme-toggle:hover {
-            background-color: var(--hover-bg-color);
-        }
-
         /* Recently Played Grid */
         .track-grid {
             display: grid;
@@ -325,6 +307,19 @@
             font-size: 0.875rem;
             margin: 0;
         }
+        
+        .form-group select {
+            width: 200px;
+            background-color: transparent;
+        }
+        
+        .dashboard button {
+            margin: 20px auto;
+            background-color: white;
+            color: black;
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+        }
 
         /* Toggle Theme Button */
         .theme-toggle {
@@ -344,6 +339,7 @@
         .theme-toggle:hover {
             background-color: var(--hover-bg-color);
         }
+        
         .holiday-btn {
             background-color: transparent; /* No background color */
             color: var(--text-color);
@@ -352,18 +348,15 @@
             cursor: pointer;
             font-size: .5em; /* Make the emoji a reasonable size */
             border-radius: 50%; /* Make it round */
-            position: absolute;
-            top: 800px;
-            left: 8px; /* Position on the left side */
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
             z-index: 2;
             transition: background-color 0.3s, transform 0.3s, opacity 0.3s;
             opacity: 0.8; /* Slightly transparent */
         }
-
         .holiday-btn:hover {
-
             transform: scale(1.1); /* Make the emoji slightly bigger */
-
             opacity: 1; /* Make it fully visible on hover */
         }
     </style>
@@ -392,6 +385,7 @@
             <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
         </ul>
     </nav>
+    
     <div class="dashboard">
         <div id="dashboard" class="container grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="card p-6 rounded-xl cursor-pointer" onclick="expandCard('recently-played')">
@@ -492,10 +486,10 @@
     
         <div id="expanded-view" class="hidden centered"></div>
         
-        <button class="theme-toggle" onclick="toggleRegularTheme()">
-            {% trans 'Toggle Theme: Light Mode' %}
-        </button>
     </div>
+    <button class="theme-toggle" onclick="toggleRegularTheme()">
+        {% trans 'Toggle Theme: Light Mode' %}
+    </button>
     
     <script>
         //Card Expansion
@@ -766,16 +760,15 @@
         function shareHTML(wrapperType) {
             return `
                 <div class="form-group">
-                    <label for="subject">Subject</label>
+                    <label for="subject">Subject: </label>
                     <select id="subject" name="subject" required>
                         <option value="">{% trans 'Select a Social Media' %}</option>
                         <option value="Twitter">{% trans 'Twitter(X)' %}</option>
-                        <option value="Facebook">{% trans 'Facebook' %}</option>
                         <option value="WhatsApp">{% trans 'WhatsApp' %}</option>
                         <option value="Reddit">{% trans 'Reddit' %}</option>
                     </select>
-                    <button onclick="socialMediaShare(document.getElementById('subject').value, '${wrapperType}')" class="share-button">{% trans 'Social Media Share' %}</button>
                 </div>
+                <button onclick="socialMediaShare(document.getElementById('subject').value, '${wrapperType}')" class="share-button">{% trans 'Social Media Share' %}</button>
             `;
         }
         
@@ -813,10 +806,6 @@
                             // Twitter has a 280-character limit
                             const twitterText = text.length > 250 ? text.substring(0, 247) + '...' : text;
                             shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(twitterText)}`;
-                            break;
-                            
-                        case 'Facebook':
-                            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
                             break;
                             
                         case 'WhatsApp':
@@ -888,13 +877,6 @@
                 alert('An error occurred while saving data');
             }
         }
-        
-        // Change Color Mode
-        const THEME_LABELS = {
-            light: '{% trans "Toggle Theme: Dark Mode"|escapejs %}',
-            dark: '{% trans "Toggle Theme: Color Mode"|escapejs %}',
-            color: '{% trans "Toggle Theme: Light Mode"|escapejs %}'
-        };
         
         // Function to toggle between light and dark mode
         function toggleRegularTheme() {

@@ -5,7 +5,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guess Your Top Track and Artist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Root variables for dark mode */
+        :root {
+            --bg-color: #2c013b;
+            --profile-bg-color: #533485;
+            --text-color: #2c013b;
+            --btn-bg-color: #9b88e8;
+            --btn-delete-color: #ff4d4d;
+            --btn-hover-color: #7350c3;
+            --footer-bg-color: #533485;
+            --footer-text-color: #ece4ff;
+            --input-bg-color: rgba(255, 255, 255, 0.1);
+            --input-border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Light mode variables */
+        .light-mode {
+            --bg-color: #ffffff;
+            --profile-bg-color: #e6dbff;
+            --text-color: #29004b;
+            --btn-bg-color: #9a4dff;
+            --btn-delete-color: #ff4d4d;
+            --btn-hover-color: #7e38cc;
+            --footer-bg-color: #e6dbff;
+            --footer-text-color: #29004b;
+            --input-bg-color: rgba(0, 0, 0, 0.05);
+            --input-border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Color mode variables */
+        .color-mode {
+            --bg-color: #5e5ed2;
+            --profile-bg-color: #f7f7fc;
+            --text-color: blue;
+            --btn-bg-color: #7777cc;
+            --btn-delete-color: #ff4d4d;
+            --btn-hover-color: #3b5bba;
+            --footer-bg-color: #454597;
+            --footer-text-color: white;
+            --input-bg-color: rgba(255, 255, 255, 0.1);
+            --input-border-color: rgba(255, 255, 255, 0.2);
+        }
+        .halloween-mode {
+            --bg-color: #000000;
+            --text-color: white;
+            --btn-bg-color: #ff6600;
+            --btn-hover-color: #cc5200;
+            --footer-bg-color: #1a0f00;
+            --overlay-color: rgba(255, 102, 0, 0.7);
+            --glow-color: #ff6600;
+        }  /* Christmas theme */
+        .christmas-mode {
+            --bg-color: #023020;
+            --text-color: #ffffff;
+            --btn-bg-color: #c41e3a;
+            --btn-hover-color: #a01830;
+            --footer-bg-color: #1a472a;
+            --overlay-color: rgba(196, 30, 58, 0.7);
+            --glow-color: #c41e3a;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
@@ -13,12 +74,16 @@
             margin: 0;
             padding: 1.5rem 1.5rem 1.5rem 1.5rem;
             line-height: 1.5;
-            align-items: center; 
+            align-items: center;
             display: flex; /* Enable flexbox layout */
             flex-direction: column; /* Stack elements vertically */
+            min-height: 100vh;
+            overflow-y: scroll; /* Hides vertical scrollbars */
+        }
+        body::-webkit-scrollbar {
+            display: none; /* Hides the scrollbar */
         }
 
-        /* Navbar styling */
         .navbar {
             background-color: var(--footer-bg-color);
             width: 95%;
@@ -30,23 +95,23 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         .navbar-brand {
             font-size: 24px;
             font-weight: 600;
             color: var(--footer-text-color);
         }
-        
+
         .navbar-links {
             list-style: none;
             display: flex;
         }
-        
+
         .navbar-links li {
             position: relative; /* Required for dropdown positioning */
             margin-right: 20px;
         }
-        
+
         .navbar-links a {
             color: var(--footer-text-color);
             text-decoration: none;
@@ -55,11 +120,11 @@
             border-radius: 4px;
             transition: background-color 0.3s ease;
         }
-        
+
         .navbar-links a:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
-        
+
         /* Dropdown menu styling */
         .dropdown-menu {
             display: none;
@@ -74,11 +139,11 @@
             padding: 10px 0;
             z-index: 1000;
         }
-        
+
         .dropdown-menu li {
             margin: 0;
         }
-        
+
         .dropdown-menu a {
             display: block;
             padding: 10px 20px;
@@ -87,27 +152,28 @@
             text-decoration: none;
             transition: background-color 0.3s ease;
         }
-        
+
         .dropdown-menu a:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
-        
+
         /* Show dropdown on hover */
         .dropdown:hover .dropdown-menu {
             display: block;
         }
 
         .container {
-            margin: 100px auto 0 auto;
+            color: var(--text-color);
             text-align: center;
-            padding: 20px;
-        }
-
-        .guess-box {
             background: #f5f5f5;
             border-radius: 8px;
             padding: 20px;
-            margin: 20px 0;
+            margin: 100px auto 0 auto;
+            width: 40%;
+        }
+        .container h1{
+            font-size: 20px;
+            text-decoration: underline;
         }
         .feedback {
             margin: 10px 0;
@@ -147,9 +213,50 @@
             margin-top: 10px;
             font-style: italic;
         }
+        
+        /* Toggle Theme Button */
+        .theme-toggle {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--card-border-color);
+            color: var(--text-color);
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--hover-bg-color);
+        }
+        
+        .holiday-btn {
+            background-color: transparent; /* No background color */
+            color: var(--text-color);
+            border: none;
+            padding: 5px 10px; /* Smaller padding */
+            cursor: pointer;
+            font-size: .5em; /* Make the emoji a reasonable size */
+            border-radius: 50%; /* Make it round */
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            z-index: 2;
+            transition: background-color 0.3s, transform 0.3s, opacity 0.3s;
+            opacity: 0.8; /* Slightly transparent */
+        }
+        .holiday-btn:hover {
+            transform: scale(1.1); /* Make the emoji slightly bigger */
+            opacity: 1; /* Make it fully visible on hover */
+        }
     </style>
 </head>
-<body>
+
+<body class="p-8">
+    <button class="holiday-btn" onclick="toggleHolidayTheme()">Holiday Theme</button>
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="navbar-brand">SpotifyWrapper</div>
@@ -182,37 +289,37 @@
     </nav>
     <div class="container">
         <h1>{% trans 'Selected Game:' %} {{ game_type }}</h1>
-        
-        <div class="guess-box">
-            <h2>
-                {% if game_type == 'Guess Top Track' %}
-                    {% trans 'Can you guess your #1 most played track?' %}
-                {% elif game_type == 'Guess Top Album' %}
-                    {% trans 'Can you guess your #1 most played album?' %}
-                {% else %}
-                    {% trans 'Can you guess your #1 most played artist?' %}
-                {% endif %}
-            </h2>
-
-            <div class="input-group">
-                <input type="text" id="guessInput" placeholder="{% trans 'Enter your guess' %}...">
-                <button class="btn-guess" id="submitGuess">{% trans 'Make a Guess' %}</button>
-            </div>
-            
-            <div id="feedbackMessage" class="feedback"></div>
-            <div id="attemptsLeft" class="attempts"></div>
-
-            <!-- Hidden correct answer -->
+        <h2>
             {% if game_type == 'Guess Top Track' %}
-                <input type="hidden" id="correctAnswer" value="{{ top_tracks.name }}">
+                {% trans 'Can you guess your #1 most played track?' %}
             {% elif game_type == 'Guess Top Album' %}
-                <input type="hidden" id="correctAnswer" value="{{ top_albums.name }}">
+                {% trans 'Can you guess your #1 most played album?' %}
             {% else %}
-                <input type="hidden" id="correctAnswer" value="{{ top_artists.name }}">
+                {% trans 'Can you guess your #1 most played artist?' %}
             {% endif %}
-        </div>
-    </div>
+        </h2>
 
+        <div class="input-group">
+            <input type="text" id="guessInput" placeholder="{% trans 'Enter your guess' %}...">
+            <button class="btn-guess" id="submitGuess">{% trans 'Make a Guess' %}</button>
+        </div>
+        
+        <div id="feedbackMessage" class="feedback"></div>
+        <div id="attemptsLeft" class="attempts"></div>
+
+        <!-- Hidden correct answer -->
+        {% if game_type == 'Guess Top Track' %}
+            <input type="hidden" id="correctAnswer" value="{{ top_tracks.name }}">
+        {% elif game_type == 'Guess Top Album' %}
+            <input type="hidden" id="correctAnswer" value="{{ top_albums.name }}">
+        {% else %}
+            <input type="hidden" id="correctAnswer" value="{{ top_artists.name }}">
+        {% endif %}
+    </div>
+    <button class="theme-toggle" onclick="toggleRegularTheme()">
+        Toggle Theme: Light Mode
+    </button>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const guessInput = document.getElementById('guessInput');
@@ -261,6 +368,117 @@
                 }
             });
         });
+        
+        // Function to toggle between light and dark mode
+        function toggleRegularTheme() {
+            const body = document.body;
+            const btn = document.querySelector('.toggle-btn');
+
+            // Remove any holiday themes first
+            body.classList.remove('halloween-mode', 'christmas-mode');
+
+            // Switch between regular themes
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                btn.textContent = 'Color Mode'; // Update button text for dark mode
+            } else if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                body.classList.add('color-mode');
+                btn.textContent = 'Light Mode'; // Update button text for color mode
+            } else {
+                body.classList.remove('color-mode');
+                body.classList.add('light-mode');
+                btn.textContent = 'Dark Mode'; // Update button text for light mode
+            }
+
+            // Save the theme
+            localStorage.setItem('theme', body.classList[0]);
+            localStorage.setItem('holidayMode', 'off');
+        }
+
+        // Function to toggle between holiday themes
+        function toggleHolidayTheme() {
+            const body = document.body;
+            const holidayBtn = document.querySelector('.holiday-btn');
+            const currentTheme = body.classList.contains('halloween-mode') ? 'halloween-mode' :
+                body.classList.contains('christmas-mode') ? 'christmas-mode' : 'none';
+
+            // Remove all regular themes first
+            body.classList.remove('light-mode', 'dark-mode', 'color-mode');
+
+            // Switch between holiday modes
+            if (currentTheme === 'none') {
+                body.classList.add('halloween-mode');
+                holidayBtn.textContent = 'Halloween Mode';
+            } else if (currentTheme === 'halloween-mode') {
+                body.classList.remove('halloween-mode');
+                body.classList.add('christmas-mode');
+                holidayBtn.textContent = 'Christmas Mode';
+            } else {
+                body.classList.remove('christmas-mode');
+                body.classList.add('light-mode'); // Return to default theme
+                holidayBtn.textContent = 'Holiday Theme';
+            }
+
+            // Save the theme
+            localStorage.setItem('theme', body.classList[0]);
+            localStorage.setItem('holidayMode', 'on');
+        }
+
+        // Function to apply the saved theme
+        function applySavedTheme() {
+            const body = document.body;
+            const regularBtn = document.querySelector('.toggle-btn');
+            const holidayBtn = document.querySelector('.holiday-btn');
+
+            // Check the current date for automatic holiday themes
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth();
+            const currentDay = currentDate.getDate();
+
+            if (currentMonth === 9 && currentDay === 31) { // Halloween
+                body.classList.add('halloween-mode');
+                holidayBtn.textContent = 'Halloween Mode';
+                localStorage.setItem('theme', 'halloween-mode');
+                localStorage.setItem('holidayMode', 'on');
+                return;
+            } else if (currentMonth === 11 && currentDay === 25) { // Christmas
+                body.classList.add('christmas-mode');
+                holidayBtn.textContent = 'Christmas Mode';
+                localStorage.setItem('theme', 'christmas-mode');
+                localStorage.setItem('holidayMode', 'on');
+                return;
+            }
+
+            // Apply saved theme
+            const savedTheme = localStorage.getItem('theme') || 'light-mode';
+            const holidayMode = localStorage.getItem('holidayMode') || 'off';
+
+            body.classList.remove('light-mode', 'dark-mode', 'color-mode', 'halloween-mode', 'christmas-mode');
+            body.classList.add(savedTheme);
+
+            // Update button text
+            if (holidayMode === 'on') {
+                if (savedTheme === 'halloween-mode') {
+                    holidayBtn.textContent = 'Halloween Mode';
+                } else if (savedTheme === 'christmas-mode') {
+                    holidayBtn.textContent = 'Christmas Mode';
+                }
+            } else {
+                if (savedTheme === 'light-mode') {
+                    regularBtn.textContent = 'Dark Mode';
+                } else if (savedTheme === 'dark-mode') {
+                    regularBtn.textContent = 'Color Mode';
+                } else {
+                    regularBtn.textContent = 'Light Mode';
+                }
+            }
+        }
+
+
+        // Apply the saved theme when the page loads
+        window.onload = applySavedTheme;
     </script>
 </body>
 </html>

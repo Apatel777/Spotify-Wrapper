@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us - SpotifyWrapper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Root variables for dark mode */
         :root {
@@ -45,7 +46,7 @@
             --footer-bg-color: #454597;
             --footer-text-color: white;
             --input-bg-color: rgba(255, 255, 255, 0.1);
-            --input-border-color: rgba(255, 255, 255, 0.2);
+            --input-border-color: rgba(0, 0, 0, 0.1);
         }
         .halloween-mode {
             --bg-color: #000000;
@@ -214,20 +215,6 @@
             background-color: var(--btn-hover-color);
         }
 
-        .theme-toggle {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            padding: 0.75rem 1.5rem;
-            border-radius: 9999px;
-            background-color: var(--footer-bg-color);
-            border: 1px solid;
-            color: var(--footer-text-color);
-            font-weight: 500;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
         .contact-info {
             margin-top: 30px;
             padding-top: 20px;
@@ -241,6 +228,26 @@
         .contact-info p {
             margin: 8px 0;
         }
+        
+        /* Toggle Theme Button */
+        .theme-toggle {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--card-border-color);
+            color: var(--text-color);
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--hover-bg-color);
+        }
+        
         .holiday-btn {
             background-color: transparent; /* No background color */
             color: var(--text-color);
@@ -249,24 +256,21 @@
             cursor: pointer;
             font-size: .5em; /* Make the emoji a reasonable size */
             border-radius: 50%; /* Make it round */
-            position: absolute;
-            top: 800px;
-            left: 8px; /* Position on the left side */
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
             z-index: 2;
             transition: background-color 0.3s, transform 0.3s, opacity 0.3s;
             opacity: 0.8; /* Slightly transparent */
         }
-
         .holiday-btn:hover {
-
             transform: scale(1.1); /* Make the emoji slightly bigger */
-
             opacity: 1; /* Make it fully visible on hover */
         }
     </style>
 </head>
-<body>
-<button class="holiday-btn" onclick="toggleHolidayTheme()">Holiday Theme</button>
+<body class="p-8">
+    <button class="holiday-btn" onclick="toggleHolidayTheme()">Holiday Theme</button>
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="navbar-brand">SpotifyWrapper</div>
@@ -292,15 +296,6 @@
     <div class="contact-container">
         <h1>{% trans 'Contact Us' %}</h1>
         <p>{% trans "Have a question or feedback? We'd love to hear from you." %}</p>
-
-        {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                    <p class="message {{ message.tags }}">{{ message }}</p>
-                {% endfor %}
-            </div>
-        {% endif %}
-
         <form action="{{ google_form_url }}" method="POST" target="_blank">
             {% csrf_token %}
             <div class="form-group">
@@ -336,19 +331,11 @@
             <p><strong>{% trans 'Hours:' %}</strong> {% trans 'Monday - Friday:' %}, 9:00 AM - 5:00 PM EST</p>
         </div>
     </div>
-
     <button class="theme-toggle" onclick="toggleRegularTheme()">
         Toggle Theme: Light Mode
     </button>
-
+    
     <script>
-        // Define translations
-        const THEME_LABELS = {
-            light: '{% trans "Toggle Theme: Dark Mode"|escapejs %}',
-            dark: '{% trans "Toggle Theme: Color Mode"|escapejs %}',
-            color: '{% trans "Toggle Theme: Light Mode"|escapejs %}'
-        };
-        
         // Function to toggle between light and dark mode
         function toggleRegularTheme() {
             const body = document.body;

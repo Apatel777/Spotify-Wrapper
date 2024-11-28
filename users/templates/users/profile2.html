@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Root variables for dark mode */
         :root {
@@ -161,10 +162,21 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        h1, h2 {
-            font-size: 24px;
+        .profile-container h2 {
+            font-size: 20px;
         }
 
+        .profile-container h1 {
+            font-size: 24px;
+            text-decoration-line: underline;
+            margin-bottom: 10px;
+        }
+        
+        .profile-container button {
+            padding: 0.5rem;
+            border-radius: 9999px;
+        }
+        
         .settings {
             margin-bottom: 20px;
         }
@@ -178,6 +190,7 @@
             width: 100%;
             padding: 8px;
             margin-bottom: 10px;
+            color: black;
         }
 
         .delete-account {
@@ -216,26 +229,23 @@
             cursor: pointer;
             font-size: .5em; /* Make the emoji a reasonable size */
             border-radius: 50%; /* Make it round */
-            position: absolute;
-            top: 800px;
-            left: 8px; /* Position on the left side */
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
             z-index: 2;
             transition: background-color 0.3s, transform 0.3s, opacity 0.3s;
             opacity: 0.8; /* Slightly transparent */
         }
 
         .holiday-btn:hover {
-
             transform: scale(1.1); /* Make the emoji slightly bigger */
-
             opacity: 1; /* Make it fully visible on hover */
         }
 
     </style>
 </head>
-<body>
-<button class="holiday-btn" onclick="toggleHolidayTheme()">Holiday Theme</button>
-
+<body class="p-8">
+    <button class="holiday-btn" onclick="toggleHolidayTheme()">Holiday Theme</button>
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="navbar-brand">SpotifyWrapper</div>
@@ -247,7 +257,6 @@
                     <li><a href="{% url 'games' %}?game=0">{% trans 'Guess Top Track' %}</a></li>
                     <li><a href="{% url 'games' %}?game=1">{% trans 'Guess Top Album' %}</a></li>
                     <li><a href="{% url 'games' %}?game=2">{% trans 'Guess Artist' %}</a>
-                    <li><a href="{% url 'games' %}?game=3">{% trans 'Guess Clip' %}</a>
                 </ul>
             </li>
             <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>

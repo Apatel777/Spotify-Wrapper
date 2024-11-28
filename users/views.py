@@ -734,7 +734,6 @@ def handle_spotify_data(request):
 
 @csrf_exempt
 def prepare_share_content(request):
-    print("hi")
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -776,7 +775,7 @@ def prepare_share_content(request):
             print("Shared Content:\n", shared_content)
             # Return the prepared content
             return JsonResponse({
-                'text': f'Check out my top tracks: {shared_content}',
+                'text': f'Check out my shared wrapper: {shared_content}',
                 'url': request.build_absolute_uri(),
             })
 
