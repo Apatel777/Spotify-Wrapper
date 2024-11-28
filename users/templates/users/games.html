@@ -147,32 +147,6 @@
             margin-top: 10px;
             font-style: italic;
         }
-        
-        .play-button {
-            background: #1DB954;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            padding-left: 10px;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            align-items: center;
-        }
-
-        .play-button:hover {
-            background: #1ed760;
-        }
-
-        .play-button.playing {
-            background: #ff5252;
-        }
-
-        .preview-unavailable {
-            color: #999;
-            font-style: italic;
-            font-size: 0.9em;
-        }
     </style>
 </head>
 <body>
@@ -196,10 +170,6 @@
                         {% else %} <a href="{% url 'games' %}?game=2">{% trans 'Guess Artist' %}</a>
                         {% endif %}
                     </li>
-                    <li>{% if game_type == 'Guess Clip' %} <a href="#">{% trans 'Guess Clip' %}</a>
-                        {% else %} <a href="{% url 'games' %}?game=3">{% trans 'Guess Clip' %}</a>
-                        {% endif %}
-                    </li>
                 </ul>
             </li>
             <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
@@ -219,26 +189,10 @@
                     {% trans 'Can you guess your #1 most played track?' %}
                 {% elif game_type == 'Guess Top Album' %}
                     {% trans 'Can you guess your #1 most played album?' %}
-                {% elif game_type == 'Guess Artist' %}
-                    {% trans 'Can you guess your #1 most played artist?' %}
                 {% else %}
-                    {% trans 'Can you guess based on the clip?' %}
+                    {% trans 'Can you guess your #1 most played artist?' %}
                 {% endif %}
             </h2>
-        
-            {% if game_type == 'Guess Clip' %}
-                {% if top_tracks_clip.preview_url %}
-                    <div>
-                        <button class="play-button" onclick="togglePlay(this, '{{ top_tracks_clip.preview_url }}')">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <polygon points="5 3 19 12 5 21" />
-                            </svg>
-                        </button>
-                    </div>
-                {% else %}
-                    <span class="preview-unavailable">Preview unavailable</span>
-                {% endif %}
-            {% endif %}
 
             <div class="input-group">
                 <input type="text" id="guessInput" placeholder="{% trans 'Enter your guess' %}...">
@@ -253,10 +207,8 @@
                 <input type="hidden" id="correctAnswer" value="{{ top_tracks.name }}">
             {% elif game_type == 'Guess Top Album' %}
                 <input type="hidden" id="correctAnswer" value="{{ top_albums.name }}">
-            {% elif game_type == 'Guess Artist' %}
-                <input type="hidden" id="correctAnswer" value="{{ top_artists.name }}">
             {% else %}
-                <input type="hidden" id="correctAnswer" value="{{ top_tracks_clip.name }}">
+                <input type="hidden" id="correctAnswer" value="{{ top_artists.name }}">
             {% endif %}
         </div>
     </div>
@@ -308,70 +260,6 @@
                     checkGuess();
                 }
             });
-        });
-        
-        let currentAudio = null;
-        let currentButton = null;
-
-        function togglePlay(button, previewUrl) {
-            // If there's already a track playing
-            if (currentAudio && currentButton) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                updateButtonIcon(currentButton, false);
-
-                // If we're clicking the same button, just stop playback
-                if (currentButton === button) {
-                    currentAudio = null;
-                    currentButton = null;
-                    return;
-                }
-            }
-
-            // Play the new track
-            const audio = new Audio(previewUrl);
-            currentAudio = audio;
-            currentButton = button;
-
-            audio.play();
-            updateButtonIcon(button, true);
-
-            // When the preview ends
-            audio.onended = function() {
-                updateButtonIcon(button, false);
-                currentAudio = null;
-                currentButton = null;
-            };
-        }
-
-        function updateButtonIcon(button, isPlaying) {
-            if (isPlaying) {
-                button.innerHTML = `
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <rect x="6" y="4" width="4" height="16"/>
-                        <rect x="14" y="4" width="4" height="16"/>
-                    </svg>
-                `;
-                button.classList.add('playing');
-            } else {
-                button.innerHTML = `
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <polygon points="5 3 19 12 5 21" />
-                    </svg>
-                `;
-                button.classList.remove('playing');
-            }
-        }
-
-        // Stop playback when switching tabs/closing window
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden && currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                updateButtonIcon(currentButton, false);
-                currentAudio = null;
-                currentButton = null;
-            }
         });
     </script>
 </body>

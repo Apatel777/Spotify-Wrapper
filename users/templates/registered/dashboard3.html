@@ -326,34 +326,6 @@
             margin: 0;
         }
 
-        .play-button {
-            background: #1DB954;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: 15px;
-        }
-
-        .play-button:hover {
-            background: #1ed760;
-        }
-
-        .play-button.playing {
-            background: #ff5252;
-        }
-
-        .preview-unavailable {
-            color: white;
-            font-style: italic;
-            font-size: 0.9em;
-        }
-
         /* Toggle Theme Button */
         .theme-toggle {
             position: fixed;
@@ -646,15 +618,6 @@
                                 {% endfor %}
                             </p>
                         </div>
-                        {% if track.preview_url %}
-                            <button class="play-button" onclick="togglePlay(this, '{{ track.preview_url }}')">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polygon points="5 3 19 12 5 21" />
-                                </svg>
-                            </button>
-                        {% else %}
-                            <span class="preview-unavailable">{% trans 'Preview unavailable' %}</span>
-                        {% endif %}
                     </div>
                     {% endfor %}
                     <button onclick="saveSpotifyData('TOP_TRACKS_SHORT')" class="save-spotify-btn">Save</button>
@@ -680,15 +643,6 @@
                                 {% endfor %}
                             </p>
                         </div>
-                        {% if track.preview_url %}
-                            <button class="play-button" onclick="togglePlay(this, '{{ track.preview_url }}')">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polygon points="5 3 19 12 5 21" />
-                                </svg>
-                            </button>
-                        {% else %}
-                            <span class="preview-unavailable">{% trans 'Preview unavailable' %}</span>
-                        {% endif %}
                     </div>
                     {% endfor %}
                     <button onclick="saveSpotifyData('TOP_TRACKS_MEDIUM')" class="save-spotify-btn">Save</button>
@@ -714,15 +668,6 @@
                                 {% endfor %}
                             </p>
                         </div>
-                        {% if track.preview_url %}
-                            <button class="play-button" onclick="togglePlay(this, '{{ track.preview_url }}')">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polygon points="5 3 19 12 5 21" />
-                                </svg>
-                            </button>
-                        {% else %}
-                            <span class="preview-unavailable">{% trans 'Preview unavailable' %}</span>
-                        {% endif %}
                     </div>
                     {% endfor %}
                     <button onclick="saveSpotifyData('TOP_TRACKS_LONG')" class="save-spotify-btn">Save</button>
@@ -897,71 +842,6 @@
                     alert('An error occurred while trying to share. Please try again.');
                 });
         }
-        
-        //Clip Playback
-        let currentAudio = null;
-        let currentButton = null;
-
-        function togglePlay(button, previewUrl) {
-            // If there's already a track playing
-            if (currentAudio && currentButton) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                updateButtonIcon(currentButton, false);
-
-                // If we're clicking the same button, just stop playback
-                if (currentButton === button) {
-                    currentAudio = null;
-                    currentButton = null;
-                    return;
-                }
-            }
-
-            // Play the new track
-            const audio = new Audio(previewUrl);
-            currentAudio = audio;
-            currentButton = button;
-
-            audio.play();
-            updateButtonIcon(button, true);
-
-            // When the preview ends
-            audio.onended = function() {
-                updateButtonIcon(button, false);
-                currentAudio = null;
-                currentButton = null;
-            };
-        }
-
-        function updateButtonIcon(button, isPlaying) {
-            if (isPlaying) {
-                button.innerHTML = `
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <rect x="6" y="4" width="4" height="16"/>
-                        <rect x="14" y="4" width="4" height="16"/>
-                    </svg>
-                `;
-                button.classList.add('playing');
-            } else {
-                button.innerHTML = `
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <polygon points="5 3 19 12 5 21" />
-                    </svg>
-                `;
-                button.classList.remove('playing');
-            }
-        }
-
-        // Stop playback when switching tabs/closing window
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden && currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                updateButtonIcon(currentButton, false);
-                currentAudio = null;
-                currentButton = null;
-            }
-        });
         
         // Save Wrapper
         function getCookie(name) {
