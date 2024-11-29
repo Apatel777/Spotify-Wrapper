@@ -233,6 +233,10 @@
             border-radius: 5px;
         }
         
+        button:hover {
+            background-color: var(--btn-hover-color);
+        }
+        
         /* Toggle Theme Button */
         .theme-toggle {
             position: fixed;
@@ -272,7 +276,7 @@
     </style>
 </head>
 <body class="p-8">
-    <button class="holiday-btn" onclick="toggleHolidayTheme()">Normal Theme</button>
+    <button class="holiday-btn" onclick="toggleHolidayTheme()">{% trans 'Normal Theme' %}</button>
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="navbar-brand">SpotifyWrapper</div>
@@ -295,7 +299,7 @@
         </ul>
     </nav>
     <div class="container">
-        <h1>All Public Spotify Wraps</h1>
+        <h1>{% trans 'All Public Spotify Wraps' %}</h1>
         {% for wrap in wraps %}
         <div class="wrap-card" onclick="toggleWrapDetails(this)">
             <div class="wrap-card-header">
@@ -306,68 +310,68 @@
     
             <div class="wrap-card-details">
                 {% if wrap.tracks %}
-                    <h4>Tracks</h4>
+                    <h4>{% trans 'Tracks' %} </h4>
                     <div class="tracks-grid">
                         {% for track in wrap.tracks %}
                         <div class="track-item">
                             <strong>{{ track.name }}</strong>
-                            <p>Artist: {{ track.artist }}</p>
-                            <p>Album: {{ track.album }}</p>
-                            <p>Popularity: {{ track.popularity }}</p>
+                            <p>{% trans 'Artist:' %} {{ track.artist }}</p>
+                            <p>{% trans 'Album:' %} {{ track.album }}</p>
+                            <p>{% trans 'Popularity:' %} {{ track.popularity }}</p>
                         </div>
                         {% endfor %}
                     </div>
                 {% endif %}
     
                 {% if wrap.artists %}
-                    <h4>Artists</h4>
+                    <h4>{% trans 'Artists' %} </h4>
                     <div class="tracks-grid">
                         {% for artist in wrap.artists %}
                         <div class="track-item">
                             <strong>{{ artist.name }}</strong>
-                            <p>Genre: {{ artist.genres }}</p>
-                            <p>Popularity: {{ artist.popularity }}</p>
+                            <p>{% trans 'Genre:' %} {{ artist.genres }}</p>
+                            <p>{% trans 'Popularity:' %} {{ artist.popularity }}</p>
                         </div>
                         {% endfor %}
                     </div>
                 {% endif %}
     
                 {% if wrap.albums %}
-                    <h4>Albums</h4>
+                    <h4>{% trans 'Albums' %} </h4>
                     <div class="tracks-grid">
                         {% for album in wrap.albums %}
                         <div class="track-item">
                             <strong>{{ album.name }}</strong>
-                            <p>Artist: {{ album.artist }}</p>
-                            <p>Release Date: {{ album.release_date }}</p>
-                            <p>Number of Tracks: {{ album.total_tracks }}</p>
+                            <p>{% trans 'Artist:' %} {{ album.artist }}</p>
+                            <p>{% trans 'Release Date:' %} {{ album.release_date }}</p>
+                            <p>{% trans 'Number of Tracks:' %} {{ album.total_tracks }}</p>
                         </div>
                         {% endfor %}
                     </div>
                 {% endif %}
 
                 {% if wrap.genres %}
-                    <h4>Genres</h4>
+                    <h4>{% trans 'Genres' %} </h4>
                     <div class="tracks-grid">
                         {% for elem in wrap.genres %}
                         <div class="track-item">
                             <strong>{{ elem.name|title }}</strong>
-                            <p>Count: {{ elem.count }}</p>
-                            <p>Percentage: {{ elem.percentage }}%</p>
+                            <p>{% trans 'Count:' %} {{ elem.count }}</p>
+                            <p>{% trans 'Percentage:' %} {{ elem.percentage }}%</p>
                         </div>
                         {% endfor %}
                     </div>
                 {% endif %}
 
                 {% if wrap.playlists %}
-                    <h4>Playlists</h4>
+                    <h4>{% trans 'Playlists' %}</h4>
                     <div class="tracks-grid">
                         {% for playlist in wrap.playlists %}
                         <div class="track-item">
                             <strong>{{ playlist.name|title }}</strong>
-                            <p>Description: {{ playlist.description }}</p>
-                            <p>Duration: {{ playlist.total_duration_minutes|floatformat:2 }} minutes</p>
-                            <p>Number of Tracks: {{ playlist.track_count }}</p>
+                            <p>{% trans 'Description:' %} {{ playlist.description }}</p>
+                            <p>{% trans 'Duration:' %} {{ playlist.total_duration_minutes|floatformat:2 }} {% trans 'minutes' %}</p>
+                            <p>{% trans 'Number of Tracks:' %} {{ playlist.track_count }}</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -378,7 +382,7 @@
     </div>
     
     <button class="theme-toggle" onclick="toggleRegularTheme()">
-        {% trans 'Toggle Theme: Light Mode' %}
+        {% trans 'Light Mode' %}
     </button>
     <script>
         function toggleWrapDetails(card) {

@@ -368,7 +368,7 @@
     </style>
 </head>
 <body class="p-8">
-    <button class="holiday-btn" onclick="toggleHolidayTheme()">Normal Theme</button>
+    <button class="holiday-btn" onclick="toggleHolidayTheme()">{% trans 'Normal Theme' %}</button>
 
     <!-- Navigation Bar -->
     <nav class="navbar">
@@ -400,7 +400,7 @@
                         <circle cx="12" cy="12" r="10"></circle>
                         <polygon points="10 8 16 12 10 16 10 8"></polygon>
                     </svg>
-                    <h2 class="text-xl font-bold">Recently Played</h2>
+                    <h2 class="text-xl font-bold">{% trans 'Recently Played' %}</h2>
                 </div>
             </div>
     
@@ -411,7 +411,7 @@
                         <circle cx="6" cy="18" r="3"></circle>
                         <circle cx="18" cy="16" r="3"></circle>
                     </svg>
-                    <h2 class="text-xl font-bold">Short Term Top Tracks</h2>
+                    <h2 class="text-xl font-bold">{% trans 'Short Term Top Tracks' %}</h2>
                 </div>
             </div>
     
@@ -422,7 +422,7 @@
                         <circle cx="6" cy="18" r="3"></circle>
                         <circle cx="18" cy="16" r="3"></circle>
                     </svg>
-                    <h2 class="text-xl font-bold">Medium Term Top Tracks</h2>
+                    <h2 class="text-xl font-bold">{% trans 'Medium Term Top Tracks' %}</h2>
                 </div>
             </div>
     
@@ -433,7 +433,7 @@
                         <circle cx="6" cy="18" r="3"></circle>
                         <circle cx="18" cy="16" r="3"></circle>
                     </svg>
-                    <h2 class="text-xl font-bold">Long Term Top Tracks</h2>
+                    <h2 class="text-xl font-bold">{% trans 'Long Term Top Tracks' %}</h2>
                 </div>
             </div>
     
@@ -443,7 +443,7 @@
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
-                    <h2 class="text-xl font-bold">Top Artists</h2>
+                    <h2 class="text-xl font-bold">{% trans 'Top Artists' %}</h2>
                 </div>
             </div>
     
@@ -457,7 +457,7 @@
                         <line x1="9" y1="20" x2="9" y2="23"></line>
                         <line x1="15" y1="20" x2="15" y2="23"></line>
                     </svg>
-                    <h2 class="text-xl font-bold">Top Album</h2>
+                    <h2 class="text-xl font-bold">{% trans 'Top Album' %}</h2>
                 </div>
             </div>
 
@@ -471,7 +471,7 @@
                         <line x1="9" y1="20" x2="9" y2="23"></line>
                         <line x1="15" y1="20" x2="15" y2="23"></line>
                     </svg>
-                    <h2 class="text-xl font-bold">Top Genres</h2>
+                    <h2 class="text-xl font-bold">{% trans 'Top Genres' %}</h2>
                 </div>
             </div>
 
@@ -485,7 +485,7 @@
                         <line x1="9" y1="20" x2="9" y2="23"></line>
                         <line x1="15" y1="20" x2="15" y2="23"></line>
                     </svg>
-                    <h2 class="text-xl font-bold">Top Playlists</h2>
+                    <h2 class="text-xl font-bold">{% trans 'Top Playlists' %}</h2>
                 </div>
             </div>
         </div>
@@ -514,7 +514,6 @@
                     <button onclick="closeExpanded()" class="mb-4 text-white bg-gray-800 p-2 rounded">
                         Back to Dashboard
                     </button>
-                    <h1 class="text-3xl font-bold mb-6">${getCardTitle(cardType)}</h1>
                     <div id="expanded-content">
                         ${generateExpandedContent(cardType)}
                     </div>
@@ -605,6 +604,7 @@
         function generateExpandedContentTrackShort() {
             return `
                 <div class="card">
+                    <h2 class="card-title">{% trans 'Short Term Tracks' %}</h2>
                     {% if top_tracks %}
                     {% for track in top_tracks.short_term|slice:":5" %}
                     <div class="top-item" data-track-uri="{{ track.uri }}" data-preview-url="{{ track.preview_url }}">
@@ -630,6 +630,7 @@
         function generateExpandedContentTrackMedium() {
             return `
                 <div class="card">
+                    <h2 class="card-title">{% trans 'Medium Term Tracks' %}</h2>
                     {% if top_tracks %}
                     {% for track in top_tracks.medium_term|slice:":5" %}
                     <div class="top-item" data-track-uri="{{ track.uri }}" data-preview-url="{{ track.preview_url }}">
@@ -655,6 +656,7 @@
         function generateExpandedContentTrackLong() {
             return `
                 <div class="card">
+                    <h2 class="card-title">{% trans 'Long Term Tracks' %}</h2>
                     {% if top_tracks %}
                     {% for track in top_tracks.long_term|slice:":5" %}
                     <div class="top-item" data-track-uri="{{ track.uri }}" data-preview-url="{{ track.preview_url }}">
@@ -681,6 +683,7 @@
             return `
                 <!-- Top Artists Content -->
                 <div class="card">
+                    <h2 class="card-title">{% trans 'Top Artists' %}</h2>
                     {% if top_artists %}
                     <div class="track-grid">
                         {% for artist in top_artists|slice:":5" %}
@@ -722,6 +725,7 @@
         function generateExpandedContentGenre() {
             return `
                 <div class="card">
+                    <h2 class="card-title">{% trans 'Top Genres' %}</h2>
                     {% for genre, count in top_genres %}
                     <div class="top-item" data-track-uri="{{ track.uri }}" data-preview-url="{{ track.preview_url }}">
                         <span class="top-item-number"># {{ forloop.counter }}</span>
@@ -739,6 +743,7 @@
         function generateExpandedContentPlaylist() {
             return `
                 <div class="card">
+                    <h2 class="card-title">{% trans 'Top Playlists' %}</h2>
                     {% if top_playlists %}
                     {% for playlist in top_playlists %}
                     <div class="top-item">

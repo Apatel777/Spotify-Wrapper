@@ -237,7 +237,7 @@
     </style>
 </head>
 <body class="p-8">
-    <button class="holiday-btn" onclick="toggleHolidayTheme()">Normal Theme</button>
+    <button class="holiday-btn" onclick="toggleHolidayTheme()">{% trans 'Normal Theme' %}</button>
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="navbar-brand">SpotifyWrapper</div>
@@ -267,7 +267,7 @@
         {% elif analysis %}
             <div>{{ analysis|linebreaks }}</div>
         {% else %}
-            <div>Generating analysis...</div>
+            <div>{% trans 'Generating analysis' %}...</div>
         {% endif %}
     </div>
     <button class="theme-toggle" onclick="toggleRegularTheme()">

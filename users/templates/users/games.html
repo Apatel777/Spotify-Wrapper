@@ -275,7 +275,7 @@
 </head>
 
 <body class="p-8">
-    <button class="holiday-btn" onclick="toggleHolidayTheme()">Normal Theme</button>
+    <button class="holiday-btn" onclick="toggleHolidayTheme()">{% trans 'Normal Theme' %}</button>
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="navbar-brand">SpotifyWrapper</div>
@@ -336,7 +336,7 @@
         {% endif %}
     </div>
     <button class="theme-toggle" onclick="toggleRegularTheme()">
-        Toggle Theme: Light Mode
+        {% trans 'Light Mode' %}
     </button>
     
     <script>
