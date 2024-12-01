@@ -193,7 +193,7 @@ def spotify_callback(request):
         )
 
         if user_response.status_code != 200:
-            logger.error("Failed to retrieve Spotify user info")
+            logger.error(f"Failed to retrieve Spotify user info {user_response.status_code} - {user_response.text}")
             messages.error(request, "Failed to retrieve user information. Please try again.")
             return redirect('signup')
 
