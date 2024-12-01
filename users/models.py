@@ -471,17 +471,22 @@ def make_spotify_data_public(user, wrapper_type, created_at):
         logger.error(f"Error making Spotify data public: {str(e)}")
         return None
 
-#for sharing Spotify data between users
-class DuoWrapped(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user1 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='duo_wrapped_user1')
-    user2 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='duo_wrapped_user2')
-    created_at = models.DateTimeField(auto_now_add=True)
-    data = models.JSONField()
+def get_default_recipient():
+    default_user = User.objects.first()  # Replace this logic with your desired default User lookup
+    if default_user:
+        return default_user.id  # Return the ID of the default User
+    raise ValueError("No default User available for DuoInvite recipient.")
+
+def get_default_data():
+    return {
+        'partner_tracks': "pending",
+        'partner2_tracks': "pending",
+        'timestamp': "pending"
+    }
 
 class DuoInvite(models.Model):
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_duo_invites')
-    recipient_email = models.EmailField()
-    token = models.UUIDField(default=uuid.uuid4, editable=False)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_duo_invites')
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipient_invites', default=get_default_recipient)
+    data = models.JSONField(default=get_default_data)
     created_at = models.DateTimeField(auto_now_add=True)
     accepted = models.BooleanField(default=False)

@@ -30,7 +30,6 @@ urlpatterns = [
     path('prepare-share-content/', views.prepare_share_content, name='prepare_share_content'),
     path('duo-wrapped/', views.duo_wrapped_view, name='duo_wrapped'),
     path('send-duo-invite/', views.send_duo_invite, name='send_duo_invite'),
-    path('save-duo-wrapped/', views.save_duo_wrapped, name='save_duo_wrapped'),
-    path('accept-duo-invite/<str:token>/', views.accept_duo_invite, name='accept_duo_invite'),
+    path('accept-duo-invite/<str:sender_email>/', views.accept_duo_invite, name='accept_duo_invite'),
 
 ]

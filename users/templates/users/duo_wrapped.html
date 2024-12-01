@@ -1,3 +1,4 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,78 +7,190 @@
     <title>Duo-Wrapped</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Root variables for dark mode */
         :root {
-            --bg-color: #2c013b;
-            --text-color: #ece4ff;
-            --nave-bg-color: #533485;
-            --nave-text-color: #ece4ff;
-            --btn-hover-color: #7350c3;
-            --container-bg-color: #533485;
+            --input-bg-color: rgba(255, 255, 255, 0.1);
+            --input-border-color: rgba(255, 255, 255, 0.2);
+            
+            --bg-color: #2c013b; /* Deep purple for dark mode background */
+            --text-color: #ece4ff; /* Light lavender text for contrast */
+            
+            --nave-bg-color: #533485; /* Dark purple for footer */
+            --nave-text-color: #ece4ff; /* Footer text color */
+            
+            --container-bg-color: #533485; /* Dark purple for profile background */
+            --btn-hover-color: #7350c3; /* Rich purple for hover */
         }
+
+        /* Light mode variables */
         .light-mode {
-            --bg-color: #ffffff;
-            --text-color: #29004b;
-            --nave-bg-color: #f7f7fc;
-            --nave-text-color: #29004b;
-            --btn-hover-color: #9a4dff;
-            --container-bg-color: #f7f7fc;
+            --input-bg-color: rgba(0, 0, 0, 0.05);
+            --input-border-color: rgba(0, 0, 0, 0.1);
+            
+            --bg-color: #ffffff; /* White for light mode background */
+            --text-color: #29004b; /* Dark purple for text */
+            
+            --nave-bg-color: #e6dbff; /* Light purple for footer */
+            --nave-text-color: #29004b; /* Footer text color */
+            
+            --container-bg-color: #e6dbff; /* Light purple for profile background */
+            --btn-hover-color: #7e38cc; /* Darker purple for hover */
         }
 
-        
-        .dark-mode {
-            --bg-color: #111827;
-            --text-color: #f9fafb;
-            --nave-bg-color: #1f2937;
-            --nave-text-color: #f9fafb;
-            --btn-hover-color: #374151;
-            --container-bg-color: #1f2937;
-        }
-
+        /* Color mode variables */
         .color-mode {
-            --bg-color: #4a0080;
-            --text-color: #ffd700;
-            --nave-bg-color: #6a0dad;
-            --nave-text-color: #ffd700;
-            --btn-hover-color: #800080;
-            --container-bg-color: #6a0dad;
+            --input-bg-color: rgba(255, 255, 255, 0.1);
+            --input-border-color: rgba(255, 255, 255, 0.2);
+            
+            --bg-color: #5e5ed2; /* Purple-blue for background */
+            --text-color: blue; /* Blue text */
+            
+            --nave-bg-color: #454597; /* Darker blue for footer */
+            --nave-text-color: white; /* White text for footer */
+            
+            --container-bg-color: #f7f7fc; /* Off-white for profile background */
+            --btn-hover-color: #3b5bba; /* Blue for hover */
         }
-
         
-        .holiday-mode {
-            --bg-color: #2c5530;
-            --text-color: #ff0000;
-            --nave-bg-color: #8b0000;
-            --nave-text-color: #ffffff;
-            --btn-hover-color: #006400;
-            --container-bg-color: #8b0000;
+        .halloween-mode {
+            --input-bg-color: rgba(255, 255, 255, 0.1);
+            --input-border-color: rgba(255, 255, 255, 0.2);
+            
+            --bg-color: #000000;
+            --text-color: white;
+            
+            --nave-bg-color: rgba(255, 102, 0, 0.7);
+            --nave-text-color: white;
+            
+            --container-bg-color: rgba(255, 102, 0, 0.7); /* Off-white for profile background */
+            --btn-hover-color: #cc5200;
+            
+            --overlay-color: rgba(255, 102, 0, 0.7);
+            --glow-color: #ff6600;
+        } 
+        
+        /* Christmas theme */
+        .christmas-mode {
+            --input-bg-color: rgba(255, 255, 255, 0.1);
+            --input-border-color: rgba(255, 255, 255, 0.2);
+            
+            --bg-color: #023020;
+            --text-color: #ffffff;
+            
+            --nave-bg-color: rgba(196, 30, 58, 0.7);
+            --nave-text-color: white;
+            
+            --container-bg-color: rgba(196, 30, 58, 0.7); /* Off-white for profile background */
+            --btn-hover-color: #a01830;
+
+            --overlay-color: rgba(196, 30, 58, 0.7);
+            --glow-color: #c41e3a;
         }
 
         body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
+            margin: 0;
+            padding: 1.5rem 1.5rem 1.5rem 1.5rem;
+            line-height: 1.5;
+            align-items: center;
+            display: flex; /* Enable flexbox layout */
+            flex-direction: column; /* Stack elements vertically */
+            min-height: 100vh;
+            overflow-y: scroll; /* Hides vertical scrollbars */
+        }
+        body::-webkit-scrollbar {
+            display: none; /* Hides the scrollbar */
+        }
+
+        .navbar {
+            background-color: var(--nave-bg-color);
+            color: var(--nave-text-color);
+            width: 95%;
+            position: fixed;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--nave-text-color);
+        }
+
+        .navbar-links {
+            list-style: none;
+            display: flex;
+        }
+
+        .navbar-links li {
+            position: relative; /* Required for dropdown positioning */
+            margin-right: 20px;
+        }
+
+        .navbar-links a {
+            color: var(--nave-text-color);
+            text-decoration: none;
+            font-size: 18px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar-links a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Dropdown menu styling */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%; /* Position it right below the "Games" link */
+            left: 0;
+            background-color: var(--nave-bg-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            list-style: none;
+            margin: 0;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .dropdown-menu li {
+            margin: 0;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: var(--nave-text-color);
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Show dropdown on hover */
+        .dropdown:hover .dropdown-menu {
+            display: block;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .duo-card {
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: gradient-animation 15s ease infinite;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .comparison-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
+            color: var(--text-color);
+            background-color: var(--container-bg-color);
+            text-align: center;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 100px auto 0 auto;
+            width: 40%;
         }
 
         .invite-form {
@@ -114,15 +227,108 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+        
+        .track-table {
+            display: flex;
+            justify-content: flex-start;
+            margin: 20px auto;
+        }
+        
+        .track-column {
+            width: 48%;  /* Adjust width for left and right columns */
+            text-align: left;
+        }
+        
+        .top-item {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .top-item-number {
+            display: flex;
+            margin-right: 20px;
+        }
+        
+        .top-item-image {
+            width: 50px;
+            height: 50px;
+            margin-right: 20px;
+        }
+        
+        .top-item-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .top-item-name, .top-item-artist {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        
+        /* Toggle Theme Button */
+        .theme-toggle {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            background-color: var(--nave-bg-color);
+            border: 1px solid;
+            color: var(--nave-text-color);
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .holiday-btn {
+            background-color: transparent; /* No background color */
+            color: var(--text-color);
+            border: none;
+            padding: 5px 10px; /* Smaller padding */
+            cursor: pointer;
+            font-size: .5em; /* Make the emoji a reasonable size */
+            border-radius: 50%; /* Make it round */
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            z-index: 2;
+            transition: background-color 0.3s, transform 0.3s, opacity 0.3s;
+            opacity: 0.8; /* Slightly transparent */
+        }
+
+        .holiday-btn:hover {
+            color: white;
+            transform: scale(1.1); /* Make the emoji slightly bigger */
+            opacity: 1; /* Make it fully visible on hover */
+        }
     </style>
 </head>
-<body>
-    {% include "users/navbar.html" %}
-    
+<body class="p-8">
     <button class="holiday-btn" onclick="toggleHolidayTheme()">{% trans 'Normal Theme' %}</button>
-    <button class="theme-toggle" onclick="toggleRegularTheme()">
-        {% trans 'Toggle Theme: Light Mode' %}
-    </button>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-brand">SpotifyWrapper</div>
+        <ul class="navbar-links">
+            <li><a href="{% url 'dashboard' %}">{% trans 'Home' %}</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-trigger">{% trans 'Games' %}</a>
+                <ul class="dropdown-menu">
+                    <li><a href="{% url 'games' %}?game=0">{% trans 'Guess Top Track' %}</a></li>
+                    <li><a href="{% url 'games' %}?game=1">{% trans 'Guess Top Album' %}</a></li>
+                    <li><a href="{% url 'games' %}?game=2">{% trans 'Guess Artist' %}</a>
+                </ul>
+            </li>
+            <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
+            <li><a href="{% url 'wraps' %}">{% trans 'Past Wraps' %}</a></li>
+            <li><a href="{% url 'public_wraps' %}">{% trans 'Public Wraps' %}</a></li>
+            <li><a href="#">Duo-Wrapped</a></li>
+            <li><a href="{% url 'profile' %}">{% trans 'Profile' %}</a></li>
+            <li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>
+            <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
+        </ul>
+    </nav>
     
     <div class="container">
         <h1 class="text-3xl font-bold mb-6">{% trans 'Duo-Wrapped' %}</h1>
@@ -132,85 +338,256 @@
             <h2 class="text-xl mb-4">{% trans 'Invite a Friend' %}</h2>
             <form method="POST" action="{% url 'send_duo_invite' %}">
                 {% csrf_token %}
-                <input type="email" name="friend_email" class="invite-input" placeholder="{% trans 'Friend\'s email' %}" required>
+                <input type="email" name="friend_email" class="invite-input" placeholder='{% trans "Friend" %}' required>
                 <button type="submit" class="invite-button">{% trans 'Send Invite' %}</button>
             </form>
         </div>
         {% endif %}
-
-        {% if duo_wrapped %}
-        <div class="duo-card">
-            <h2 class="text-2xl mb-4">{% trans 'Your Combined Music Taste with' %} {{ duo_partner }}</h2>
+    
+        {% if open_invites %}
+            <p>{% trans 'Open Invites' %}</p>
+            <ul>
+            {% for invite in open_invites %}
+                <li>
+                    <p>{{ invite.sender.username }}</p>
+                    <form method="POST" action="{% url 'accept_duo_invite' invite.sender.email %}">
+                        {% csrf_token %}
+                        <button type="submit" class="invite-button">{% trans 'Accept' %}</button>
+                    </form>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    
+        {% if accepted_invites %}
+            <p>{% trans 'Accepted Invites' %}</p>
+            {% for accepted in accepted_invites %}
+                <p>{{ accepted.sender.username }}</p>
             
-            <div class="comparison-grid">
-                <div>
-                    <h3 class="text-xl mb-2">{% trans 'Your Top Tracks' %}</h3>
-                    {% for track in user_tracks %}
-                    <div class="track-item">
-                        <p>{{ track.name }} - {{ track.artist }}</p>
+                <div class="track-table">
+                    <div class="track-column">
+                        <h3>{% trans 'Partner Tracks' %}</h3>
+                        {% if accepted.data.partner_tracks %}
+                            <ul>
+                                {% for track in accepted.data.partner_tracks %}
+                                    <li>
+                                        <div class="top-item" data-track-uri="{{ track.uri }}">
+                                            <span class="top-item-number"># {{ forloop.counter }}</span>
+                                            <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
+                                            <div class="top-item-info">
+                                                <p class="top-item-name">{{ track.name }}</p>
+                                                <p class="top-item-artist">
+                                                    {% for artist in track.artists %}
+                                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>{% trans 'No tracks available.' %}</p>
+                        {% endif %}
                     </div>
-                    {% endfor %}
-                </div>
-                
-                <div>
-                    <h3 class="text-xl mb-2">{{ duo_partner }}{% trans '\'s Top Tracks' %}</h3>
-                    {% for track in partner_tracks %}
-                    <div class="track-item">
-                        <p>{{ track.name }} - {{ track.artist }}</p>
+            
+                    <div class="track-column">
+                        <h3>{% trans 'Partner 2 Tracks' %}</h3>
+                        {% if accepted.data.partner2_tracks %}
+                            <ul>
+                                {% for track in accepted.data.partner2_tracks %}
+                                    <li>
+                                        <div class="top-item" data-track-uri="{{ track.uri }}">
+                                            <span class="top-item-number"># {{ forloop.counter }}</span>
+                                            <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
+                                            <div class="top-item-info">
+                                                <p class="top-item-name">{{ track.name }}</p>
+                                                <p class="top-item-artist">
+                                                    {% for artist in track.artists %}
+                                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>{% trans 'No tracks available.' %}</p>
+                        {% endif %}
                     </div>
-                    {% endfor %}
                 </div>
-            </div>
-
-            <div class="mt-6">
-                <h3 class="text-xl mb-2">{% trans 'Shared Favorites' %}</h3>
-                <div class="shared-items">
-                    {% for item in shared_items %}
-                    <div class="shared-item">
-                        <p>{{ item.name }} - {{ item.type }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            {% if not is_saved %}
-            <form method="POST" action="{% url 'save_duo_wrapped' %}">
-                {% csrf_token %}
-                <button type="submit" class="invite-button mt-4">{% trans 'Save Duo-Wrapped' %}</button>
-            </form>
-            {% endif %}
-        </div>
+            {% endfor %}
         {% endif %}
     </div>
+    
+    <button class="theme-toggle" onclick="toggleRegularTheme()">
+        {% trans 'Light Mode' %}
+    </button>
 
     <script>
-        function toggleRegularTheme() {
+        // Define translations
+        const THEME_LABELS = {
+            light: '{% trans "Light Mode"|escapejs %}',
+            dark:  '{% trans "Dark Mode"|escapejs %}',
+            color: '{% trans "Color Mode"|escapejs %}',
+            normal: '{% trans "Normal Mode"|escapejs %}',
+            halloween: '{% trans "Halloween Mode"|escapejs %}',
+            christmas: '{% trans "Christmas Mode"|escapejs %}'
+        };
+        
+        // Helper function to apply a theme
+        function applyTheme(theme) {
             const body = document.body;
-            const themesToRemove = ['light-mode', 'dark-mode', 'color-mode', 'holiday-mode'];
-            body.classList.remove(...themesToRemove);
-            
-            if (!body.classList.contains('light-mode')) {
-                body.classList.add('light-mode');
-                document.querySelector('.theme-toggle').textContent = '{% trans "Toggle Theme: Dark Mode" %}';
-            } else {
-                body.classList.add('dark-mode');
-                document.querySelector('.theme-toggle').textContent = '{% trans "Toggle Theme: Light Mode" %}';
-            }
+            const themesToRemove = [
+                'light-mode',
+                'dark-mode',
+                'color-mode',
+                'halloween-mode',
+                'christmas-mode'
+            ];
+            themesToRemove.forEach(existingTheme => body.classList.remove(existingTheme));
+            body.classList.add(theme);
         }
-
+        
+        // Helper function to reset holiday button text
+        function resetHolidayButtonText() {
+            const holidayBtn = document.querySelector('.holiday-btn');
+            holidayBtn.textContent = THEME_LABELS.normal;
+        }
+        
+        // Function to toggle between holiday themes
         function toggleHolidayTheme() {
             const body = document.body;
-            const themesToRemove = ['light-mode', 'dark-mode', 'color-mode', 'holiday-mode'];
-            body.classList.remove(...themesToRemove);
-            
-            if (!body.classList.contains('holiday-mode')) {
-                body.classList.add('holiday-mode');
-                document.querySelector('.holiday-btn').textContent = '{% trans "Normal Theme" %}';
+            const holidayBtn = document.querySelector('.holiday-btn');
+        
+            // Define the theme cycle for holiday modes
+            const holidayThemes = ['halloween-mode', 'christmas-mode', 'light-mode'];
+        
+            // Determine the current holiday theme
+            const currentTheme = Array.from(body.classList).find(theme =>
+                ['halloween-mode', 'christmas-mode'].includes(theme)
+            );
+        
+            // Determine the new theme
+            const currentIndex = holidayThemes.indexOf(currentTheme);
+            const newTheme = holidayThemes[(currentIndex + 1) % holidayThemes.length];
+        
+            // Apply the new theme
+            applyTheme(newTheme);
+        
+            // Update button text
+            switch (newTheme) {
+                case 'halloween-mode':
+                    holidayBtn.textContent = THEME_LABELS.halloween;
+                    break;
+                case 'christmas-mode':
+                    holidayBtn.textContent = THEME_LABELS.christmas;
+                    break;
+                default:
+                    resetHolidayButtonText();
+            }
+        
+            // Save the theme and holiday mode state
+            localStorage.setItem('theme', newTheme);
+            localStorage.setItem('holidayMode', newTheme !== 'light-mode' ? 'on' : 'off');
+        }
+        
+        // Function to toggle between regular themes
+        function toggleRegularTheme() {
+            const themeToggleBtn = document.querySelector('.theme-toggle');
+            const holidayBtn = document.querySelector('.holiday-btn');
+        
+            // Reset holiday mode
+            localStorage.setItem('holidayMode', 'off');
+            resetHolidayButtonText();
+        
+            // Define the cycle of regular themes
+            const regularThemes = ['dark-mode', 'light-mode', 'color-mode'];
+        
+            // Determine the current regular theme
+            const currentTheme = Array.from(document.body.classList).find(theme =>
+                ['dark-mode', 'light-mode', 'color-mode'].includes(theme)
+            ) || 'dark-mode';
+        
+            // Determine the new theme
+            const currentIndex = regularThemes.indexOf(currentTheme);
+            const newTheme = regularThemes[(currentIndex + 1) % regularThemes.length];
+        
+            // Apply the new theme
+            applyTheme(newTheme);
+        
+            // Update button text
+            switch (newTheme) {
+                case 'dark-mode':
+                    themeToggleBtn.textContent = THEME_LABELS.dark;
+                    break;
+                case 'light-mode':
+                    themeToggleBtn.textContent = THEME_LABELS.light;
+                    break;
+                case 'color-mode':
+                    themeToggleBtn.textContent = THEME_LABELS.color;
+                    break;
+            }
+        
+            // Save the theme
+            localStorage.setItem('theme', newTheme);
+        }
+        
+        // Function to apply the saved theme
+        function applySavedTheme() {
+            const themeToggleBtn = document.querySelector('.theme-toggle');
+            const holidayBtn = document.querySelector('.holiday-btn');
+        
+            // Check the current date for automatic holiday themes
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth(); // 0-based
+            const currentDay = currentDate.getDate();
+        
+            if (currentMonth === 9 && currentDay === 31) { // Halloween (October 31)
+                applyTheme('halloween-mode');
+                holidayBtn.textContent = THEME_LABELS.halloween;
+                localStorage.setItem('theme', 'halloween-mode');
+                localStorage.setItem('holidayMode', 'on');
+                return;
+            } else if (currentMonth === 11 && currentDay === 25) { // Christmas (December 25)
+                applyTheme('christmas-mode');
+                holidayBtn.textContent = THEME_LABELS.christmas;
+                localStorage.setItem('theme', 'christmas-mode');
+                localStorage.setItem('holidayMode', 'on');
+                return;
+            }
+        
+            // Apply the saved theme from localStorage
+            const savedTheme = localStorage.getItem('theme') || 'dark-mode';
+            const holidayMode = localStorage.getItem('holidayMode') || 'off';
+        
+            applyTheme(savedTheme);
+        
+            // Update button text
+            if (holidayMode === 'on') {
+                if (savedTheme === 'halloween-mode') {
+                    holidayBtn.textContent = THEME_LABELS.halloween;
+                } else if (savedTheme === 'christmas-mode') {
+                    holidayBtn.textContent = THEME_LABELS.christmas;
+                }
             } else {
-                body.classList.add('dark-mode');
-                document.querySelector('.holiday-btn').textContent = '{% trans "Holiday Theme" %}';
+                switch (savedTheme) {
+                    case 'dark-mode':
+                        themeToggleBtn.textContent = THEME_LABELS.dark;
+                        break;
+                    case 'light-mode':
+                        themeToggleBtn.textContent = THEME_LABELS.light;
+                        break;
+                    case 'color-mode':
+                        themeToggleBtn.textContent = THEME_LABELS.color;
+                        break;
+                }
             }
         }
+        
+        // Apply the saved theme when the page loads
+        document.addEventListener('DOMContentLoaded', applySavedTheme);
     </script>
 </body>
 </html>

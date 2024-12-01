@@ -783,36 +783,36 @@ def prepare_share_content(request):
             return JsonResponse({'error': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
-    
+
+
+@login_required
+def accept_duo_invite(request, sender_email):
+    try:
+        user = request.user
+        sender = User.objects.get(email=sender_email)
+        invite = DuoInvite.objects.get(sender=sender, recipient = user, accepted=False)
+        invite.data['partner2_tracks'] = request.session.get('top_tracks', {})['short_term'][:5]
+        invite.accepted = True
+        invite.save()
+
+        messages.success(request, 'Invitation accepted! Create your Duo-Wrapped now.')
+        return redirect('duo_wrapped')
+
+    except DuoInvite.DoesNotExist:
+        messages.error(request, 'Invalid invitation.')
+        return redirect('duo_wrapped')
 
 
 @login_required
 def duo_wrapped_view(request):
-    duo_partner = None
-    duo_wrapped = None
-    shared_items = []
-    
-    # Get latest duo wrapped if exists
-    latest_duo = DuoWrapped.objects.filter(
-        models.Q(user1=request.user) | models.Q(user2=request.user)
-    ).order_by('-created_at').first()
-    
-    if latest_duo:
-        duo_partner = latest_duo.user2 if latest_duo.user1 == request.user else latest_duo.user1
-        duo_wrapped = latest_duo.data
-        
-        # Calculate shared items
-        user_tracks = set(track['id'] for track in request.session.get('top_tracks', {}).get('short_term', []))
-        partner_tracks = set(track['id'] for track in duo_wrapped['partner_tracks'])
-        shared_items = user_tracks.intersection(partner_tracks)
+    user = request.user
+    open_invites = DuoInvite.objects.filter(recipient=user, accepted=False)
+    accepted_invites = DuoInvite.objects.filter(recipient=user, accepted=True)
 
     context = {
-        'duo_partner': duo_partner,
-        'duo_wrapped': duo_wrapped,
-        'user_tracks': request.session.get('top_tracks', {}).get('short_term', [])[:5],
-        'partner_tracks': duo_wrapped['partner_tracks'][:5] if duo_wrapped else [],
-        'shared_items': shared_items,
-        'is_saved': bool(latest_duo),
+        'open_invites': open_invites,
+        'accepted_invites': accepted_invites,
+        'user': user,
     }
     
     return render(request, 'users/duo_wrapped.html', context)
@@ -821,60 +821,33 @@ def duo_wrapped_view(request):
 def send_duo_invite(request):
     if request.method == 'POST':
         recipient_email = request.POST.get('friend_email')
-        
-        # Create invite
-        invite = DuoInvite.objects.create(
-            sender=request.user,
-            recipient_email=recipient_email
-        )
-        
-        # Send email
-        invite_url = request.build_absolute_uri(f'/accept-duo-invite/{invite.token}/')
-        send_mail(
-            'Duo-Wrapped Invitation',
-            f'Join me for a Duo-Wrapped! Click here to accept: {invite_url}',
-            settings.DEFAULT_FROM_EMAIL,
-            [recipient_email],
-            fail_silently=False,
-        )
-        
-        messages.success(request, 'Invitation sent successfully!')
-        return redirect('duo_wrapped')
-
-@login_required
-def save_duo_wrapped(request):
-    if request.method == 'POST':
-        partner_id = request.session.get('duo_partner_id')
-        if not partner_id:
-            messages.error(request, 'No duo partner found!')
+        print(recipient_email)
+        if recipient_email == request.user.email:
+            print("Invite denied to oneself")
             return redirect('duo_wrapped')
-            
-        # Save the duo wrapped
-        DuoWrapped.objects.create(
-            user1=request.user,
-            user2_id=partner_id,
+
+        # Ensure the recipient exists
+        try:
+            recipient = User.objects.get(email=recipient_email)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User with this email does not exist."}, status=404)
+
+        # Create a DuoInvite for this recipient
+        duo_invite, created = DuoInvite.objects.get_or_create(
+            sender=request.user,  # Assuming the sender is the currently logged-in user
+            recipient=recipient,
             data={
-                'user_tracks': request.session.get('top_tracks', {}).get('short_term', [])[:5],
-                'partner_tracks': request.session.get('partner_tracks', [])[:5],
+                'partner_tracks': request.session.get('top_tracks', {})['short_term'][:5],
+                'partner2_tracks': request.session.get('top_tracks', {})['short_term'][:5],
                 'timestamp': datetime.now().isoformat()
             }
         )
-        
-        messages.success(request, 'Duo-Wrapped saved successfully!')
-        return redirect('duo_wrapped')
 
-@login_required
-def accept_duo_invite(request, token):
-    try:
-        invite = DuoInvite.objects.get(token=token, accepted=False)
-        invite.accepted = True
-        invite.save()
-        
-        # Store partner ID in session
-        request.session['duo_partner_id'] = invite.sender.id
-        
-        messages.success(request, 'Invitation accepted! Create your Duo-Wrapped now.')
-        return redirect('duo_wrapped')
-    except DuoInvite.DoesNotExist:
-        messages.error(request, 'Invalid or expired invitation.')
-        return redirect('dashboard')
+        # Respond accordingly
+        if created:
+            print("Invite successfully sent. User: " + str(duo_invite.recipient.username))
+            return redirect('duo_wrapped')
+        else:
+            return JsonResponse({"message": "An invite already exists for this recipient."})
+
+    return JsonResponse({"error": "Invalid request method."}, status=400)
