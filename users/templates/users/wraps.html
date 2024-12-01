@@ -393,7 +393,7 @@
     </div>
     
     <button class="theme-toggle" onclick="toggleRegularTheme()">
-        {% trans 'Toggle Theme: Light Mode' %}
+        {% trans 'Light Mode' %}
     </button>
     
     <script>
@@ -419,6 +419,11 @@
         }
 
         const lang = "{{ lang }}"
+        const TRANSLATIONS = {
+            missing: '{% trans "CSRF token missing"|escapejs %}',
+            successful:  '{% trans "It was deleted successfully"|escapejs %}',
+            error:  '{% trans "An error occurred while deleting data"|escapejs %}',
+        };
         async function deleteSpotifyData(wrapperType, created_at) {
             console.log("In Deletion Type: ", wrapperType)
             console.log("In Deletion Time: ", created_at)
@@ -426,7 +431,7 @@
             
             // Validate CSRF token before sending
             if (!csrfToken) {
-                alert('CSRF token missing');
+                alert(TRANSLATIONS.missing);
                 return;
             }
         
@@ -445,11 +450,11 @@
                     })
                 });
                 
-                alert('It was deleted successfully');
+                alert(TRANSLATIONS.successful);
                 window.location.reload();
             } catch (error) {
                 console.error('Delete error:', error);
-                alert('An error occurred while deleting data');
+                alert(TRANSLATIONS.error);
             }
         }
         
@@ -487,6 +492,16 @@
             }
         }
         
+        // Define translations
+        const THEME_LABELS = {
+            light: '{% trans "Light Mode"|escapejs %}',
+            dark:  '{% trans "Dark Mode"|escapejs %}',
+            color: '{% trans "Color Mode"|escapejs %}',
+            normal: '{% trans "Normal Mode"|escapejs %}',
+            halloween: '{% trans "Halloween Mode"|escapejs %}',
+            christmas: '{% trans "Christmas Mode"|escapejs %}'
+        };
+        
         // Helper function to apply a theme
         function applyTheme(theme) {
             const body = document.body;
@@ -504,7 +519,7 @@
         // Helper function to reset holiday button text
         function resetHolidayButtonText() {
             const holidayBtn = document.querySelector('.holiday-btn');
-            holidayBtn.textContent = 'Normal Theme';
+            holidayBtn.textContent = THEME_LABELS.normal;
         }
         
         // Function to toggle between holiday themes
@@ -530,10 +545,10 @@
             // Update button text
             switch (newTheme) {
                 case 'halloween-mode':
-                    holidayBtn.textContent = 'Halloween Mode';
+                    holidayBtn.textContent = THEME_LABELS.halloween;
                     break;
                 case 'christmas-mode':
-                    holidayBtn.textContent = 'Christmas Mode';
+                    holidayBtn.textContent = THEME_LABELS.christmas;
                     break;
                 default:
                     resetHolidayButtonText();
@@ -571,13 +586,13 @@
             // Update button text
             switch (newTheme) {
                 case 'dark-mode':
-                    themeToggleBtn.textContent = 'Dark Mode';
+                    themeToggleBtn.textContent = THEME_LABELS.dark;
                     break;
                 case 'light-mode':
-                    themeToggleBtn.textContent = 'Light Mode';
+                    themeToggleBtn.textContent = THEME_LABELS.light;
                     break;
                 case 'color-mode':
-                    themeToggleBtn.textContent = 'Color Mode';
+                    themeToggleBtn.textContent = THEME_LABELS.color;
                     break;
             }
         
@@ -597,13 +612,13 @@
         
             if (currentMonth === 9 && currentDay === 31) { // Halloween (October 31)
                 applyTheme('halloween-mode');
-                holidayBtn.textContent = 'Halloween Mode';
+                holidayBtn.textContent = THEME_LABELS.halloween;
                 localStorage.setItem('theme', 'halloween-mode');
                 localStorage.setItem('holidayMode', 'on');
                 return;
             } else if (currentMonth === 11 && currentDay === 25) { // Christmas (December 25)
                 applyTheme('christmas-mode');
-                holidayBtn.textContent = 'Christmas Mode';
+                holidayBtn.textContent = THEME_LABELS.christmas;
                 localStorage.setItem('theme', 'christmas-mode');
                 localStorage.setItem('holidayMode', 'on');
                 return;
@@ -618,20 +633,20 @@
             // Update button text
             if (holidayMode === 'on') {
                 if (savedTheme === 'halloween-mode') {
-                    holidayBtn.textContent = 'Halloween Mode';
+                    holidayBtn.textContent = THEME_LABELS.halloween;
                 } else if (savedTheme === 'christmas-mode') {
-                    holidayBtn.textContent = 'Christmas Mode';
+                    holidayBtn.textContent = THEME_LABELS.christmas;
                 }
             } else {
                 switch (savedTheme) {
                     case 'dark-mode':
-                        themeToggleBtn.textContent = 'Dark Mode';
+                        themeToggleBtn.textContent = THEME_LABELS.dark;
                         break;
                     case 'light-mode':
-                        themeToggleBtn.textContent = 'Light Mode';
+                        themeToggleBtn.textContent = THEME_LABELS.light;
                         break;
                     case 'color-mode':
-                        themeToggleBtn.textContent = 'Color Mode';
+                        themeToggleBtn.textContent = THEME_LABELS.color;
                         break;
                 }
             }

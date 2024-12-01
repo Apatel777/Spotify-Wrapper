@@ -398,11 +398,11 @@ def dashboard(request):
                     context['most_listened_album_details'] = album_details
                     request.session['top_albums'] = album_details
 
-        return render(request, 'registered/dashboard3.html', context)
+        return render(request, 'registered/dashboard.html', context)
 
     except Exception as e:
         messages.error(request, f"Error fetching Spotify data: {str(e)}")
-        return render(request, 'registered/dashboard3.html', {
+        return render(request, 'registered/dashboard.html', {
             'user': user,
             'theme': request.session.get('theme', 'light'),
             'spotify_connected': False
@@ -415,9 +415,15 @@ def games_view(request):
 
     top_tracks = random.choice(request.session.get('top_tracks', {})['short_term'])
     top_artists = random.choice(request.session.get('top_artists', {}))
+    language = request.session.get('django_language', settings.LANGUAGE_CODE)
+    if language == "es":
+        game_type = translate_to_spanish(game_type)
+    elif language == "fr":
+        game_type = translate_to_french(game_type)
 
     context = {
         'theme': theme,
+        'language': language,
         'top_tracks': top_tracks,
         'top_artists': top_artists,
         'top_albums': request.session.get('top_albums', {}),
@@ -433,7 +439,7 @@ def profile_view(request):
             return redirect('home')
         # add in whatever other stuff the profile view will have
 
-    return render(request, 'users/profile2.html', {'form': [], 'theme': theme})
+    return render(request, 'users/profile.html', {'form': [], 'theme': theme})
 
 
 def contact_view(request):
@@ -465,7 +471,7 @@ def logout_view(request):
     return redirect('home')  # Redirect to home after logout
 
 
-def fetch_wraps(data_entries):
+def fetch_wraps(request, data_entries):
     wraps = []
     for entry in data_entries:
         wrap_data = {
@@ -491,6 +497,14 @@ def fetch_wraps(data_entries):
 
         wraps.append(wrap_data)
 
+    language = request.session.get('django_language', settings.LANGUAGE_CODE)
+    if language == "es" or language == "fr":
+        for wrap in wraps:
+            if language == "es":
+                wrap['type'] = translate_to_spanish(wrap['type'])
+            elif language == "fr":
+                wrap['type'] = translate_to_french(wrap['type'])
+
     return wraps
 
 @login_required
@@ -499,12 +513,11 @@ def wraps_view(request):
     user = request.user
 
     # Retrieve all SpotifyData entries for the user, sorted by creation date
-    wraps = []
     data_entries = SpotifyData.objects.filter(
         user=user
     ).prefetch_related('tracks', 'artists', 'albums', 'genres', 'playlists').order_by('-created_at')
 
-    wraps = fetch_wraps(data_entries)
+    wraps = fetch_wraps(request, data_entries)
     return render(request, 'users/wraps.html', {'wraps': wraps, 'theme': theme, 'lang': request.LANGUAGE_CODE})
 
 @login_required
@@ -516,7 +529,7 @@ def public_wraps_view(request):
         is_public=True  # Only fetch public entries
     ).prefetch_related('tracks', 'artists', 'albums', 'genres', 'playlists').order_by('-created_at')
 
-    wraps = fetch_wraps(data_entries)
+    wraps = fetch_wraps(request, data_entries)
     return render(request, 'users/public_wraps.html', {'wraps': wraps, 'theme': theme, 'lang': request.LANGUAGE_CODE})
 
 
@@ -569,11 +582,19 @@ def analyze_music_taste(request):
 
         # Check cache first
         cached_analysis = cache.get(cache_key)
+        language = request.session.get('django_language', settings.LANGUAGE_CODE)
+
         if cached_analysis:
+
+            if language == "es":
+                cached_analysis = translate_to_spanish(cached_analysis)
+            elif language == "fr":
+                cached_analysis = translate_to_french(cached_analysis)
+
             return render(request, 'users/analysis.html', {
                 'theme': theme,
                 'top_tracks': top_tracks,
-                'analysis': cached_analysis
+                'analysis': cached_analysis,
             })
 
         # Format track data
@@ -591,11 +612,8 @@ def analyze_music_taste(request):
         prompt = """Based on these songs:
 {}
 
-Generate a fun 3-paragraph personality analysis about someone who likes these songs.
-Paragraph 1: Their likely personality traits and how they might think
-Paragraph 2: Their potential style and fashion preferences
-Paragraph 3: Their probable hobbies and interests
-
+Generate a fun roughly-50-word personality analysis
+It should describe how someone who listens to this kind of music tends to act/think/dress.
 Keep it positive and playful, focusing on the overall vibe rather than specific songs.""".format(tracks_text)
 
         # Generate analysis
@@ -604,12 +622,17 @@ Keep it positive and playful, focusing on the overall vibe rather than specific 
 
         # Cache successful analysis
         if analysis:
-            cache.set(cache_key, analysis, 60 * 60 * 24)  # 24 hours
+            cache.set(cache_key, analysis, 60 * 60 * 24)
+
+        if language == "es":
+            analysis = translate_to_spanish(cached_analysis)
+        elif language == "fr":
+            analysis = translate_to_french(cached_analysis)
 
         return render(request, 'users/analysis.html', {
             'theme': theme,
             'top_tracks': top_tracks,
-            'analysis': analysis
+            'analysis': analysis,
         })
 
     except Exception as e:
@@ -784,7 +807,6 @@ def prepare_share_content(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
-
 @login_required
 def accept_duo_invite(request, sender_email):
     try:
@@ -851,3 +873,41 @@ def send_duo_invite(request):
             return JsonResponse({"message": "An invite already exists for this recipient."})
 
     return JsonResponse({"error": "Invalid request method."}, status=400)
+
+def translate_text(text, target_language):
+    """
+    Generic translation function using Google Translate API
+
+    :param text: Text to translate
+    :param target_language: Target language code (e.g., 'es', 'fr')
+    :return: Translated text
+    """
+    try:
+        url = f"https://translation.googleapis.com/language/translate/v2"
+        params = {
+            'key': settings.CLOUD_API_KEY,
+            'q': text,
+            'target': target_language,
+            'format': 'text'  # or 'html' if you want to preserve HTML formatting
+        }
+
+        response = requests.post(url, params=params)
+        response.raise_for_status()
+
+        translated_text = response.json()['data']['translations'][0]['translatedText']
+        return translated_text
+
+    except Exception as e:
+        # Log the error or handle it appropriately
+        print(f"Translation error: {e}")
+        return text  # Return original text if translation fails
+
+
+def translate_to_spanish(text):
+    """Translate text to Spanish"""
+    return translate_text(text, 'es')
+
+
+def translate_to_french(text):
+    """Translate text to French"""
+    return translate_text(text, 'fr')
