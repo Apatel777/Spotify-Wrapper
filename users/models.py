@@ -4,6 +4,8 @@ from django.utils import timezone
 from django.db import IntegrityError
 import logging
 import requests
+import uuid
+from django.conf import settings    
 
 # Setting up a logger
 logger = logging.getLogger(__name__)
@@ -468,3 +470,18 @@ def make_spotify_data_public(user, wrapper_type, created_at):
     except Exception as e:
         logger.error(f"Error making Spotify data public: {str(e)}")
         return None
+
+#for sharing Spotify data between users
+class DuoWrapped(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user1 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='duo_wrapped_user1')
+    user2 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='duo_wrapped_user2')
+    created_at = models.DateTimeField(auto_now_add=True)
+    data = models.JSONField()
+
+class DuoInvite(models.Model):
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_duo_invites')
+    recipient_email = models.EmailField()
+    token = models.UUIDField(default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    accepted = models.BooleanField(default=False)

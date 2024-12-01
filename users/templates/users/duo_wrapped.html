@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duo-Wrapped</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-color: #2c013b;
+            --text-color: #ece4ff;
+            --nave-bg-color: #533485;
+            --nave-text-color: #ece4ff;
+            --btn-hover-color: #7350c3;
+            --container-bg-color: #533485;
+        }
+        .light-mode {
+            --bg-color: #ffffff;
+            --text-color: #29004b;
+            --nave-bg-color: #f7f7fc;
+            --nave-text-color: #29004b;
+            --btn-hover-color: #9a4dff;
+            --container-bg-color: #f7f7fc;
+        }
+
+        
+        .dark-mode {
+            --bg-color: #111827;
+            --text-color: #f9fafb;
+            --nave-bg-color: #1f2937;
+            --nave-text-color: #f9fafb;
+            --btn-hover-color: #374151;
+            --container-bg-color: #1f2937;
+        }
+
+        .color-mode {
+            --bg-color: #4a0080;
+            --text-color: #ffd700;
+            --nave-bg-color: #6a0dad;
+            --nave-text-color: #ffd700;
+            --btn-hover-color: #800080;
+            --container-bg-color: #6a0dad;
+        }
+
+        
+        .holiday-mode {
+            --bg-color: #2c5530;
+            --text-color: #ff0000;
+            --nave-bg-color: #8b0000;
+            --nave-text-color: #ffffff;
+            --btn-hover-color: #006400;
+            --container-bg-color: #8b0000;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .duo-card {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient-animation 15s ease infinite;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .invite-form {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .invite-input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0.25rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-color);
+        }
+
+        .invite-button {
+            background: var(--nave-bg-color);
+            color: var(--nave-text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+
+        .invite-button:hover {
+            background: var(--btn-hover-color);
+        }
+
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body>
+    {% include "users/navbar.html" %}
+    
+    <button class="holiday-btn" onclick="toggleHolidayTheme()">{% trans 'Normal Theme' %}</button>
+    <button class="theme-toggle" onclick="toggleRegularTheme()">
+        {% trans 'Toggle Theme: Light Mode' %}
+    </button>
+    
+    <div class="container">
+        <h1 class="text-3xl font-bold mb-6">{% trans 'Duo-Wrapped' %}</h1>
+        
+        {% if not duo_partner %}
+        <div class="invite-form">
+            <h2 class="text-xl mb-4">{% trans 'Invite a Friend' %}</h2>
+            <form method="POST" action="{% url 'send_duo_invite' %}">
+                {% csrf_token %}
+                <input type="email" name="friend_email" class="invite-input" placeholder="{% trans 'Friend\'s email' %}" required>
+                <button type="submit" class="invite-button">{% trans 'Send Invite' %}</button>
+            </form>
+        </div>
+        {% endif %}
+
+        {% if duo_wrapped %}
+        <div class="duo-card">
+            <h2 class="text-2xl mb-4">{% trans 'Your Combined Music Taste with' %} {{ duo_partner }}</h2>
+            
+            <div class="comparison-grid">
+                <div>
+                    <h3 class="text-xl mb-2">{% trans 'Your Top Tracks' %}</h3>
+                    {% for track in user_tracks %}
+                    <div class="track-item">
+                        <p>{{ track.name }} - {{ track.artist }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div>
+                    <h3 class="text-xl mb-2">{{ duo_partner }}{% trans '\'s Top Tracks' %}</h3>
+                    {% for track in partner_tracks %}
+                    <div class="track-item">
+                        <p>{{ track.name }} - {{ track.artist }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <h3 class="text-xl mb-2">{% trans 'Shared Favorites' %}</h3>
+                <div class="shared-items">
+                    {% for item in shared_items %}
+                    <div class="shared-item">
+                        <p>{{ item.name }} - {{ item.type }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if not is_saved %}
+            <form method="POST" action="{% url 'save_duo_wrapped' %}">
+                {% csrf_token %}
+                <button type="submit" class="invite-button mt-4">{% trans 'Save Duo-Wrapped' %}</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleRegularTheme() {
+            const body = document.body;
+            const themesToRemove = ['light-mode', 'dark-mode', 'color-mode', 'holiday-mode'];
+            body.classList.remove(...themesToRemove);
+            
+            if (!body.classList.contains('light-mode')) {
+                body.classList.add('light-mode');
+                document.querySelector('.theme-toggle').textContent = '{% trans "Toggle Theme: Dark Mode" %}';
+            } else {
+                body.classList.add('dark-mode');
+                document.querySelector('.theme-toggle').textContent = '{% trans "Toggle Theme: Light Mode" %}';
+            }
+        }
+
+        function toggleHolidayTheme() {
+            const body = document.body;
+            const themesToRemove = ['light-mode', 'dark-mode', 'color-mode', 'holiday-mode'];
+            body.classList.remove(...themesToRemove);
+            
+            if (!body.classList.contains('holiday-mode')) {
+                body.classList.add('holiday-mode');
+                document.querySelector('.holiday-btn').textContent = '{% trans "Normal Theme" %}';
+            } else {
+                body.classList.add('dark-mode');
+                document.querySelector('.holiday-btn').textContent = '{% trans "Holiday Theme" %}';
+            }
+        }
+    </script>
+</body>
+</html>
