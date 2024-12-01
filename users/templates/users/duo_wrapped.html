@@ -332,7 +332,11 @@
     
     <div class="container">
         <h1 class="text-3xl font-bold mb-6">{% trans 'Duo-Wrapped' %}</h1>
-        
+        {% if invitation_response %}
+            <div>
+                {{ invitation_response }}
+            </div>
+        {% endif %}
         {% if not duo_partner %}
         <div class="invite-form">
             <h2 class="text-xl mb-4">{% trans 'Invite a Friend' %}</h2>

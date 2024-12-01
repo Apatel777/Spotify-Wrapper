@@ -809,6 +809,7 @@ def prepare_share_content(request):
 
 @login_required
 def accept_duo_invite(request, sender_email):
+    request.session['invitation_response'] = None
     try:
         user = request.user
         sender = User.objects.get(email=sender_email)
@@ -817,11 +818,11 @@ def accept_duo_invite(request, sender_email):
         invite.accepted = True
         invite.save()
 
-        messages.success(request, 'Invitation accepted! Create your Duo-Wrapped now.')
+        request.session['invitation_response'] = 'Invitation accepted! Create your Duo-Wrapped now.'
         return redirect('duo_wrapped')
 
     except DuoInvite.DoesNotExist:
-        messages.error(request, 'Invalid invitation.')
+        request.session['invitation_response'] = 'Invalid invitation- Accepting'
         return redirect('duo_wrapped')
 
 
@@ -836,23 +837,39 @@ def duo_wrapped_view(request):
         'accepted_invites': accepted_invites,
         'user': user,
     }
-    
+    invitation_response = request.session.get('invitation_response')
+    if invitation_response:
+        language = request.session.get('django_language', settings.LANGUAGE_CODE)
+        if language == "es":
+            invitation_response = translate_to_spanish(invitation_response)
+        elif language == "fr":
+            invitation_response = translate_to_french(invitation_response)
+        context['invitation_response'] = invitation_response
+
+    request.session['invitation_response'] = None
     return render(request, 'users/duo_wrapped.html', context)
 
 @login_required
 def send_duo_invite(request):
+    request.session['invitation_response'] = None
     if request.method == 'POST':
         recipient_email = request.POST.get('friend_email')
         print(recipient_email)
         if recipient_email == request.user.email:
-            print("Invite denied to oneself")
+            request.session['invitation_response'] = 'Invalid invitation - own email.'
             return redirect('duo_wrapped')
 
         # Ensure the recipient exists
         try:
             recipient = User.objects.get(email=recipient_email)
         except User.DoesNotExist:
-            return JsonResponse({"error": "User with this email does not exist."}, status=404)
+            request.session['invitation_response'] = 'Invalid invitation - User with this email does not exist'
+            return redirect('duo_wrapped')
+
+        duo_invite = DuoInvite.objects.filter(sender=request.user, recipient=recipient, accepted=False)
+        if duo_invite:
+            request.session['invitation_response'] = 'An unaccepted invite already exists for this recipient'
+            return redirect('duo_wrapped')
 
         # Create a DuoInvite for this recipient
         duo_invite, created = DuoInvite.objects.get_or_create(
@@ -867,10 +884,11 @@ def send_duo_invite(request):
 
         # Respond accordingly
         if created:
-            print("Invite successfully sent. User: " + str(duo_invite.recipient.username))
+            request.session['invitation_response'] = "Invite successfully sent. User: " + str(duo_invite.recipient.username)
             return redirect('duo_wrapped')
         else:
-            return JsonResponse({"message": "An invite already exists for this recipient."})
+            request.session['invitation_response'] = 'An invite already exists for this recipient'
+            return redirect('duo_wrapped')
 
     return JsonResponse({"error": "Invalid request method."}, status=400)
 
