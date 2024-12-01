@@ -364,6 +364,16 @@
     </button>
 
     <script>
+        // Define translations
+        const THEME_LABELS = {
+            light: '{% trans "Light Mode"|escapejs %}',
+            dark:  '{% trans "Dark Mode"|escapejs %}',
+            color: '{% trans "Color Mode"|escapejs %}',
+            normal: '{% trans "Normal Mode"|escapejs %}',
+            halloween: '{% trans "Halloween Mode"|escapejs %}',
+            christmas: '{% trans "Christmas Mode"|escapejs %}'
+        };
+        
         // Helper function to apply a theme
         function applyTheme(theme) {
             const body = document.body;
@@ -377,143 +387,143 @@
             themesToRemove.forEach(existingTheme => body.classList.remove(existingTheme));
             body.classList.add(theme);
         }
-
+        
         // Helper function to reset holiday button text
         function resetHolidayButtonText() {
             const holidayBtn = document.querySelector('.holiday-btn');
-            holidayBtn.textContent = 'Normal Theme';
+            holidayBtn.textContent = THEME_LABELS.normal;
         }
-
+        
         // Function to toggle between holiday themes
         function toggleHolidayTheme() {
             const body = document.body;
             const holidayBtn = document.querySelector('.holiday-btn');
-
+        
             // Define the theme cycle for holiday modes
             const holidayThemes = ['halloween-mode', 'christmas-mode', 'light-mode'];
-
+        
             // Determine the current holiday theme
             const currentTheme = Array.from(body.classList).find(theme =>
                 ['halloween-mode', 'christmas-mode'].includes(theme)
             );
-
+        
             // Determine the new theme
             const currentIndex = holidayThemes.indexOf(currentTheme);
             const newTheme = holidayThemes[(currentIndex + 1) % holidayThemes.length];
-
+        
             // Apply the new theme
             applyTheme(newTheme);
-
+        
             // Update button text
             switch (newTheme) {
                 case 'halloween-mode':
-                    holidayBtn.textContent = 'Halloween Mode';
+                    holidayBtn.textContent = THEME_LABELS.halloween;
                     break;
                 case 'christmas-mode':
-                    holidayBtn.textContent = 'Christmas Mode';
+                    holidayBtn.textContent = THEME_LABELS.christmas;
                     break;
                 default:
                     resetHolidayButtonText();
             }
-
+        
             // Save the theme and holiday mode state
             localStorage.setItem('theme', newTheme);
             localStorage.setItem('holidayMode', newTheme !== 'light-mode' ? 'on' : 'off');
         }
-
+        
         // Function to toggle between regular themes
         function toggleRegularTheme() {
             const themeToggleBtn = document.querySelector('.theme-toggle');
             const holidayBtn = document.querySelector('.holiday-btn');
-
+        
             // Reset holiday mode
             localStorage.setItem('holidayMode', 'off');
             resetHolidayButtonText();
-
+        
             // Define the cycle of regular themes
             const regularThemes = ['dark-mode', 'light-mode', 'color-mode'];
-
+        
             // Determine the current regular theme
             const currentTheme = Array.from(document.body.classList).find(theme =>
                 ['dark-mode', 'light-mode', 'color-mode'].includes(theme)
             ) || 'dark-mode';
-
+        
             // Determine the new theme
             const currentIndex = regularThemes.indexOf(currentTheme);
             const newTheme = regularThemes[(currentIndex + 1) % regularThemes.length];
-
+        
             // Apply the new theme
             applyTheme(newTheme);
-
+        
             // Update button text
             switch (newTheme) {
                 case 'dark-mode':
-                    themeToggleBtn.textContent = 'Dark Mode';
+                    themeToggleBtn.textContent = THEME_LABELS.dark;
                     break;
                 case 'light-mode':
-                    themeToggleBtn.textContent = 'Light Mode';
+                    themeToggleBtn.textContent = THEME_LABELS.light;
                     break;
                 case 'color-mode':
-                    themeToggleBtn.textContent = 'Color Mode';
+                    themeToggleBtn.textContent = THEME_LABELS.color;
                     break;
             }
-
+        
             // Save the theme
             localStorage.setItem('theme', newTheme);
         }
-
+        
         // Function to apply the saved theme
         function applySavedTheme() {
             const themeToggleBtn = document.querySelector('.theme-toggle');
             const holidayBtn = document.querySelector('.holiday-btn');
-
+        
             // Check the current date for automatic holiday themes
             const currentDate = new Date();
             const currentMonth = currentDate.getMonth(); // 0-based
             const currentDay = currentDate.getDate();
-
+        
             if (currentMonth === 9 && currentDay === 31) { // Halloween (October 31)
                 applyTheme('halloween-mode');
-                holidayBtn.textContent = 'Halloween Mode';
+                holidayBtn.textContent = THEME_LABELS.halloween;
                 localStorage.setItem('theme', 'halloween-mode');
                 localStorage.setItem('holidayMode', 'on');
                 return;
             } else if (currentMonth === 11 && currentDay === 25) { // Christmas (December 25)
                 applyTheme('christmas-mode');
-                holidayBtn.textContent = 'Christmas Mode';
+                holidayBtn.textContent = THEME_LABELS.christmas;
                 localStorage.setItem('theme', 'christmas-mode');
                 localStorage.setItem('holidayMode', 'on');
                 return;
             }
-
+        
             // Apply the saved theme from localStorage
             const savedTheme = localStorage.getItem('theme') || 'dark-mode';
             const holidayMode = localStorage.getItem('holidayMode') || 'off';
-
+        
             applyTheme(savedTheme);
-
+        
             // Update button text
             if (holidayMode === 'on') {
                 if (savedTheme === 'halloween-mode') {
-                    holidayBtn.textContent = 'Halloween Mode';
+                    holidayBtn.textContent = THEME_LABELS.halloween;
                 } else if (savedTheme === 'christmas-mode') {
-                    holidayBtn.textContent = 'Christmas Mode';
+                    holidayBtn.textContent = THEME_LABELS.christmas;
                 }
             } else {
                 switch (savedTheme) {
                     case 'dark-mode':
-                        themeToggleBtn.textContent = 'Dark Mode';
+                        themeToggleBtn.textContent = THEME_LABELS.dark;
                         break;
                     case 'light-mode':
-                        themeToggleBtn.textContent = 'Light Mode';
+                        themeToggleBtn.textContent = THEME_LABELS.light;
                         break;
                     case 'color-mode':
-                        themeToggleBtn.textContent = 'Color Mode';
+                        themeToggleBtn.textContent = THEME_LABELS.color;
                         break;
                 }
             }
         }
-
+        
         // Apply the saved theme when the page loads
         document.addEventListener('DOMContentLoaded', applySavedTheme);
     </script>

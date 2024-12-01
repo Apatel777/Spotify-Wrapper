@@ -263,7 +263,7 @@
     <div class="container">
         <h2 class="title">{% trans 'Your Music Personality Analysis' %}</h2>
         {% if error %}
-            <div>{{ error }}</div>
+            <div>{% trans 'Error:' %} {% trans error %} </div>
         {% elif analysis %}
             <div>{{ analysis|linebreaks }}</div>
         {% else %}
@@ -275,6 +275,16 @@
     </button>
 
     <script>
+        // Define translations
+        const THEME_LABELS = {
+            light: '{% trans "Light Mode"|escapejs %}',
+            dark:  '{% trans "Dark Mode"|escapejs %}',
+            color: '{% trans "Color Mode"|escapejs %}',
+            normal: '{% trans "Normal Mode"|escapejs %}',
+            halloween: '{% trans "Halloween Mode"|escapejs %}',
+            christmas: '{% trans "Christmas Mode"|escapejs %}'
+        };
+        
         // Helper function to apply a theme
         function applyTheme(theme) {
             const body = document.body;
@@ -292,7 +302,7 @@
         // Helper function to reset holiday button text
         function resetHolidayButtonText() {
             const holidayBtn = document.querySelector('.holiday-btn');
-            holidayBtn.textContent = 'Normal Theme';
+            holidayBtn.textContent = THEME_LABELS.normal;
         }
         
         // Function to toggle between holiday themes
@@ -318,10 +328,10 @@
             // Update button text
             switch (newTheme) {
                 case 'halloween-mode':
-                    holidayBtn.textContent = 'Halloween Mode';
+                    holidayBtn.textContent = THEME_LABELS.halloween;
                     break;
                 case 'christmas-mode':
-                    holidayBtn.textContent = 'Christmas Mode';
+                    holidayBtn.textContent = THEME_LABELS.christmas;
                     break;
                 default:
                     resetHolidayButtonText();
@@ -359,13 +369,13 @@
             // Update button text
             switch (newTheme) {
                 case 'dark-mode':
-                    themeToggleBtn.textContent = 'Dark Mode';
+                    themeToggleBtn.textContent = THEME_LABELS.dark;
                     break;
                 case 'light-mode':
-                    themeToggleBtn.textContent = 'Light Mode';
+                    themeToggleBtn.textContent = THEME_LABELS.light;
                     break;
                 case 'color-mode':
-                    themeToggleBtn.textContent = 'Color Mode';
+                    themeToggleBtn.textContent = THEME_LABELS.color;
                     break;
             }
         
@@ -385,13 +395,13 @@
         
             if (currentMonth === 9 && currentDay === 31) { // Halloween (October 31)
                 applyTheme('halloween-mode');
-                holidayBtn.textContent = 'Halloween Mode';
+                holidayBtn.textContent = THEME_LABELS.halloween;
                 localStorage.setItem('theme', 'halloween-mode');
                 localStorage.setItem('holidayMode', 'on');
                 return;
             } else if (currentMonth === 11 && currentDay === 25) { // Christmas (December 25)
                 applyTheme('christmas-mode');
-                holidayBtn.textContent = 'Christmas Mode';
+                holidayBtn.textContent = THEME_LABELS.christmas;
                 localStorage.setItem('theme', 'christmas-mode');
                 localStorage.setItem('holidayMode', 'on');
                 return;
@@ -406,20 +416,20 @@
             // Update button text
             if (holidayMode === 'on') {
                 if (savedTheme === 'halloween-mode') {
-                    holidayBtn.textContent = 'Halloween Mode';
+                    holidayBtn.textContent = THEME_LABELS.halloween;
                 } else if (savedTheme === 'christmas-mode') {
-                    holidayBtn.textContent = 'Christmas Mode';
+                    holidayBtn.textContent = THEME_LABELS.christmas;
                 }
             } else {
                 switch (savedTheme) {
                     case 'dark-mode':
-                        themeToggleBtn.textContent = 'Dark Mode';
+                        themeToggleBtn.textContent = THEME_LABELS.dark;
                         break;
                     case 'light-mode':
-                        themeToggleBtn.textContent = 'Light Mode';
+                        themeToggleBtn.textContent = THEME_LABELS.light;
                         break;
                     case 'color-mode':
-                        themeToggleBtn.textContent = 'Color Mode';
+                        themeToggleBtn.textContent = THEME_LABELS.color;
                         break;
                 }
             }

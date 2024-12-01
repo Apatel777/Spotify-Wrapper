@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-16 23:02+0000\n"
+"POT-Creation-Date: 2024-11-30 19:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,81 +18,273 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: SpotifyWrapper/settings.py users/templates/users/profile2.html
+#: SpotifyWrapper/settings.py users/templates/users/profile.html
 msgid "English"
 msgstr "Anglais"
 
-#: SpotifyWrapper/settings.py users/templates/users/profile2.html
+#: SpotifyWrapper/settings.py users/templates/users/profile.html
 msgid "Spanish"
 msgstr "Espagnol"
 
-#: SpotifyWrapper/settings.py users/templates/users/profile2.html
+#: SpotifyWrapper/settings.py users/templates/users/profile.html
 msgid "French"
 msgstr "Français"
 
+#: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile2.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Normal Theme"
+msgstr "Thème normal"
+
+#: users/templates/registered/dashboard.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
 msgid "Home"
 msgstr "Maison"
 
+#: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile2.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
 msgid "Games"
 msgstr "Jeux"
 
+#: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile2.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
 msgid "Guess Top Track"
 msgstr "Devinez la meilleure piste"
 
+#: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile2.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
 msgid "Guess Top Album"
 msgstr "Devinez le meilleur album"
 
+#: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile2.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
 msgid "Guess Artist"
 msgstr "Devinez l&#39;artiste"
 
+#: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile2.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
 msgid "LLM Analysis"
 msgstr "Analyse LLM"
 
+#: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile2.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Past Wraps"
+msgstr "Wraps passés"
+
+#: users/templates/registered/dashboard.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Public Wraps"
+msgstr "Enveloppements publics"
+
+#: users/templates/registered/dashboard.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
 msgid "Profile"
 msgstr "Profil"
 
+#: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile2.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
 msgid "Contact"
 msgstr "Contact"
 
+#: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile2.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
 msgid "Logout"
 msgstr "Déconnexion"
+
+#: users/templates/registered/dashboard.html
+msgid "Recently Played"
+msgstr "Joué récemment"
+
+#: users/templates/registered/dashboard.html
+#, fuzzy
+#| msgid "Guess Top Track"
+msgid "Short Term Top Tracks"
+msgstr "Devinez la meilleure piste"
+
+#: users/templates/registered/dashboard.html
+#, fuzzy
+#| msgid "Guess Top Track"
+msgid "Medium Term Top Tracks"
+msgstr "Devinez la meilleure piste"
+
+#: users/templates/registered/dashboard.html
+#, fuzzy
+#| msgid "Guess Top Track"
+msgid "Long Term Top Tracks"
+msgstr "Devinez la meilleure piste"
+
+#: users/templates/registered/dashboard.html
+#, fuzzy
+#| msgid "Guess Artist"
+msgid "Top Artists"
+msgstr "Devinez l&#39;artiste"
+
+#: users/templates/registered/dashboard.html
+#, fuzzy
+#| msgid "Guess Top Album"
+msgid "Top Album"
+msgstr "Devinez le meilleur album"
+
+#: users/templates/registered/dashboard.html
+msgid "Top Genres"
+msgstr "Les meilleurs genres"
+
+#: users/templates/registered/dashboard.html
+msgid "Top Playlists"
+msgstr "Les meilleures playlists"
+
+#: users/templates/registered/dashboard.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Light Mode"
+msgstr "Mode lumière"
+
+#: users/templates/registered/dashboard.html
+msgid "Back to Dashboard"
+msgstr "Retour au tableau de bord"
+
+#: users/templates/registered/dashboard.html
+msgid "Save"
+msgstr "Sauvegarder"
+
+#: users/templates/registered/dashboard.html
+msgid "Short Term Tracks"
+msgstr "Parcours à court terme"
+
+#: users/templates/registered/dashboard.html
+msgid "Medium Term Tracks"
+msgstr "Parcours à moyen terme"
+
+#: users/templates/registered/dashboard.html
+msgid "Long Term Tracks"
+msgstr "Parcours à long terme"
+
+#: users/templates/registered/dashboard.html
+msgid "Most Listened Album"
+msgstr "Album le plus écouté"
+
+#: users/templates/registered/dashboard.html
+msgid "Subject:"
+msgstr "Sujet:"
+
+#: users/templates/registered/dashboard.html
+msgid "Select a Social Media"
+msgstr "Sélectionnez un média social"
+
+#: users/templates/registered/dashboard.html
+msgid "Twitter(X)"
+msgstr "Twitter(X)"
+
+#: users/templates/registered/dashboard.html
+msgid "WhatsApp"
+msgstr "WhatsApp"
+
+#: users/templates/registered/dashboard.html
+msgid "Reddit"
+msgstr "Reddit"
+
+#: users/templates/registered/dashboard.html
+msgid "Social Media Share"
+msgstr "Partage sur les réseaux sociaux"
+
+#: users/templates/registered/dashboard.html
+msgid "Please select both a social media platform and content type"
+msgstr ""
+"Veuillez sélectionner à la fois une plateforme de médias sociaux et un type "
+"de contenu"
+
+#: users/templates/registered/dashboard.html
+msgid "An error occurred while trying to share. Please try again."
+msgstr ""
+"Une erreur s&#39;est produite lors de la tentative de partage. Veuillez "
+"réessayer."
+
+#: users/templates/registered/dashboard.html users/templates/users/wraps.html
+msgid "CSRF token missing"
+msgstr "Jeton CSRF manquant"
+
+#: users/templates/registered/dashboard.html
+msgid "It was saved successfully"
+msgstr "Il a été enregistré avec succès"
+
+#: users/templates/registered/dashboard.html
+msgid "An error occurred while saving data"
+msgstr "Une erreur s&#39;est produite lors de la sauvegarde des données"
+
+#: users/templates/registered/dashboard.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Dark Mode"
+msgstr "Mode sombre"
+
+#: users/templates/registered/dashboard.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#, fuzzy
+#| msgid "Dark Mode"
+msgid "Color Mode"
+msgstr "Mode sombre"
+
+#: users/templates/registered/dashboard.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#, fuzzy
+#| msgid "Normal Theme"
+msgid "Normal Mode"
+msgstr "Thème normal"
+
+#: users/templates/registered/dashboard.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Halloween Mode"
+msgstr "Mode Halloween"
+
+#: users/templates/registered/dashboard.html
+#: users/templates/users/analysis.html users/templates/users/contact.html
+#: users/templates/users/games.html users/templates/users/profile.html
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Christmas Mode"
+msgstr "Mode Noël"
 
 #: users/templates/users/analysis.html
 msgid "Your Music Personality Analysis"
 msgstr "Votre analyse de personnalité musicale"
 
-#: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/profile2.html
-msgid "Toggle Theme: Light Mode"
-msgstr "Thème à bascule : Mode clair"
+#: users/templates/users/analysis.html
+msgid "Error:"
+msgstr "Erreur:"
 
-#: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/profile2.html
-msgid "Toggle Theme: Dark Mode"
-msgstr "Thème à bascule : Mode sombre"
-
-#: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/profile2.html
-msgid "Toggle Theme: Color Mode"
-msgstr "Thème à bascule : Mode couleur"
+#: users/templates/users/analysis.html
+msgid "Generating analysis"
+msgstr "Générer une analyse"
 
 #: users/templates/users/contact.html
 msgid "Contact Us"
@@ -107,6 +299,12 @@ msgstr ""
 #: users/templates/users/contact.html
 msgid "Name"
 msgstr "Nom"
+
+#: users/templates/users/contact.html
+#, fuzzy
+#| msgid "Select a subject"
+msgid "Subject"
+msgstr "Sélectionnez un sujet"
 
 #: users/templates/users/contact.html
 msgid "Select a subject"
@@ -164,10 +362,6 @@ msgstr "Heures:"
 msgid "Monday - Friday:"
 msgstr "Lundi - Vendredi:"
 
-#: users/templates/users/games.html users/templates/users/profile2.html
-msgid "Guess Clip"
-msgstr "Devinez le clip"
-
 #: users/templates/users/games.html
 msgid "Selected Game:"
 msgstr "Jeu sélectionné :"
@@ -185,10 +379,6 @@ msgid "Can you guess your #1 most played artist?"
 msgstr "Pouvez-vous deviner quel est votre artiste le plus joué ?"
 
 #: users/templates/users/games.html
-msgid "Can you guess based on the clip?"
-msgstr "Pouvez-vous deviner en vous basant sur le clip ?"
-
-#: users/templates/users/games.html
 msgid "Enter your guess"
 msgstr "Entrez votre estimation"
 
@@ -200,30 +390,182 @@ msgstr "Faites une supposition"
 msgid "Attempts remaining:"
 msgstr "Tentatives restantes :"
 
-#: users/templates/users/profile.html users/templates/users/profile2.html
+#: users/templates/users/games.html
+msgid "Congratulations! That's correct!:"
+msgstr "Félicitations ! C'est exact ! :"
+
+#: users/templates/users/games.html
+msgid "Try again!"
+msgstr "Essayer à nouveau!"
+
+#: users/templates/users/games.html
+msgid "Game Over! The correct answer was:"
+msgstr "Fin de la partie ! La bonne réponse était :"
+
+#: users/templates/users/profile.html
 msgid "Your Profile"
 msgstr "Votre profil"
 
-#: users/templates/users/profile2.html
+#: users/templates/users/profile.html
 msgid "Username:"
 msgstr "Nom d&#39;utilisateur:"
 
-#: users/templates/users/profile2.html
+#: users/templates/users/profile.html
 msgid "App Settings"
 msgstr "Paramètres de l&#39;application"
 
-#: users/templates/users/profile2.html
+#: users/templates/users/profile.html
 msgid "Language:"
 msgstr "Langue:"
 
-#: users/templates/users/profile2.html
+#: users/templates/users/profile.html
 msgid "Update Settings"
 msgstr "Mettre à jour les paramètres"
 
-#: users/templates/users/profile2.html
+#: users/templates/users/profile.html
 msgid "Account Management"
 msgstr "Gestion de compte"
 
-#: users/templates/users/profile2.html
+#: users/templates/users/profile.html
 msgid "Delete Account"
 msgstr "Supprimer le compte"
+
+#: users/templates/users/public_wraps.html
+msgid "All Public Spotify Wraps"
+msgstr "Tous les emballages publics de Spotify"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Tracks"
+msgstr "Pistes"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#, fuzzy
+#| msgid "Guess Artist"
+msgid "Artist:"
+msgstr "Devinez l&#39;artiste"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Album:"
+msgstr "Album:"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Popularity:"
+msgstr "Popularité:"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#, fuzzy
+#| msgid "Guess Artist"
+msgid "Artists"
+msgstr "Devinez l&#39;artiste"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Genre:"
+msgstr "Genre:"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Albums"
+msgstr "Album"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Release Date:"
+msgstr "Date de sortie :"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#, fuzzy
+#| msgid "Guess Top Track"
+msgid "Number of Tracks:"
+msgstr "Devinez la meilleure piste"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Genres"
+msgstr "Genres"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Count:"
+msgstr "Compter:"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Percentage:"
+msgstr "Pourcentage:"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Playlists"
+msgstr "Listes de lecture"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Description:"
+msgstr "Description:"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "Duration:"
+msgstr "Durée:"
+
+#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+msgid "minutes"
+msgstr "minutes"
+
+#: users/templates/users/wraps.html
+msgid "Your Past Spotify Wraps"
+msgstr "Vos anciens wraps Spotify"
+
+#: users/templates/users/wraps.html
+msgid "Delete Wrapped"
+msgstr "Supprimer l&#39;emballage"
+
+#: users/templates/users/wraps.html
+msgid "Make Wrapped Public"
+msgstr "Rendre l&#39;emballage public"
+
+#: users/templates/users/wraps.html
+msgid "It was deleted successfully"
+msgstr "Il a été supprimé avec succès"
+
+#: users/templates/users/wraps.html
+msgid "An error occurred while deleting data"
+msgstr "Une erreur s&#39;est produite lors de la suppression des données"
+
+#~ msgid "Toggle Theme: Light Mode"
+#~ msgstr "Thème à bascule : Mode clair"
+
+#, fuzzy
+#~ msgid "Top Tracks"
+#~ msgstr "Devinez la meilleure piste"
+
+#~ msgid "Preview unavailable"
+#~ msgstr "Aperçu indisponible"
+
+#~ msgid "Medium Term Top Tracks (Last 6 Months)"
+#~ msgstr "Meilleurs titres à moyen terme (6 derniers mois)"
+
+#~ msgid "Long Term Top Tracks (All Time)"
+#~ msgstr "Meilleurs morceaux à long terme (de tous les temps)"
+
+#~ msgid "No tracks found for this time period."
+#~ msgstr "Aucune piste trouvée pour cette période."
+
+#~ msgid "Share on X"
+#~ msgstr "Partager sur X"
+
+#~ msgid "Share on LinkedIn"
+#~ msgstr "Partager sur LinkedIn"
+
+#~ msgid "Copy for Instagram"
+#~ msgstr "Copie pour Instagram"
+
+#~ msgid "Instagram"
+#~ msgstr "Instagram"
+
+#~ msgid "LinkedIn"
+#~ msgstr "LinkedIn"
+
+#~ msgid "Toggle Theme: Dark Mode"
+#~ msgstr "Thème à bascule : Mode sombre"
+
+#~ msgid "Toggle Theme: Color Mode"
+#~ msgstr "Thème à bascule : Mode couleur"
+
+#~ msgid "Guess Clip"
+#~ msgstr "Devinez le clip"
+
+#~ msgid "Can you guess based on the clip?"
+#~ msgstr "Pouvez-vous deviner en vous basant sur le clip ?"
