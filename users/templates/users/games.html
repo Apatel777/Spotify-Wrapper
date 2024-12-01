@@ -130,7 +130,7 @@
 
         .navbar-links li {
             position: relative; /* Required for dropdown positioning */
-            margin-right: 20px;
+            margin-right: 10px;
         }
 
         .navbar-links a {
@@ -301,6 +301,7 @@
             <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
             <li><a href="{% url 'wraps' %}">{% trans 'Past Wraps' %}</a></li>
             <li><a href="{% url 'public_wraps' %}">{% trans 'Public Wraps' %}</a></li>
+            <li><a href="{% url 'duo_wrapped' %}">Duo-Wrapped</a></li>
             <li><a href="{% url 'profile' %}">{% trans 'Profile' %}</a></li>
             <li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>
             <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
