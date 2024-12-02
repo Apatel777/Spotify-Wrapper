@@ -855,15 +855,21 @@ def accept_duo_invite(request, sender_email):
 
 @login_required
 def duo_wrapped_view(request):
+    theme = request.session.get('theme', 'light')
+
     user = request.user
     open_invites = DuoInvite.objects.filter(recipient=user, accepted=False)
-    accepted_invites = DuoInvite.objects.filter(recipient=user, accepted=True)
+    accepted_invites = DuoInvite.objects.filter(recipient=user, accepted=True, saved=False)
+    saved_invites = DuoInvite.objects.filter(recipient=user, saved=True)
 
     context = {
+        'theme': theme,
         'open_invites': open_invites,
         'accepted_invites': accepted_invites,
+        'saved_invites': saved_invites,
         'user': user,
     }
+
     invitation_response = request.session.get('invitation_response')
     if invitation_response:
         language = request.session.get('django_language', settings.LANGUAGE_CODE)
@@ -875,6 +881,43 @@ def duo_wrapped_view(request):
 
     request.session['invitation_response'] = None
     return render(request, 'users/duo_wrapped.html', context)
+
+
+@login_required
+def handle_duo_wrapped(request, sender_email, timestamp):
+    if request.method == 'POST':
+        try:
+            try:
+                created_at = datetime.fromisoformat(timestamp)  # Convert the string to datetime
+            except ValueError:
+                request.session['invitation_response'] = 'Invalid date format'
+                return redirect('duo_wrapped')
+
+            try:
+                invite = DuoInvite.objects.get(
+                    sender__email=sender_email,
+                    recipient=request.user,
+                    created_at=created_at,
+                )
+            except DuoInvite.DoesNotExist:
+                request.session['invitation_response'] = 'Invite not found'
+                return redirect('duo_wrapped')
+
+            # Check which button was clicked
+            if 'save' in request.POST:
+                invite.saved = True
+                invite.save()
+                request.session['invitation_response'] = 'Invite saved successfully'
+
+            elif 'close' in request.POST:
+                invite.delete()
+                request.session['invitation_response'] = 'Invite closed successfully'
+
+        except Exception as e:
+            request.session['invitation_response'] = f'An error occurred while processing the invite: {e}'
+
+    # Redirect back to the duo wrapped page
+    return redirect('duo_wrapped')
 
 @login_required
 def send_duo_invite(request):

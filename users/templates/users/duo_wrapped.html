@@ -302,6 +302,15 @@
             transform: scale(1.1); /* Make the emoji slightly bigger */
             opacity: 1; /* Make it fully visible on hover */
         }
+        
+        .container p:has(+ .track-table) {
+            cursor: pointer;
+            transition: text-decoration 0.3s ease;
+        }
+        
+        .container p:has(+ .track-table):hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body class="p-8">
@@ -337,7 +346,7 @@
                 {{ invitation_response }}
             </div>
         {% endif %}
-        {% if not duo_partner %}
+    
         <div class="invite-form">
             <h2 class="text-xl mb-4">{% trans 'Invite a Friend' %}</h2>
             <form method="POST" action="{% url 'send_duo_invite' %}">
@@ -346,7 +355,6 @@
                 <button type="submit" class="invite-button">{% trans 'Send Invite' %}</button>
             </form>
         </div>
-        {% endif %}
     
         {% if open_invites %}
             <p>{% trans 'Open Invites' %}</p>
@@ -420,9 +428,81 @@
                             <p>{% trans 'No tracks available.' %}</p>
                         {% endif %}
                     </div>
+                
+                    <form method="POST" action="{% url 'handle_duo_wrapped' accepted.sender.email accepted.created_at%}">
+                        {% csrf_token %}
+                        <button name="close" type="submit" class="invite-button">{% trans 'Close' %}</button>
+                        <button name="save" type="submit" class="invite-button">{% trans 'Save' %}</button>
+                    </form>
                 </div>
             {% endfor %}
         {% endif %}
+    
+        {% if saved_invites %}
+        	<p>{% trans 'Saved Wraps' %}</p>
+            {% for saved in saved_invites %}
+                <p>{{ saved.sender.username }}</p>
+            
+                <div class="track-table">
+                    <div class="track-column">
+                        <h3>{% trans 'Partner Tracks' %}</h3>
+                        {% if saved.data.partner_tracks %}
+                            <ul>
+                                {% for track in saved.data.partner_tracks %}
+                                    <li>
+                                        <div class="top-item" data-track-uri="{{ track.uri }}">
+                                            <span class="top-item-number"># {{ forloop.counter }}</span>
+                                            <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
+                                            <div class="top-item-info">
+                                                <p class="top-item-name">{{ track.name }}</p>
+                                                <p class="top-item-artist">
+                                                    {% for artist in track.artists %}
+                                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>{% trans 'No tracks available.' %}</p>
+                        {% endif %}
+                    </div>
+            
+                    <div class="track-column">
+                        <h3>{% trans 'Partner 2 Tracks' %}</h3>
+                        {% if saved.data.partner2_tracks %}
+                            <ul>
+                                {% for track in saved.data.partner2_tracks %}
+                                    <li>
+                                        <div class="top-item" data-track-uri="{{ track.uri }}">
+                                            <span class="top-item-number"># {{ forloop.counter }}</span>
+                                            <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
+                                            <div class="top-item-info">
+                                                <p class="top-item-name">{{ track.name }}</p>
+                                                <p class="top-item-artist">
+                                                    {% for artist in track.artists %}
+                                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>{% trans 'No tracks available.' %}</p>
+                        {% endif %}
+                    </div>
+                
+                    <form method="POST" action="{% url 'handle_duo_wrapped' saved.sender.email saved.created_at%}">
+                        {% csrf_token %}
+                        <button name="close" type="submit" class="invite-button">{% trans 'Delete' %}</button>
+                    </form>
+                </div>
+            {% endfor %}
+        {% endif %} 
     </div>
     
     <button class="theme-toggle" onclick="toggleRegularTheme()">
@@ -430,6 +510,37 @@
     </button>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select all username paragraphs
+            const usernameParagraphs = document.querySelectorAll('.container p');
+            
+            usernameParagraphs.forEach(username => {
+                // Find the next sibling track-table div
+                const trackTable = username.nextElementSibling;
+                
+                // Check if this is a username paragraph (not an "Accepted Invites" or other text paragraph)
+                if (trackTable && trackTable.classList.contains('track-table')) {
+                    // Initially hide the track table
+                    trackTable.style.display = 'none';
+                    
+                    // Make username clickable
+                    username.style.cursor = 'pointer';
+                    username.classList.add('hover:underline');
+                    
+                    // Add click event listener to username
+                    username.addEventListener('click', function() {
+                        // Hide all track tables first
+                        document.querySelectorAll('.track-table').forEach(table => {
+                            table.style.display = 'none';
+                        });
+                        
+                        // Toggle visibility of this specific track table
+                        trackTable.style.display = trackTable.style.display === 'none' ? 'flex' : 'none';
+                    });
+                }
+            });
+        });
+        
         // Define translations
         const THEME_LABELS = {
             light: '{% trans "Light Mode"|escapejs %}',

@@ -490,3 +490,4 @@ class DuoInvite(models.Model):
     data = models.JSONField(default=get_default_data)
     created_at = models.DateTimeField(auto_now_add=True)
     accepted = models.BooleanField(default=False)
+    saved = models.BooleanField(default=False)
