@@ -347,8 +347,10 @@
             try_again:  '{% trans "Try again!"|escapejs %}',
             game_over:  '{% trans "Game Over! The correct answer was:"|escapejs %}',
         };
+        const rungame = {{ rungame|default:0 }};
         
         document.addEventListener('DOMContentLoaded', function() {
+            const rungame = parseInt('{{ rungame|default:0 }}', 10); // Get rungame value from context
             const guessInput = document.getElementById('guessInput');
             const submitButton = document.getElementById('submitGuess');
             const feedbackMessage = document.getElementById('feedbackMessage');
@@ -357,6 +359,13 @@
             console.log(correctAnswer)
             
             let attempts = 3;
+            if (rungame === 0) {
+                // Disable the game
+                feedbackMessage.textContent = 'Game cannot be played due to missing data.';
+                guessInput.disabled = true;
+                submitButton.disabled = true;
+                return; // Exit the function early
+            }
             updateAttemptsDisplay();
 
             function updateAttemptsDisplay() {

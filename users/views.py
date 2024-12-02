@@ -413,8 +413,31 @@ def games_view(request):
     selected_game = int(request.GET.get('game', '0'))  # Retrieve the selected game
     game_type = ["Guess Top Track", "Guess Top Album", "Guess Artist"][selected_game]
 
-    top_tracks = random.choice(request.session.get('top_tracks', {})['short_term'])
-    top_artists = random.choice(request.session.get('top_artists', {}))
+    top_tracks = request.session.get('top_tracks', {})
+    top_artists = request.session.get('top_artists', [])
+    top_albums = request.session.get('top_albums', [])
+
+    # Safely access and select random items
+    if 'short_term' in top_tracks and top_tracks['short_term']:
+    else:
+        top_tracks = None
+
+    if top_artists:
+        top_artists = random.choice(top_artists)
+    else:
+        top_artists = None
+
+    if not top_albums:
+        top_albums = None
+
+    # Game logic
+    rungame = 1
+    if (selected_game == 0 and not top_tracks) or \
+            (selected_game == 1 and not top_albums) or \
+            (selected_game == 2 and not top_artists):
+        rungame = 0
+
+
     language = request.session.get('django_language', settings.LANGUAGE_CODE)
     if language == "es":
         game_type = translate_to_spanish(game_type)
@@ -428,6 +451,7 @@ def games_view(request):
         'top_artists': top_artists,
         'top_albums': request.session.get('top_albums', {}),
         'game_type': game_type,
+        'rungame': rungame
     }
     return render(request, 'users/games.html', context)
 
@@ -604,6 +628,7 @@ def analyze_music_taste(request):
             track_info.append(f"{track['name']} by {artists}")
 
         tracks_text = "\n".join(track_info)
+        print(f"Tracks Text in GENAI: {tracks_text}")
 
         # Configure Gemini
         genai.configure(api_key=settings.CLOUD_API_KEY)
@@ -611,8 +636,9 @@ def analyze_music_taste(request):
 
         prompt = """Based on these songs:
 {}
+First print all the songs I prompted. If none provided, let me know I have no top songs and do not do the rest of this
 
-Generate a fun roughly-50-word personality analysis
+Next, generate a fun roughly-50-word personality analysis
 It should describe how someone who listens to this kind of music tends to act/think/dress.
 Keep it positive and playful, focusing on the overall vibe rather than specific songs.""".format(tracks_text)
 
