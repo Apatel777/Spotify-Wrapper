@@ -140,7 +140,7 @@
 
         .navbar-links li {
             position: relative; /* Required for dropdown positioning */
-            margin-right: 20px;
+            margin-right: 10px;
         }
 
         .navbar-links a {
@@ -315,6 +315,7 @@
             <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
             <li><a href="{% url 'wraps' %}">{% trans 'Past Wraps' %}</a></li>
             <li><a href="{% url 'public_wraps' %}">{% trans 'Public Wraps' %}</a></li>
+            <li><a href="{% url 'duo_wrapped' %}">Duo-Wrapped</a></li>
             <li><a href="{% url 'profile' %}">{% trans 'Profile' %}</a></li>
             <li><a href="#">{% trans 'Contact' %}</a></li>
             <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
@@ -357,6 +358,7 @@
             <p><strong>{% trans 'Email:' %}</strong> support@spotifywrapper.com</p>
             <p><strong>{% trans 'Response Time:' %}</strong> {% trans 'We typically respond within 24-48 hours' %}</p>
             <p><strong>{% trans 'Hours:' %}</strong> {% trans 'Monday - Friday:' %}, 9:00 AM - 5:00 PM EST</p>
+            <a href="https://sites.google.com/view/team7spotifywrapper/home" class="btn">{% trans 'Portfolio' %}</a> <!-- Added About Us button -->
         </div>
     </div>
     <button class="theme-toggle" onclick="toggleRegularTheme()">

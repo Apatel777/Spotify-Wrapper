@@ -193,7 +193,7 @@ def spotify_callback(request):
         )
 
         if user_response.status_code != 200:
-            logger.error("Failed to retrieve Spotify user info")
+            logger.error(f"Failed to retrieve Spotify user info {user_response.status_code} - {user_response.text}")
             messages.error(request, "Failed to retrieve user information. Please try again.")
             return redirect('signup')
 
@@ -413,8 +413,32 @@ def games_view(request):
     selected_game = int(request.GET.get('game', '0'))  # Retrieve the selected game
     game_type = ["Guess Top Track", "Guess Top Album", "Guess Artist"][selected_game]
 
-    top_tracks = random.choice(request.session.get('top_tracks', {})['short_term'])
-    top_artists = random.choice(request.session.get('top_artists', {}))
+    top_tracks = request.session.get('top_tracks', {})
+    top_artists = request.session.get('top_artists', [])
+    top_albums = request.session.get('top_albums', [])
+
+    # Safely access and select random items
+    if 'short_term' in top_tracks and top_tracks['short_term']:
+        top_tracks = random.choice(top_tracks['short_term'])
+    else:
+        top_tracks = None
+
+    if top_artists:
+        top_artists = random.choice(top_artists)
+    else:
+        top_artists = None
+
+    if not top_albums:
+        top_albums = None
+
+    # Game logic
+    rungame = 1
+    if (selected_game == 0 and not top_tracks) or \
+            (selected_game == 1 and not top_albums) or \
+            (selected_game == 2 and not top_artists):
+        rungame = 0
+
+
     language = request.session.get('django_language', settings.LANGUAGE_CODE)
     if language == "es":
         game_type = translate_to_spanish(game_type)
@@ -428,6 +452,7 @@ def games_view(request):
         'top_artists': top_artists,
         'top_albums': request.session.get('top_albums', {}),
         'game_type': game_type,
+        'rungame': rungame
     }
     return render(request, 'users/games.html', context)
 
@@ -604,6 +629,7 @@ def analyze_music_taste(request):
             track_info.append(f"{track['name']} by {artists}")
 
         tracks_text = "\n".join(track_info)
+        print(f"Tracks Text in GENAI: {tracks_text}")
 
         # Configure Gemini
         genai.configure(api_key=settings.CLOUD_API_KEY)
@@ -611,8 +637,9 @@ def analyze_music_taste(request):
 
         prompt = """Based on these songs:
 {}
+First print all the songs I prompted. If none provided, let me know I have no top songs and do not do the rest of this
 
-Generate a fun roughly-50-word personality analysis
+Next, generate a fun roughly-50-word personality analysis
 It should describe how someone who listens to this kind of music tends to act/think/dress.
 Keep it positive and playful, focusing on the overall vibe rather than specific songs.""".format(tracks_text)
 
@@ -807,6 +834,133 @@ def prepare_share_content(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
+@login_required
+def accept_duo_invite(request, sender_email):
+    request.session['invitation_response'] = None
+    try:
+        user = request.user
+        sender = User.objects.get(email=sender_email)
+        invite = DuoInvite.objects.get(sender=sender, recipient = user, accepted=False)
+        invite.data['partner2_tracks'] = request.session.get('top_tracks', {})['short_term'][:5]
+        invite.accepted = True
+        invite.save()
+
+        request.session['invitation_response'] = 'Invitation accepted! Create your Duo-Wrapped now.'
+        return redirect('duo_wrapped')
+
+    except DuoInvite.DoesNotExist:
+        request.session['invitation_response'] = 'Invalid invitation- Accepting'
+        return redirect('duo_wrapped')
+
+
+@login_required
+def duo_wrapped_view(request):
+    theme = request.session.get('theme', 'light')
+
+    user = request.user
+    open_invites = DuoInvite.objects.filter(recipient=user, accepted=False)
+    accepted_invites = DuoInvite.objects.filter(recipient=user, accepted=True, saved=False)
+    saved_invites = DuoInvite.objects.filter(recipient=user, saved=True)
+
+    context = {
+        'theme': theme,
+        'open_invites': open_invites,
+        'accepted_invites': accepted_invites,
+        'saved_invites': saved_invites,
+        'user': user,
+    }
+
+    invitation_response = request.session.get('invitation_response')
+    if invitation_response:
+        language = request.session.get('django_language', settings.LANGUAGE_CODE)
+        if language == "es":
+            invitation_response = translate_to_spanish(invitation_response)
+        elif language == "fr":
+            invitation_response = translate_to_french(invitation_response)
+        context['invitation_response'] = invitation_response
+
+    request.session['invitation_response'] = None
+    return render(request, 'users/duo_wrapped.html', context)
+
+
+@login_required
+def handle_duo_wrapped(request, sender_email, timestamp):
+    if request.method == 'POST':
+        try:
+            try:
+                created_at = datetime.fromisoformat(timestamp)  # Convert the string to datetime
+            except ValueError:
+                request.session['invitation_response'] = 'Invalid date format'
+                return redirect('duo_wrapped')
+
+            try:
+                invite = DuoInvite.objects.get(
+                    sender__email=sender_email,
+                    recipient=request.user,
+                    created_at=created_at,
+                )
+            except DuoInvite.DoesNotExist:
+                request.session['invitation_response'] = 'Invite not found'
+                return redirect('duo_wrapped')
+
+            # Check which button was clicked
+            if 'save' in request.POST:
+                invite.saved = True
+                invite.save()
+                request.session['invitation_response'] = 'Invite saved successfully'
+
+            elif 'close' in request.POST:
+                invite.delete()
+                request.session['invitation_response'] = 'Invite closed successfully'
+
+        except Exception as e:
+            request.session['invitation_response'] = f'An error occurred while processing the invite: {e}'
+
+    # Redirect back to the duo wrapped page
+    return redirect('duo_wrapped')
+
+@login_required
+def send_duo_invite(request):
+    request.session['invitation_response'] = None
+    if request.method == 'POST':
+        recipient_email = request.POST.get('friend_email')
+        print(recipient_email)
+        if recipient_email == request.user.email:
+            request.session['invitation_response'] = 'Invalid invitation - own email.'
+            return redirect('duo_wrapped')
+
+        # Ensure the recipient exists
+        try:
+            recipient = User.objects.get(email=recipient_email)
+        except User.DoesNotExist:
+            request.session['invitation_response'] = 'Invalid invitation - User with this email does not exist'
+            return redirect('duo_wrapped')
+
+        duo_invite = DuoInvite.objects.filter(sender=request.user, recipient=recipient, accepted=False)
+        if duo_invite:
+            request.session['invitation_response'] = 'An unaccepted invite already exists for this recipient'
+            return redirect('duo_wrapped')
+
+        # Create a DuoInvite for this recipient
+        duo_invite, created = DuoInvite.objects.get_or_create(
+            sender=request.user,  # Assuming the sender is the currently logged-in user
+            recipient=recipient,
+            data={
+                'partner_tracks': request.session.get('top_tracks', {})['short_term'][:5],
+                'partner2_tracks': request.session.get('top_tracks', {})['short_term'][:5],
+                'timestamp': datetime.now().isoformat()
+            }
+        )
+
+        # Respond accordingly
+        if created:
+            request.session['invitation_response'] = "Invite successfully sent. User: " + str(duo_invite.recipient.username)
+            return redirect('duo_wrapped')
+        else:
+            request.session['invitation_response'] = 'An invite already exists for this recipient'
+            return redirect('duo_wrapped')
+
+    return JsonResponse({"error": "Invalid request method."}, status=400)
 
 def translate_text(text, target_language):
     """

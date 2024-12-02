@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-30 19:28+0000\n"
+"POT-Creation-Date: 2024-12-02 02:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,85 +32,97 @@ msgstr "Francés"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Normal Theme"
 msgstr "Tema normal"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Home"
 msgstr "Hogar"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Games"
 msgstr "Juegos"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Guess Top Track"
 msgstr "Adivina la pista superior"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Guess Top Album"
 msgstr "Adivina el mejor álbum"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Guess Artist"
 msgstr "Adivina el artista"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "LLM Analysis"
 msgstr "Análisis de LLM"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Past Wraps"
 msgstr "Envolturas pasadas"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Public Wraps"
 msgstr "Envolturas públicas"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Profile"
 msgstr "Perfil"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Contact"
 msgstr "Contacto"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Logout"
 msgstr "Cerrar sesión"
 
@@ -119,34 +131,24 @@ msgid "Recently Played"
 msgstr "Jugado recientemente"
 
 #: users/templates/registered/dashboard.html
-#, fuzzy
-#| msgid "Guess Top Track"
 msgid "Short Term Top Tracks"
-msgstr "Adivina la pista superior"
+msgstr "Principales pistas a corto plazo"
 
 #: users/templates/registered/dashboard.html
-#, fuzzy
-#| msgid "Guess Top Track"
 msgid "Medium Term Top Tracks"
-msgstr "Adivina la pista superior"
+msgstr "Principales pistas a mediano plazo"
 
 #: users/templates/registered/dashboard.html
-#, fuzzy
-#| msgid "Guess Top Track"
 msgid "Long Term Top Tracks"
-msgstr "Adivina la pista superior"
+msgstr "Principales pistas a largo plazo"
 
 #: users/templates/registered/dashboard.html
-#, fuzzy
-#| msgid "Guess Artist"
 msgid "Top Artists"
-msgstr "Adivina el artista"
+msgstr "Los mejores artistas"
 
 #: users/templates/registered/dashboard.html
-#, fuzzy
-#| msgid "Guess Top Album"
 msgid "Top Album"
-msgstr "Adivina el mejor álbum"
+msgstr "Álbum superior"
 
 #: users/templates/registered/dashboard.html
 msgid "Top Genres"
@@ -158,8 +160,9 @@ msgstr "Las mejores listas de reproducción"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Light Mode"
 msgstr "Modo claro"
 
@@ -168,6 +171,7 @@ msgid "Back to Dashboard"
 msgstr "Volver al panel de control"
 
 #: users/templates/registered/dashboard.html
+#: users/templates/users/duo_wrapped.html
 msgid "Save"
 msgstr "Ahorrar"
 
@@ -233,40 +237,41 @@ msgstr "Se produjo un error al guardar los datos"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Dark Mode"
 msgstr "Modo oscuro"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
-#, fuzzy
-#| msgid "Dark Mode"
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Color Mode"
-msgstr "Modo oscuro"
+msgstr "Modo de color"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
-#, fuzzy
-#| msgid "Normal Theme"
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Normal Mode"
-msgstr "Tema normal"
+msgstr "Modo normal"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Halloween Mode"
 msgstr "Modo Halloween"
 
 #: users/templates/registered/dashboard.html
 #: users/templates/users/analysis.html users/templates/users/contact.html
-#: users/templates/users/games.html users/templates/users/profile.html
-#: users/templates/users/public_wraps.html users/templates/users/wraps.html
+#: users/templates/users/duo_wrapped.html users/templates/users/games.html
+#: users/templates/users/profile.html users/templates/users/public_wraps.html
+#: users/templates/users/wraps.html
 msgid "Christmas Mode"
 msgstr "Modo Navidad"
 
@@ -295,10 +300,8 @@ msgid "Name"
 msgstr "Nombre"
 
 #: users/templates/users/contact.html
-#, fuzzy
-#| msgid "Select a subject"
 msgid "Subject"
-msgstr "Seleccione un tema"
+msgstr "Sujeto"
 
 #: users/templates/users/contact.html
 msgid "Select a subject"
@@ -355,6 +358,62 @@ msgstr "Horas:"
 #: users/templates/users/contact.html
 msgid "Monday - Friday:"
 msgstr "Lunes - Viernes:"
+
+#: users/templates/users/contact.html
+msgid "Portfolio"
+msgstr "Cartera"
+
+#: users/templates/users/duo_wrapped.html
+msgid "Duo-Wrapped"
+msgstr "Envuelto en dúo"
+
+#: users/templates/users/duo_wrapped.html
+msgid "Invite a Friend"
+msgstr "Invitar a un amigo"
+
+#: users/templates/users/duo_wrapped.html
+msgid "Friend"
+msgstr "Amigo"
+
+#: users/templates/users/duo_wrapped.html
+msgid "Send Invite"
+msgstr "Enviar invitación"
+
+#: users/templates/users/duo_wrapped.html
+msgid "Open Invites"
+msgstr "Invitaciones abiertas"
+
+#: users/templates/users/duo_wrapped.html
+msgid "Accept"
+msgstr "Aceptar"
+
+#: users/templates/users/duo_wrapped.html
+msgid "Accepted Invites"
+msgstr "Invitaciones aceptadas"
+
+#: users/templates/users/duo_wrapped.html
+msgid "Partner Tracks"
+msgstr "Pistas de socios"
+
+#: users/templates/users/duo_wrapped.html
+msgid "No tracks available."
+msgstr "No hay pistas disponibles"
+
+#: users/templates/users/duo_wrapped.html
+msgid "Partner 2 Tracks"
+msgstr "Pistas del socio 2"
+
+#: users/templates/users/duo_wrapped.html
+msgid "Close"
+msgstr "Cerca"
+
+#: users/templates/users/duo_wrapped.html
+msgid "Saved Wraps"
+msgstr "Envolturas guardadas"
+
+#: users/templates/users/duo_wrapped.html
+msgid "Delete"
+msgstr "Borrar"
 
 #: users/templates/users/games.html
 msgid "Selected Game:"
@@ -433,10 +492,8 @@ msgid "Tracks"
 msgstr "Pistas"
 
 #: users/templates/users/public_wraps.html users/templates/users/wraps.html
-#, fuzzy
-#| msgid "Guess Artist"
 msgid "Artist:"
-msgstr "Adivina el artista"
+msgstr "Artista:"
 
 #: users/templates/users/public_wraps.html users/templates/users/wraps.html
 msgid "Album:"
@@ -447,10 +504,8 @@ msgid "Popularity:"
 msgstr "Popularidad:"
 
 #: users/templates/users/public_wraps.html users/templates/users/wraps.html
-#, fuzzy
-#| msgid "Guess Artist"
 msgid "Artists"
-msgstr "Adivina el artista"
+msgstr "Artistas"
 
 #: users/templates/users/public_wraps.html users/templates/users/wraps.html
 msgid "Genre:"
@@ -465,10 +520,8 @@ msgid "Release Date:"
 msgstr "Fecha de lanzamiento:"
 
 #: users/templates/users/public_wraps.html users/templates/users/wraps.html
-#, fuzzy
-#| msgid "Guess Top Track"
 msgid "Number of Tracks:"
-msgstr "Adivina la pista superior"
+msgstr "Número de pistas:"
 
 #: users/templates/users/public_wraps.html users/templates/users/wraps.html
 msgid "Genres"
@@ -517,49 +570,3 @@ msgstr "Se eliminó exitosamente"
 #: users/templates/users/wraps.html
 msgid "An error occurred while deleting data"
 msgstr "Se produjo un error al eliminar los datos"
-
-#~ msgid "Toggle Theme: Light Mode"
-#~ msgstr "Cambiar tema: Modo claro"
-
-#, fuzzy
-#~ msgid "Top Tracks"
-#~ msgstr "Adivina la pista superior"
-
-#~ msgid "Preview unavailable"
-#~ msgstr "Vista previa no disponible"
-
-#~ msgid "Medium Term Top Tracks (Last 6 Months)"
-#~ msgstr "Principales tendencias a medio plazo (últimos 6 meses)"
-
-#~ msgid "Long Term Top Tracks (All Time)"
-#~ msgstr "Las mejores canciones de todos los tiempos"
-
-#~ msgid "No tracks found for this time period."
-#~ msgstr "No se encontraron pistas para este período de tiempo."
-
-#~ msgid "Share on X"
-#~ msgstr "Compartir en X"
-
-#~ msgid "Share on LinkedIn"
-#~ msgstr "Compartir en LinkedIn"
-
-#~ msgid "Copy for Instagram"
-#~ msgstr "Copiar para Instagram"
-
-#~ msgid "Instagram"
-#~ msgstr "Instagram"
-
-#~ msgid "LinkedIn"
-#~ msgstr "LinkedIn"
-
-#~ msgid "Toggle Theme: Dark Mode"
-#~ msgstr "Cambiar tema: Modo oscuro"
-
-#~ msgid "Toggle Theme: Color Mode"
-#~ msgstr "Cambiar tema: Modo de color"
-
-#~ msgid "Guess Clip"
-#~ msgstr "Adivina el clip"
-
-#~ msgid "Can you guess based on the clip?"
-#~ msgstr "¿Puedes adivinarlo basándose en el clip?"
