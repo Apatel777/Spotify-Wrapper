@@ -419,6 +419,7 @@ def games_view(request):
 
     # Safely access and select random items
     if 'short_term' in top_tracks and top_tracks['short_term']:
+        top_tracks = random.choice(top_tracks['short_term'])
     else:
         top_tracks = None
 
