@@ -4,6 +4,8 @@ from django.utils import timezone
 from django.db import IntegrityError
 import logging
 import requests
+import uuid
+from django.conf import settings    
 
 # Setting up a logger
 logger = logging.getLogger(__name__)
@@ -468,3 +470,23 @@ def make_spotify_data_public(user, wrapper_type, created_at):
     except Exception as e:
         logger.error(f"Error making Spotify data public: {str(e)}")
         return None
+
+def get_default_recipient():
+    default_user = User.objects.first()  # Replace this logic with your desired default User lookup
+    if default_user:
+        return default_user.id  # Return the ID of the default User
+    raise ValueError("No default User available for DuoInvite recipient.")
+
+def get_default_data():
+    return {
+        'partner_tracks': "pending",
+        'partner2_tracks': "pending",
+        'timestamp': "pending"
+    }
+
+class DuoInvite(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_duo_invites')
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipient_invites', default=get_default_recipient)
+    data = models.JSONField(default=get_default_data)
+    created_at = models.DateTimeField(auto_now_add=True)
+    accepted = models.BooleanField(default=False)

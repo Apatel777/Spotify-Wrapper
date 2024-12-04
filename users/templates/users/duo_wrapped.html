@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guess Your Top Track and Artist</title>
+    <title>Duo-Wrapped</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Root variables for dark mode */
@@ -86,7 +86,7 @@
             --overlay-color: rgba(196, 30, 58, 0.7);
             --glow-color: #c41e3a;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
@@ -192,48 +192,79 @@
             margin: 100px auto 0 auto;
             width: 40%;
         }
-        .container h1{
-            font-size: 20px;
-            text-decoration: underline;
+
+        .invite-form {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
         }
-        .feedback {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 4px;
+
+        .invite-input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0.25rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-color);
         }
-        .feedback.error {
-            background: #ffe6e6;
-            color: #cc0000;
-        }
-        .feedback.success {
-            background: #e6ffe6;
-            color: #006600;
-        }
-        .input-group {
-            margin: 15px 0;
-        }
-        .input-group input {
-            padding: 8px;
-            margin-right: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .btn-guess {
-            background: #1DB954;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+
+        .invite-button {
+            background: var(--nave-bg-color);
+            color: var(--nave-text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
             cursor: pointer;
         }
-        .btn-guess:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
+
+        .invite-button:hover {
+            background: var(--btn-hover-color);
         }
-        .attempts {
-            margin-top: 10px;
-            font-style: italic;
+
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
+        
+        .track-table {
+            display: flex;
+            justify-content: flex-start;
+            margin: 20px auto;
+        }
+        
+        .track-column {
+            width: 48%;  /* Adjust width for left and right columns */
+            text-align: left;
+        }
+        
+        .top-item {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .top-item-number {
+            display: flex;
+            margin-right: 20px;
+        }
+        
+        .top-item-image {
+            width: 50px;
+            height: 50px;
+            margin-right: 20px;
+        }
+        
+        .top-item-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .top-item-name, .top-item-artist {
+            margin: 0;
+            font-size: 14px;
+        }
+
         
         /* Toggle Theme Button */
         .theme-toggle {
@@ -273,9 +304,9 @@
         }
     </style>
 </head>
-
 <body class="p-8">
     <button class="holiday-btn" onclick="toggleHolidayTheme()">{% trans 'Normal Theme' %}</button>
+
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="navbar-brand">SpotifyWrapper</div>
@@ -284,127 +315,121 @@
             <li class="dropdown">
                 <a href="#" class="dropdown-trigger">{% trans 'Games' %}</a>
                 <ul class="dropdown-menu">
-                    <li>{% if game_type == 'Guess Top Track' %} <a href="#">{% trans 'Guess Top Track' %}</a>
-                        {% else %} <a href="{% url 'games' %}?game=0">{% trans 'Guess Top Track' %}</a>
-                        {% endif %}
-                    </li>
-                    <li>{% if game_type == 'Guess Top Album' %} <a href="#">{% trans 'Guess Top Album' %}</a>
-                        {% else %} <a href="{% url 'games' %}?game=1">{% trans 'Guess Top Album' %}</a>
-                        {% endif %}
-                    </li>
-                    <li>{% if game_type == 'Guess Artist' %} <a href="#">{% trans 'Guess Artist' %}</a>
-                        {% else %} <a href="{% url 'games' %}?game=2">{% trans 'Guess Artist' %}</a>
-                        {% endif %}
-                    </li>
+                    <li><a href="{% url 'games' %}?game=0">{% trans 'Guess Top Track' %}</a></li>
+                    <li><a href="{% url 'games' %}?game=1">{% trans 'Guess Top Album' %}</a></li>
+                    <li><a href="{% url 'games' %}?game=2">{% trans 'Guess Artist' %}</a>
                 </ul>
             </li>
             <li><a href="{% url 'analysis' %}">{% trans 'LLM Analysis' %}</a></li>
             <li><a href="{% url 'wraps' %}">{% trans 'Past Wraps' %}</a></li>
             <li><a href="{% url 'public_wraps' %}">{% trans 'Public Wraps' %}</a></li>
-            <li><a href="{% url 'duo_wrapped' %}">Duo-Wrapped</a></li>
+            <li><a href="#">Duo-Wrapped</a></li>
             <li><a href="{% url 'profile' %}">{% trans 'Profile' %}</a></li>
             <li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>
             <li><a href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
         </ul>
     </nav>
+    
     <div class="container">
-        <h1>{% trans 'Selected Game:' %} {{ game_type }}</h1>
-        <h2>
-            {% if game_type == 'Guess Top Track' %}
-                {% trans 'Can you guess your #1 most played track?' %}
-            {% elif game_type == 'Guess Top Album' %}
-                {% trans 'Can you guess your #1 most played album?' %}
-            {% else %}
-                {% trans 'Can you guess your #1 most played artist?' %}
-            {% endif %}
-        </h2>
-
-        <div class="input-group">
-            <input type="text" id="guessInput" placeholder="{% trans 'Enter your guess' %}...">
-            <button class="btn-guess" id="submitGuess">{% trans 'Make a Guess' %}</button>
+        <h1 class="text-3xl font-bold mb-6">{% trans 'Duo-Wrapped' %}</h1>
+        {% if invitation_response %}
+            <div>
+                {{ invitation_response }}
+            </div>
+        {% endif %}
+        {% if not duo_partner %}
+        <div class="invite-form">
+            <h2 class="text-xl mb-4">{% trans 'Invite a Friend' %}</h2>
+            <form method="POST" action="{% url 'send_duo_invite' %}">
+                {% csrf_token %}
+                <input type="email" name="friend_email" class="invite-input" placeholder='{% trans "Friend" %}' required>
+                <button type="submit" class="invite-button">{% trans 'Send Invite' %}</button>
+            </form>
         </div>
-        
-        <div id="feedbackMessage" class="feedback"></div>
-        <div id="attemptsLeft" class="attempts"></div>
-
-        <!-- Hidden correct answer -->
-        {% if game_type == 'Guess Top Track' %}
-            <input type="hidden" id="correctAnswer" value="{{ top_tracks.name }}">
-        {% elif game_type == 'Guess Top Album' %}
-            <input type="hidden" id="correctAnswer" value="{{ top_albums.name }}">
-        {% else %}
-            <input type="hidden" id="correctAnswer" value="{{ top_artists.name }}">
+        {% endif %}
+    
+        {% if open_invites %}
+            <p>{% trans 'Open Invites' %}</p>
+            <ul>
+            {% for invite in open_invites %}
+                <li>
+                    <p>{{ invite.sender.username }}</p>
+                    <form method="POST" action="{% url 'accept_duo_invite' invite.sender.email %}">
+                        {% csrf_token %}
+                        <button type="submit" class="invite-button">{% trans 'Accept' %}</button>
+                    </form>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    
+        {% if accepted_invites %}
+            <p>{% trans 'Accepted Invites' %}</p>
+            {% for accepted in accepted_invites %}
+                <p>{{ accepted.sender.username }}</p>
+            
+                <div class="track-table">
+                    <div class="track-column">
+                        <h3>{% trans 'Partner Tracks' %}</h3>
+                        {% if accepted.data.partner_tracks %}
+                            <ul>
+                                {% for track in accepted.data.partner_tracks %}
+                                    <li>
+                                        <div class="top-item" data-track-uri="{{ track.uri }}">
+                                            <span class="top-item-number"># {{ forloop.counter }}</span>
+                                            <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
+                                            <div class="top-item-info">
+                                                <p class="top-item-name">{{ track.name }}</p>
+                                                <p class="top-item-artist">
+                                                    {% for artist in track.artists %}
+                                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>{% trans 'No tracks available.' %}</p>
+                        {% endif %}
+                    </div>
+            
+                    <div class="track-column">
+                        <h3>{% trans 'Partner 2 Tracks' %}</h3>
+                        {% if accepted.data.partner2_tracks %}
+                            <ul>
+                                {% for track in accepted.data.partner2_tracks %}
+                                    <li>
+                                        <div class="top-item" data-track-uri="{{ track.uri }}">
+                                            <span class="top-item-number"># {{ forloop.counter }}</span>
+                                            <img class="top-item-image" src="{{ track.album.images.0.url }}" alt="Track artwork">
+                                            <div class="top-item-info">
+                                                <p class="top-item-name">{{ track.name }}</p>
+                                                <p class="top-item-artist">
+                                                    {% for artist in track.artists %}
+                                                        {{ artist.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>{% trans 'No tracks available.' %}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
         {% endif %}
     </div>
+    
     <button class="theme-toggle" onclick="toggleRegularTheme()">
         {% trans 'Light Mode' %}
     </button>
-    
+
     <script>
-        const TRANSLATIONS = {
-            remaining: '{% trans "Attempts remaining:"|escapejs %}',
-            correct:  '{% trans "Congratulations! That's correct!:"|escapejs %}',
-            try_again:  '{% trans "Try again!"|escapejs %}',
-            game_over:  '{% trans "Game Over! The correct answer was:"|escapejs %}',
-        };
-        const rungame = {{ rungame|default:0 }};
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            const rungame = parseInt('{{ rungame|default:0 }}', 10); // Get rungame value from context
-            const guessInput = document.getElementById('guessInput');
-            const submitButton = document.getElementById('submitGuess');
-            const feedbackMessage = document.getElementById('feedbackMessage');
-            const attemptsLeft = document.getElementById('attemptsLeft');
-            const correctAnswer = document.getElementById('correctAnswer').value;
-            console.log(correctAnswer)
-            
-            let attempts = 3;
-            if (rungame === 0) {
-                // Disable the game
-                feedbackMessage.textContent = 'Game cannot be played due to missing data.';
-                guessInput.disabled = true;
-                submitButton.disabled = true;
-                return; // Exit the function early
-            }
-            updateAttemptsDisplay();
-
-            function updateAttemptsDisplay() {
-                attemptsLeft.textContent = TRANSLATIONS.remaining + ` ${attempts}`;
-            }
-
-            function checkGuess() {
-                const guess = guessInput.value.trim().toLowerCase();
-                const correct = correctAnswer.toLowerCase();
-
-                if (guess === correct) {
-                    feedbackMessage.className = 'feedback success';
-                    feedbackMessage.textContent = TRANSLATIONS.correct + "🎉";
-                    submitButton.disabled = true;
-                    guessInput.disabled = true;
-                } else {
-                    attempts--;
-                    updateAttemptsDisplay();
-                    
-                    if (attempts > 0) {
-                        feedbackMessage.className = 'feedback error';
-                        feedbackMessage.textContent = TRANSLATIONS.try_again;
-                    } else {
-                        feedbackMessage.className = 'feedback error';
-                        feedbackMessage.textContent = TRANSLATIONS.game_over + ` ${correctAnswer}`;
-                        submitButton.disabled = true;
-                        guessInput.disabled = true;
-                    }
-                }
-            }
-
-            submitButton.addEventListener('click', checkGuess);
-            guessInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    checkGuess();
-                }
-            });
-        });
-        
         // Define translations
         const THEME_LABELS = {
             light: '{% trans "Light Mode"|escapejs %}',

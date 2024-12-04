@@ -28,5 +28,8 @@ urlpatterns = [
     path('analysis/', views.analyze_music_taste, name='analysis'),
     path('handle-spotify-data/', views.handle_spotify_data, name='handle-spotify-data'),
     path('prepare-share-content/', views.prepare_share_content, name='prepare_share_content'),
+    path('duo-wrapped/', views.duo_wrapped_view, name='duo_wrapped'),
+    path('send-duo-invite/', views.send_duo_invite, name='send_duo_invite'),
+    path('accept-duo-invite/<str:sender_email>/', views.accept_duo_invite, name='accept_duo_invite'),
 
 ]
